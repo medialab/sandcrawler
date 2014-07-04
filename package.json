@@ -23,6 +23,9 @@
     "url": "https://github.com/medialab/sandcrawler/issues"
   },
   "homepage": "https://github.com/medialab/sandcrawler",
+  "dependencies": {
+    "bothan": "0.0.1"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-closure-linter": "^0.1.4",
