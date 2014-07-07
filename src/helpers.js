@@ -20,16 +20,7 @@ function artoofy(fn) {
   return '(function() {artoo.ready(' + fn.toString() + ');})';
 }
 
-// Asynchronously lazy load something
-function lazyLoad(cond, load, next) {
-  if (!cond)
-    load(next);
-  else
-    next();
-}
-
 module.exports = {
   artoofy: artoofy,
-  injectionFiles: injections,
-  lazy: lazyLoad
+  injectionFiles: injections
 };
