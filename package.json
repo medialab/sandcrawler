@@ -24,7 +24,11 @@
   },
   "homepage": "https://github.com/medialab/sandcrawler",
   "dependencies": {
-    "bothan": "0.0.1"
+    "bothan": "0.0.1",
+    "artoo-js": "0.1.1",
+    "jquery": "^2.1.1",
+    "q": "^1.0.1",
+    "node-uuid": "^1.4.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

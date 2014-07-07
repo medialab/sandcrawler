@@ -7,6 +7,6 @@
 
 var crawler = require('./src/crawler.js');
 
-modules.exports = {
+module.exports = {
   crawl: crawler.crawl
 };

@@ -1,14 +1,22 @@
 /**
- * Sandcrawler crawling methods
- * =============================
+ * Sandcrawler Crawler Methods
+ * ============================
  *
- * Pretty tautological, no?
+ * Pretty tautological, isn't it?
  */
 
-function crawl(url) {
+var taskmaster = require('./taskmaster.js'),
+    helpers = require('./helpers.js');
 
+function crawl(url, scraper) {
+
+  // Returning a promise
+  return taskmaster.runOne(
+    url,
+    helpers.artoofy(scraper)
+  );
 }
 
-modules.exports = {
+module.exports = {
   crawl: crawl
 };
