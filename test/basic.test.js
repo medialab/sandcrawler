@@ -17,21 +17,22 @@ describe('Basic tests', function() {
   });
 
   it('should be possible to scrape from a lone url.', function(done) {
-    // crawler
-    //   .from('http://localhost:8001/hackernews.html')
-    //   .scrape(function() {
 
-    //     // JawaScript
-    //     artoo.scrape('td.title:has(a):not(:last)', {
-    //       title: {sel: 'a'},
-    //       url: {sel: 'a', attr: 'href'}
-    //     }, artoo.done);
+    crawler
+      .from('http://localhost:8001/basic.html')
+      .scrape(function() {
 
-    //   })
-    //   .then(function(data) {
-    //     console.log(data);
-    //     done();
-    //   });
-    setTimeout(done, 1000);
+        console.log('in-page');
+        // JawaScript
+        artoo.scrape('td.title:has(a):not(:last)', {
+          title: {sel: 'a'},
+          url: {sel: 'a', attr: 'href'}
+        }, artoo.done);
+
+      })
+      .then(function(data) {
+        console.log(data);
+        done();
+      });
   });
 });

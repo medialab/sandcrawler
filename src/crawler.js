@@ -37,7 +37,12 @@ function Crawler(spy) {
   // Properties
   this.spy = spy;
   this.spy.on('phantom:log', function(data) {
-    console.log(data);
+    console.log('log:', data);
+  });
+
+  // TODO: possibility to retrieve stack
+  this.spy.on('phantom:error', function(data) {
+    console.log('error:', data);
   });
   // TODO: bind on of spy on the crawler itself
 }

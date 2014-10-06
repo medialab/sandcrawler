@@ -5,7 +5,10 @@
  * Light boostrap on phantomjs' webpage to provide for easy logging in the
  * parent process.
  */
-var webpage = require('webpage');
+
+// TODO: find another way to handle exception than with console.error
+var webpage = require('webpage'),
+    settings = null;
 
 // Constants
 var EVENTS = [
@@ -34,18 +37,19 @@ function capitalize(s) {
 }
 
 // Boostrapping class
-function Bootstrap(page) {
+function Bootstrap() {
+  var self = this;
 
   // Private
   listeners = {};
 
   // Binding new callbacks
   function bindCallback(e) {
-    page['on' + capitalize(e)] = function() {
+    self['on' + capitalize(e)] = function() {
       var args = Array.prototype.slice.call(arguments);
 
       listeners[e].forEach(function(fn) {
-        fn.apply(page, args);
+        fn.apply(self, args);
       });
     };
   }
@@ -57,16 +61,27 @@ function Bootstrap(page) {
   });
 
   // Adding methods
-  page.on = function(name, fn) {
-    if (!(name in EVENTS))
-      throw 'bothan.phantom.page.on: unknown event "' + name + '".';
+  this.on = function(name, fn) {
+    if (!~EVENTS.indexOf(name))
+      return console.error('bothan.phantom.page.on: unknown event "' + name + '".');
 
     listeners[name].push(fn);
+
+    return this;
+  };
+
+  // TODO: inject jQuery safely
+  this.injectArtoo = function() {
+    this.injectJs(settings.paths.jquery);
+    this.injectJs(settings.paths.artoo);
   };
 }
 
 // Exporting an API similar to webpage's
 module.exports = {
+  setup: function(params) {
+    settings = params;
+  },
   create: function() {
     var page = webpage.create();
 
@@ -75,5 +90,5 @@ module.exports = {
 
     // Returning the modified page
     return page;
-  };
+  }
 };

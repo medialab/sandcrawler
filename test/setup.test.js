@@ -11,7 +11,13 @@ before(function() {
 
   // Launching server
   test.app = express();
-  test.app.use(express.static(__dirname + '/resources'));
+  test.app.use(express.static(__dirname + '/resource'));
 
-  test.app.listen(8001);
+  test.server = test.app.listen(8001);
+});
+
+after(function() {
+
+  // Closing serve
+  test.server.close();
 });
