@@ -4,7 +4,7 @@
   "description": "Scrape front-end, automatize back-end.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -R spec"
   },
   "repository": {
     "type": "git",
@@ -24,15 +24,8 @@
   },
   "homepage": "https://github.com/medialab/sandcrawler",
   "dependencies": {
-    "bothan": "0.0.1",
-    "artoo-js": "0.1.1",
-    "jquery": "^2.1.1",
-    "q": "^1.0.1",
-    "node-uuid": "^1.4.1"
-  },
-  "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-closure-linter": "^0.1.4",
-    "grunt-contrib-jshint": "^0.10.0"
+    "jquery": "~2.1.1",
+    "artoo-js": "~0.1.1",
+    "bothan": "~0.0.1"
   }
 }
