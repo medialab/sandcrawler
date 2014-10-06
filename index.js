@@ -2,7 +2,9 @@
  * Sandcrawler Public Interface
  * =============================
  *
- * Exports Sandcrawler main methods.
+ * Exposes sandcrawler's API.
  */
 
-module.exports = 'wip';
+module.exports = {
+  create: require('./src/crawler.js')
+};
