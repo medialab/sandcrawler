@@ -38,9 +38,8 @@ function Crawler(spy) {
   this.spy = spy;
 
   // Bootstrapping spy's event emitter
-  this.on = this.spy.on;
-  this.once = this.spy.once;
-  this.off = this.spy.off;
+  this.on = this.spy.on.bind(this.spy);
+  this.once = this.spy.once.bind(this.spy);
 }
 
 // Prototype

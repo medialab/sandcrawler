@@ -29,6 +29,7 @@ function Task(spy, feed) {
   // Callbacks
   this.onProgress = null;
   this.onEnd = null;
+  this.onFail = null;
 
   // Listeners
   this.spy.messenger.on('page:log', function(data) {
@@ -38,28 +39,46 @@ function Task(spy, feed) {
     self.emit('page:log', data);
   });
 
+  this.spy.messenger.on('page:error', function(data) {
+    if (data.taskId !== self.id)
+      return;
+
+    self.emit('page:error', data);
+  });
+
   // Methods
   this.start = function() {
+    var timeout = this.timeout || config.timeout;
 
     // Notifying the phantom child
     this.spy.messenger
       .request(
         'scrape',
-        {id: this.id, url: this.feed, scraper: this.scraper},
-        {timeout: this.timeout || config.timeout}
+        {
+          id: this.id,
+          url: this.feed,
+          scraper: this.scraper,
+          timeout: timeout
+        },
+        {timeout: timeout}
       )
-      .then(function(data) {
+      .then(function(response) {
         if (typeof self.onProgress === 'function') {
 
           // TODO: add arguments to callback
-          self.onProgress(data);
+          self.onProgress(response.data);
         }
 
         // TODO: temp, move elsewhere
         if (typeof self.onEnd === 'function') {
 
           // TODO: add arguments to callback
-          self.onEnd(data);
+          self.onEnd(response.data);
+        }
+      })
+      .fail(function(err) {
+        if (typeof self.onFail === 'function') {
+          return self.onFail();
         }
       });
   };
@@ -89,10 +108,17 @@ Task.prototype.inject = function(scraper) {
 
 Task.prototype.progress = function(fn) {
   this.onProgress = fn;
+  return this;
 };
 
 Task.prototype.then = function(fn) {
   this.onEnd = fn;
+  return this;
+};
+
+Task.prototype.fail = function(fn) {
+  this.onFail = fn;
+  return this;
 };
 
 module.exports = Task;

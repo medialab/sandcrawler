@@ -24,6 +24,11 @@ crawler.from(url,s params)
     .on
     .fail
 
+    .config(generic)
+    .timeout(onConfig, etc..)
+
+// all this must be returnable by url object to be merged
+
 crawler.log
 ```
 
