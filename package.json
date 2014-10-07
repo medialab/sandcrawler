@@ -27,7 +27,8 @@
     "jquery": "~2.1.1",
     "artoo-js": "~0.1.1",
     "bothan": "~0.0.1",
-    "typology": "~0.1.0"
+    "typology": "~0.1.0",
+    "uuid": "~2.0.1"
   },
   "devDependencies": {
     "mocha": "~1.21.4",

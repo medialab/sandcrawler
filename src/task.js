@@ -10,7 +10,8 @@ var types = require('typology'),
     helpers = require('./helpers.js'),
     config = require('../config.json'),
     EventEmitter = require('events').EventEmitter,
-    util = require('util');
+    util = require('util'),
+    uuid = require('uuid');
 
 function Task(spy, feed) {
   var self = this;
@@ -23,17 +24,28 @@ function Task(spy, feed) {
   this.feed = feed;
   this.scraper = null;
   this.timeout = null;
+  this.id = 'Task[' + uuid.v4() + ']';
 
   // Callbacks
   this.onProgress = null;
   this.onEnd = null;
 
+  // Listeners
+  this.spy.messenger.on('page:log', function(data) {
+    if (data.taskId !== self.id)
+      return;
+
+    self.emit('page:log', data);
+  });
+
   // Methods
   this.start = function() {
+
+    // Notifying the phantom child
     this.spy.messenger
       .request(
         'scrape',
-        {url: this.feed, scraper: this.scraper},
+        {id: this.id, url: this.feed, scraper: this.scraper},
         {timeout: this.timeout || config.timeout}
       )
       .then(function(data) {
@@ -53,7 +65,7 @@ function Task(spy, feed) {
   };
 }
 
-util.inherits(EventEmitter, Task);
+util.inherits(Task, EventEmitter);
 
 // Prototype
 Task.prototype.inject = function(scraper) {
@@ -72,6 +84,8 @@ Task.prototype.inject = function(scraper) {
 
   return this;
 };
+
+// TODO: injectSync
 
 Task.prototype.progress = function(fn) {
   this.onProgress = fn;

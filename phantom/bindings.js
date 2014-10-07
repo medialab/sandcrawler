@@ -29,15 +29,19 @@ module.exports = function(messenger, params) {
         // On retrieve data, we send back to parent
         if (msg.header = 'done')
           reply(msg.data);
+
+        // Closing
+        return page.close();
       });
 
       // On page console message
-      page.on('consoleMessage', function(msg, lineNum, sourceId) {
+      page.on('consoleMessage', function(data, lineNum, sourceId) {
 
         // Sending back to parent
         messenger.send('page:log', {
+          taskId: msg.id,
           url: page.url,
-          message: msg,
+          message: data,
           line: lineNum,
           source: sourceId
         });

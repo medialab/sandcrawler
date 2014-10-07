@@ -39,4 +39,20 @@ describe('Basic tests', function() {
         done();
       });
   });
+
+  it('should be possible to scrape to the page log.', function(done) {
+
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .inject(function() {
+        console.log('Hello world!');
+        artoo.done();
+      })
+      .on('page:log', function(data) {
+        assert(data.url === 'http://localhost:8001/basic.html');
+      })
+      .then(function() {
+        done();
+      });
+  });
 });
