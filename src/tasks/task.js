@@ -7,13 +7,14 @@
  * outcome.
  */
 var types = require('typology'),
-    helpers = require('./helpers.js'),
-    config = require('../config.json'),
+    helpers = require('../helpers.js'),
+    config = require('../../config.json'),
     EventEmitter = require('events').EventEmitter,
     util = require('util'),
     uuid = require('uuid');
 
-function Task(spy, feed) {
+// Abstract class
+function Task(spy) {
   var self = this;
 
   // Extending event emitter
@@ -21,9 +22,7 @@ function Task(spy, feed) {
 
   // Properties
   this.spy = spy;
-  this.feed = feed;
   this.scraper = null;
-  this.timeout = null;
   this.id = 'Task[' + uuid.v4() + ']';
 
   // Listeners
@@ -40,31 +39,6 @@ function Task(spy, feed) {
 
     self.emit('page:error', data);
   });
-
-  // Methods
-  this.start = function() {
-    var timeout = this.timeout || config.timeout;
-
-    // Notifying the phantom child
-    this.spy.messenger
-      .request(
-        'scrape',
-        {
-          id: this.id,
-          url: this.feed,
-          scraper: this.scraper,
-          timeout: timeout
-        },
-        {timeout: timeout}
-      )
-      .then(function(response) {
-        self.emit('task:process', response.data);
-        self.emit('task:end', response.data);
-      })
-      .fail(function(err) {
-        self.emit('task:fail', {err: err});
-      });
-  };
 }
 
 util.inherits(Task, EventEmitter);

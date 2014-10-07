@@ -9,7 +9,7 @@
 var bothan = require('bothan'),
     path = require('path'),
     artoo = require('artoo-js'),
-    Task = require('./task.js');
+    tasks = require('./tasks');
 
 // Constructor
 function create(params, callback) {
@@ -45,7 +45,8 @@ function Crawler(spy) {
 // Prototype
 // TODO: multi and iterator and object list queue
 Crawler.prototype.task = function(feed) {
-  return new Task(this.spy, feed);
+  if (typeof feed === 'string')
+    return new tasks.SingleUrl(this.spy, feed);
 };
 
 // TODO: middleware system

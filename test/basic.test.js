@@ -10,7 +10,16 @@ var assert = require('assert'),
 describe('Basic tests', function() {
   this.timeout(3000);
 
+  // Crawler used throughout the tests
   var crawler = null;
+
+  // Validation data
+  var simpleList = [
+    'http://nicesite.com',
+    'http://awesomesite.com',
+    'http://prettysite.com',
+    'http://unknownsite.com'
+  ];
 
   before(function(done) {
     sandcrawler.create({}, function(err, instance) {
@@ -26,18 +35,11 @@ describe('Basic tests', function() {
   });
 
   it('should be possible to scrape from a lone url.', function(done) {
-    var simpleList = [
-      'http://nicesite.com',
-      'http://awesomesite.com',
-      'http://prettysite.com',
-      'http://unknownsite.com'
-    ];
 
     crawler
       .task('http://localhost:8001/basic.html')
       .inject(function() {
 
-        // JawaScript
         var data = artoo.scrape('.url-list a', 'href');
         artoo.done(data);
       })
@@ -77,4 +79,21 @@ describe('Basic tests', function() {
         done();
       });
   });
+
+  // it('should be possible to scrape a simple list of urls.', function(done) {
+
+  //   crawler
+  //     .task([
+  //       'http://localhost:8001/basic.html',
+  //       'http://localhost:8001/basic.html'
+  //     ])
+  //     .inject(function() {
+  //       var data = artoo.scrape('.url-list a', 'href');
+  //       artoo.done(data);
+  //     })
+  //     .process(function(data) {
+  //       console.log(data);
+  //     })
+  //     .then(done);
+  // });
 });
