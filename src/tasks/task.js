@@ -25,11 +25,9 @@ function Task(spy) {
   this.spy = spy;
   this.scraper = null;
   this.id = 'Task[' + uuid.v4() + ']';
+  this.settings = config;
 
-  // TODO: config utilities, and provide for config in constructor
-  this.config = {};
-
-  // Listeners
+  // Spy Listeners
   this.spy.messenger.on('page:log', function(data) {
     if (data.taskId !== self.id)
       return;
@@ -42,6 +40,29 @@ function Task(spy) {
       return;
 
     self.emit('page:error', data);
+  });
+
+  // Event listeners
+  this.on('task:scrape', function(feed) {
+
+    // Asking the phantom child to scrape the given page
+    this.spy.messenger
+      .request(
+        'scrape',
+        {
+          id: this.id,
+          url: this.url,
+          scraper: this.scraper,
+          timeout: this.settings.timeout
+        },
+        {timeout: this.settings.timeout}
+      )
+      .then(function(response) {
+        self.emit('task:process', response.data);
+      })
+      .fail(function(err) {
+        self.emit('task:fail', {err: err});
+      });
   });
 }
 
@@ -59,7 +80,7 @@ Task.prototype.inject = function(scraper) {
   this.scraper = helpers.wrapForPhantom(scraper);
 
   // Launching
-  this.start();
+  this.emit('task:start');
 
   return this;
 };
@@ -70,11 +91,15 @@ Task.prototype.injectScript = function(scraperPath) {
   this.scraper = helpers.wrapForPhantom(scraper);
 
   // Launching
-  this.start();
+  this.emit('task:start');
+
   return this;
 };
 
-// TODO: injectSync
+Task.prototype.config = function(o) {
+  this.settings = helpers.extend(o, this.settings);
+  return this;
+};
 
 Task.prototype.progress = function(fn) {
   this.on('task:progress', fn);

@@ -29,6 +29,7 @@ crawler.from(url,s params)
 
 // all this must be returnable by url object to be merged
 // cache engine easy-peasy
+// Inject synchronous
 
 crawler.log
 ```

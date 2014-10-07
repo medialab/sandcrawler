@@ -1,6 +1,6 @@
 /**
- * Sandcrawler Task Class
- * =======================
+ * Sandcrawler Single Url Task Class
+ * ==================================
  *
  * This task only targets a single url and is therefore very simple.
  */
@@ -18,30 +18,15 @@ function SingleUrlTask(spy, url) {
   // Properties
   this.url = url;
 
-  // Methods
-  this.start = function() {
+  // Event listeners
+  this.on('task:start', function() {
+    this.emit('task:scrape', this.url);
+  });
 
-    // Notifying the phantom child
-    // TODO: abstract to __scrape
-    this.spy.messenger
-      .request(
-        'scrape',
-        {
-          id: this.id,
-          url: this.url,
-          scraper: this.scraper,
-          timeout: 2000
-        },
-        {timeout: 2000}
-      )
-      .then(function(response) {
-        self.emit('task:process', response.data);
-        self.emit('task:end', response.data);
-      })
-      .fail(function(err) {
-        self.emit('task:fail', {err: err});
-      });
-  };
+  // TODO: process should include the url as data
+  this.once('task:process', function(data) {
+    this.emit('task:end', data);
+  });
 }
 
 util.inherits(SingleUrlTask, Task);

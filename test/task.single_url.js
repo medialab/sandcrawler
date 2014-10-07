@@ -92,6 +92,7 @@ describe('Single Url Task', function() {
 
     crawler
       .task('http://localhost:8001/basic.html')
+      .config({timeout: 100})
       .inject(function() {
         throw Error('test');
       })
