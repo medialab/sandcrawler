@@ -63,7 +63,7 @@ function Bootstrap() {
   // Adding methods
   this.on = function(name, fn) {
     if (!~EVENTS.indexOf(name))
-      return console.error('bothan.phantom.page.on: unknown event "' + name + '".');
+      throw Error('bothan.phantom.page.on: unknown event "' + name + '".');
 
     listeners[name].push(fn);
 

@@ -4,7 +4,8 @@
  *
  * Basic scraping tests to scaffold the API.
  */
-var sandcrawler = require('../index.js');
+var assert = require('assert'),
+    sandcrawler = require('../index.js');
 
 describe('Basic tests', function() {
   var crawler = null;
@@ -17,21 +18,24 @@ describe('Basic tests', function() {
   });
 
   it('should be possible to scrape from a lone url.', function(done) {
+    var simpleList = [
+      'http://nicesite.com',
+      'http://awesomesite.com',
+      'http://prettysite.com',
+      'http://unknownsite.com'
+    ];
 
     crawler
-      .from('http://localhost:8001/basic.html')
+      .task('http://localhost:8001/basic.html')
       .inject(function() {
 
-        console.log('in-page');
         // JawaScript
-        artoo.scrape('td.title:has(a):not(:last)', {
-          title: {sel: 'a'},
-          url: {sel: 'a', attr: 'href'}
-        }, artoo.done);
-
+        var data = artoo.scrape('.url-list a', 'href');
+        artoo.done(data);
       })
       .then(function(data) {
-        console.log(data);
+
+        assert.deepEqual(data, simpleList);
         done();
       });
   });

@@ -10,6 +10,10 @@ The user must either use basic sandcrawler methods or use a crawler to perform f
 
 One crawler is bound to one url.
 
+One crawler should be able to reset its bound phantom.
+
+Possibility to pass settings to artoo
+
 ```js
 var crawler = new sandcrawler([spy]);
 

@@ -23,18 +23,14 @@ module.exports = function(messenger, params) {
       // Injecting
       page.injectArtoo();
 
-      page.on('callback', function(data) {
-        console.log(data);
+      page.on('callback', function(msg) {
+
+        // On retrieve data, we send back to parent
+        if (msg.header = 'done')
+          reply(msg.data);
       });
 
-      page.on('consoleMessage', function(msg) {
-        console.log(msg);
-      });
-
-      page.on('error', function(err) {
-        console.log(err);
-      });
-
+      // Evaluating scraper
       page.evaluateAsync(msg.scraper);
     });
   });

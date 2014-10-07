@@ -53,11 +53,11 @@ Scraper.prototype.inject = function(scraper) {
   if (this.scraper)
     throw 'sandcrawler.inject: scraper already defined.';
 
-  if (!types.check(fn, 'string|function'))
+  if (!types.check(scraper, 'string|function'))
     throw 'sandcrawler.inject: wrong argument (must be function or string).';
 
   // Closure
-  if (typeof fn === 'function')
+  if (typeof scraper === 'function')
     this.scraper = helpers.wrapForPhantom(scraper);
 
   // Launching

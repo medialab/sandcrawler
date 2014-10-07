@@ -49,7 +49,7 @@ function Crawler(spy) {
 
 // Prototype
 // TODO: multi and iterator and object list queue
-Crawler.prototype.from = function(feed) {
+Crawler.prototype.task = function(feed) {
   return new Scraper(this.spy, feed);
 };
 
