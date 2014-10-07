@@ -23,11 +23,24 @@ module.exports = function(messenger, params) {
       // Injecting
       page.injectArtoo();
 
+      // On page callback
       page.on('callback', function(msg) {
 
         // On retrieve data, we send back to parent
         if (msg.header = 'done')
           reply(msg.data);
+      });
+
+      // On page console message
+      page.on('consoleMessage', function(msg, lineNum, sourceId) {
+
+        // Sending back to parent
+        messenger.send('page:log', {
+          url: page.url,
+          message: msg,
+          line: lineNum,
+          source: sourceId
+        });
       });
 
       // Evaluating scraper

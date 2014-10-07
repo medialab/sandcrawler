@@ -9,7 +9,7 @@
 var bothan = require('bothan'),
     path = require('path'),
     artoo = require('artoo-js'),
-    Scraper = require('./scraper.js');
+    Task = require('./task.js');
 
 // Constructor
 function create(params, callback) {
@@ -36,21 +36,17 @@ function Crawler(spy) {
 
   // Properties
   this.spy = spy;
-  this.spy.on('phantom:log', function(data) {
-    console.log('log:', data);
-  });
 
-  // TODO: possibility to retrieve stack
-  this.spy.on('phantom:error', function(data) {
-    console.log('error:', data);
-  });
-  // TODO: bind on of spy on the crawler itself
+  // Bootstrapping spy's event emitter
+  this.on = this.spy.on;
+  this.once = this.spy.once;
+  this.off = this.spy.off;
 }
 
 // Prototype
 // TODO: multi and iterator and object list queue
 Crawler.prototype.task = function(feed) {
-  return new Scraper(this.spy, feed);
+  return new Task(this.spy, feed);
 };
 
 // TODO: middleware system
