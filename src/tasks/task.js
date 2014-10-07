@@ -26,6 +26,9 @@ function Task(spy) {
   this.scraper = null;
   this.id = 'Task[' + uuid.v4() + ']';
 
+  // TODO: config utilities, and provide for config in constructor
+  this.config = {};
+
   // Listeners
   this.spy.messenger.on('page:log', function(data) {
     if (data.taskId !== self.id)

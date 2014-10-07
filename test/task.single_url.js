@@ -1,8 +1,9 @@
 /**
- * Sandcrawler Basic Tests
- * ========================
+ * Sandcrawler Single Url Task Tests
+ * ==================================
  *
- * Basic scraping tests to scaffold the API.
+ * Basic tests where we want to scrape the content of single urls. Useful to
+ * scaffold the basics of the API.
  */
 var assert = require('assert'),
     sandcrawler = require('../index.js');
