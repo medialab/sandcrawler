@@ -73,6 +73,8 @@ describe('Basic tests', function() {
         assert(data.url === 'http://localhost:8001/basic.html');
         assert(data.message === 'Error: test');
       })
-      .fail(done);
+      .fail(function(err) {
+        done();
+      });
   });
 });

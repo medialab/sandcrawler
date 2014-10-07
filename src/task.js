@@ -26,11 +26,6 @@ function Task(spy, feed) {
   this.timeout = null;
   this.id = 'Task[' + uuid.v4() + ']';
 
-  // Callbacks
-  this.onProgress = null;
-  this.onEnd = null;
-  this.onFail = null;
-
   // Listeners
   this.spy.messenger.on('page:log', function(data) {
     if (data.taskId !== self.id)
@@ -63,23 +58,11 @@ function Task(spy, feed) {
         {timeout: timeout}
       )
       .then(function(response) {
-        if (typeof self.onProgress === 'function') {
-
-          // TODO: add arguments to callback
-          self.onProgress(response.data);
-        }
-
-        // TODO: temp, move elsewhere
-        if (typeof self.onEnd === 'function') {
-
-          // TODO: add arguments to callback
-          self.onEnd(response.data);
-        }
+        self.emit('task:process', response.data);
+        self.emit('task:end', response.data);
       })
       .fail(function(err) {
-        if (typeof self.onFail === 'function') {
-          return self.onFail();
-        }
+        self.emit('task:fail', {err: err});
       });
   };
 }
@@ -107,17 +90,17 @@ Task.prototype.inject = function(scraper) {
 // TODO: injectSync
 
 Task.prototype.progress = function(fn) {
-  this.onProgress = fn;
+  this.on('task:progress', fn);
   return this;
 };
 
 Task.prototype.then = function(fn) {
-  this.onEnd = fn;
+  this.on('task:end', fn);
   return this;
 };
 
 Task.prototype.fail = function(fn) {
-  this.onFail = fn;
+  this.on('task:fail', fn);
   return this;
 };
 

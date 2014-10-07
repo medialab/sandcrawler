@@ -28,6 +28,7 @@ crawler.from(url,s params)
     .timeout(onConfig, etc..)
 
 // all this must be returnable by url object to be merged
+// cache engine easy-peasy
 
 crawler.log
 ```
