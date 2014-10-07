@@ -11,7 +11,8 @@ var types = require('typology'),
     config = require('../../config.json'),
     EventEmitter = require('events').EventEmitter,
     util = require('util'),
-    uuid = require('uuid');
+    uuid = require('uuid'),
+    fs = require('fs');
 
 // Abstract class
 function Task(spy) {
@@ -52,8 +53,7 @@ Task.prototype.inject = function(scraper) {
     throw 'sandcrawler.inject: wrong argument (must be function or string).';
 
   // Closure
-  if (typeof scraper === 'function')
-    this.scraper = helpers.wrapForPhantom(scraper);
+  this.scraper = helpers.wrapForPhantom(scraper);
 
   // Launching
   this.start();

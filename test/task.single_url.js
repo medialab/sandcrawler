@@ -7,7 +7,7 @@
 var assert = require('assert'),
     sandcrawler = require('../index.js');
 
-describe('Basic tests', function() {
+describe('Single Url Task', function() {
   this.timeout(3000);
 
   // Crawler used throughout the tests
@@ -50,7 +50,19 @@ describe('Basic tests', function() {
       });
   });
 
-  it('should be possible to scrape to the page log.', function(done) {
+  it('should be possible to provide a string as the scraper.', function(done) {
+
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .inject("var data = artoo.scrape('.url-list a', 'href'); artoo.done(data);")
+      .then(function(data) {
+
+        assert.deepEqual(data, simpleList);
+        done();
+      });
+  });
+
+  it('should be possible to subscribe to the page log.', function(done) {
 
     crawler
       .task('http://localhost:8001/basic.html')
@@ -79,21 +91,4 @@ describe('Basic tests', function() {
         done();
       });
   });
-
-  // it('should be possible to scrape a simple list of urls.', function(done) {
-
-  //   crawler
-  //     .task([
-  //       'http://localhost:8001/basic.html',
-  //       'http://localhost:8001/basic.html'
-  //     ])
-  //     .inject(function() {
-  //       var data = artoo.scrape('.url-list a', 'href');
-  //       artoo.done(data);
-  //     })
-  //     .process(function(data) {
-  //       console.log(data);
-  //     })
-  //     .then(done);
-  // });
 });

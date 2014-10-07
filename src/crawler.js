@@ -8,6 +8,7 @@
  */
 var bothan = require('bothan'),
     path = require('path'),
+    types = require('typology'),
     artoo = require('artoo-js'),
     tasks = require('./tasks');
 
@@ -45,8 +46,10 @@ function Crawler(spy) {
 // Prototype
 // TODO: multi and iterator and object list queue
 Crawler.prototype.task = function(feed) {
-  if (typeof feed === 'string')
+  if (types.get(feed) === 'string')
     return new tasks.SingleUrl(this.spy, feed);
+  else (types.get(feed) === 'array')
+    return;
 };
 
 // TODO: middleware system
