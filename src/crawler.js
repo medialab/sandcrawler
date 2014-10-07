@@ -53,6 +53,7 @@ Crawler.prototype.from = function(feed) {
   return new Scraper(this.spy, feed);
 };
 
+// TODO: middleware system
 Crawler.prototype.use = function(middleware) {
 
 };

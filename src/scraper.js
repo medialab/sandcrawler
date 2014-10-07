@@ -49,16 +49,16 @@ function Scraper(spy, feed) {
 }
 
 // Prototype
-Scraper.prototype.scrape = function(fn) {
+Scraper.prototype.inject = function(scraper) {
   if (this.scraper)
-    throw 'sandcrawler.scrape: scraper already defined.';
+    throw 'sandcrawler.inject: scraper already defined.';
 
   if (!types.check(fn, 'string|function'))
-    throw 'sandcrawler.scrape: wrong argument (must be function or string).';
+    throw 'sandcrawler.inject: wrong argument (must be function or string).';
 
   // Closure
   if (typeof fn === 'function')
-    this.scraper = helpers.wrapForPhantom(fn);
+    this.scraper = helpers.wrapForPhantom(scraper);
 
   // Launching
   this.start();

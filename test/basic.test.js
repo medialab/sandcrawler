@@ -20,7 +20,7 @@ describe('Basic tests', function() {
 
     crawler
       .from('http://localhost:8001/basic.html')
-      .scrape(function() {
+      .inject(function() {
 
         console.log('in-page');
         // JawaScript

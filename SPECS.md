@@ -14,6 +14,7 @@ One crawler is bound to one url.
 var crawler = new sandcrawler([spy]);
 
 crawler.from(url,s params)
+	.inject/.parse
     .process
     .then
     .on
