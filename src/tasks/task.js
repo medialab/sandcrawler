@@ -61,6 +61,16 @@ Task.prototype.inject = function(scraper) {
   return this;
 };
 
+Task.prototype.injectScript = function(scraperPath) {
+  var scraper = fs.readFileSync(scraperPath, 'utf-8');
+
+  this.scraper = helpers.wrapForPhantom(scraper);
+
+  // Launching
+  this.start();
+  return this;
+};
+
 // TODO: injectSync
 
 Task.prototype.progress = function(fn) {

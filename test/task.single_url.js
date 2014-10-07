@@ -62,6 +62,17 @@ describe('Single Url Task', function() {
       });
   });
 
+  it('should be possible to provide a file as the scraper.', function(done) {
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .injectScript(__dirname + '/resource/basic_scraper.js')
+      .then(function(data) {
+
+        assert.deepEqual(data, simpleList);
+        done();
+      });
+  });
+
   it('should be possible to subscribe to the page log.', function(done) {
 
     crawler
