@@ -159,6 +159,30 @@ describe('Single Url Task', function() {
       });
   });
 
+  it('should be possible to scrape a real-life page.', function(done) {
+
+    crawler
+      .task('http://localhost:8001/transparency1.html')
+      .inject(function() {
+        var data = $('.decisions').scrape({
+          title: {
+            sel: '.sous-titre > h3'
+          },
+          date: {
+            sel: '.date'
+          },
+          text: {
+            sel: '.date + div'
+          }
+        });
+        artoo.done(data);
+      })
+      .then(function(data) {
+        assert(data.length === 15);
+        done();
+      });
+  });
+
   after(function() {
     crawler.spy.kill();
   });

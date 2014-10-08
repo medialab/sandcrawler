@@ -37,7 +37,7 @@ function Task(spy) {
   });
 
   this.spy.messenger.on('page:error', function(msg) {
-    if (data.taskId !== self.id)
+    if (msg.taskId !== self.id)
       return;
 
     self.emit('page:error', msg.url, msg.data.message);
