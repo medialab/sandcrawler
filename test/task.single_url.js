@@ -136,8 +136,8 @@ describe('Single Url Task', function() {
         console.log('Hello world!');
         artoo.done();
       })
-      .on('page:log', function(data) {
-        assert(data.url === 'http://localhost:8001/basic.html');
+      .on('page:log', function(url, message) {
+        assert(url === 'http://localhost:8001/basic.html');
       })
       .then(done);
   });
@@ -150,9 +150,9 @@ describe('Single Url Task', function() {
       .inject(function() {
         throw Error('test');
       })
-      .on('page:error', function(data) {
-        assert(data.url === 'http://localhost:8001/basic.html');
-        assert(data.message === 'Error: test');
+      .on('page:error', function(url, message) {
+        assert(url === 'http://localhost:8001/basic.html');
+        assert(message === 'Error: test');
       })
       .fail(function(err) {
         done();

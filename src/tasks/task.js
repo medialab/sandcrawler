@@ -12,7 +12,8 @@ var types = require('typology'),
     EventEmitter = require('events').EventEmitter,
     util = require('util'),
     uuid = require('uuid'),
-    fs = require('fs');
+    fs = require('fs'),
+    _ = require('lodash');
 
 // Abstract class
 function Task(spy) {
@@ -28,25 +29,25 @@ function Task(spy) {
   this.settings = config;
 
   // Spy Listeners
-  this.spy.messenger.on('page:log', function(data) {
-    if (data.taskId !== self.id)
+  this.spy.messenger.on('page:log', function(msg) {
+    if (msg.taskId !== self.id)
       return;
 
-    self.emit('page:log', data);
+    self.emit('page:log', msg.url, msg.data.message);
   });
 
-  this.spy.messenger.on('page:error', function(data) {
+  this.spy.messenger.on('page:error', function(msg) {
     if (data.taskId !== self.id)
       return;
 
-    self.emit('page:error', data);
+    self.emit('page:error', msg.url, msg.data.message);
   });
 
   // Event listeners
-  this.on('page:validate', function(data) {
+  this.on('page:validate', function(response) {
 
     // As a normal rule, we do not validate the received data
-    this.emit('page:process', data);
+    this.emit('page:process', response);
   });
 
   this.on('page:scrape', function(feed) {
@@ -64,10 +65,10 @@ function Task(spy) {
         {timeout: this.settings.timeout}
       )
       .then(function(response) {
-        self.emit('page:validate', response.data);
+        self.emit('page:validate', _.omit(response, 'taskId'));
       })
       .fail(function(err) {
-        self.emit('page:fail', new Error(err));
+        self.emit('page:fail', new Error('timeout'));
       })
       .done();
   });
@@ -115,16 +116,16 @@ Task.prototype.validate = function(spec) {
     throw Error('sandcrawler.task.validate: wrong argument.');
 
   this.removeAllListeners('page:validate');
-  this.on('page:validate', function(data) {
+  this.on('page:validate', function(response) {
     var valid;
 
     if (typeof spec === 'function')
-      valid = spec.call(this, data);
+      valid = spec.call(this, response.data);
     else
-      valid = types.check(data, spec);
+      valid = types.check(response.data, spec);
 
     if (!!valid)
-      return self.emit('page:process', data);
+      return self.emit('page:process', response);
     else
       return self.emit('page:fail', new Error('invalid-data'));
   });
@@ -133,7 +134,10 @@ Task.prototype.validate = function(spec) {
 };
 
 Task.prototype.process = function(fn) {
-  this.on('page:process', fn);
+  var self = this;
+  this.on('page:process', function(response) {
+    fn.call(self, response.err || null, response);
+  });
   return this;
 };
 

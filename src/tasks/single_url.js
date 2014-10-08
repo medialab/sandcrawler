@@ -27,10 +27,8 @@ function SingleUrlTask(spy, url) {
     this.emit('task:fail', data);
   });
 
-  // TODO: process should include the url as data
-  // TODO: process should include a potential error
-  this.once('page:process', function(data) {
-    this.emit('task:end', data);
+  this.once('page:process', function(response) {
+    this.emit('task:end', response.data);
   });
 }
 

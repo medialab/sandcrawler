@@ -13,17 +13,26 @@ module.exports = function(messenger, params) {
   webpage.setup(params);
 
   // Receiving scraping order
-  messenger.on('scrape', function(msg, reply) {
+  messenger.on('scrape', function(order, reply) {
 
     // Setting fulfilment timeout
     var timeout = setTimeout(function() {
       return page.close();
-    }, msg.timeout || 2000);
+    }, order.timeout || 2000);
 
     // Creating webpage
     var page = webpage.create();
 
-    page.open(msg.url, function(status) {
+    page.open(order.url, function(status) {
+
+      // Wrapping response helper
+      function wrapResponse(o) {
+        return {
+          data: o,
+          url: page.url,
+          taskId: order.id
+        };
+      }
 
       // Injecting
       page.injectArtoo();
@@ -37,39 +46,35 @@ module.exports = function(messenger, params) {
         clearTimeout(timeout);
 
         // On retrieve data, we send back to parent
-        reply({data: msg.data});
+        reply(wrapResponse(msg.data));
 
         // Closing
         return page.close();
       });
 
       // On page console message
-      page.on('consoleMessage', function(data, lineNum, sourceId) {
+      page.on('consoleMessage', function(message, lineNum, sourceId) {
 
         // Sending back to parent
-        messenger.send('page:log', {
-          taskId: msg.id,
-          url: page.url,
-          message: data,
+        messenger.send('page:log', wrapResponse({
+          message: message,
           line: lineNum,
           source: sourceId
-        });
+        }));
       });
 
       // On page error
-      page.on('error', function(data, trace) {
+      page.on('error', function(message, trace) {
 
         // Sending back to parent
-        messenger.send('page:error', {
-          taskId: msg.id,
-          url: page.url,
-          message: data,
+        messenger.send('page:error', wrapResponse({
+          message: message,
           trace: trace
-        });
+        }));
       });
 
       // Evaluating scraper
-      page.evaluateAsync(msg.scraper);
+      page.evaluateAsync(order.scraper);
     });
   });
 };
