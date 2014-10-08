@@ -26,12 +26,12 @@ describe('Single Url Task', function() {
       crawler = instance;
 
       // Debug hook
-      crawler.on('phantom:log', function(message) {
-        console.log('phantom:log', message);
+      crawler.on('single:phantom:log', function(message) {
+        console.log('single:phantom:log', message);
       });
 
-      crawler.on('phantom:error', function(message) {
-        console.log('phantom:error', message);
+      crawler.on('single:phantom:error', function(message) {
+        console.log('single:phantom:error', message);
       });
 
       done();
@@ -157,5 +157,9 @@ describe('Single Url Task', function() {
       .fail(function(err) {
         done();
       });
+  });
+
+  after(function() {
+    crawler.spy.kill();
   });
 });
