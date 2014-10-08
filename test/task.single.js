@@ -22,15 +22,15 @@ describe('Single Url Task', function() {
   ];
 
   before(function(done) {
-    sandcrawler.create({}, function(err, instance) {
+    sandcrawler.create({phantom: {port: 7001}}, function(err, instance) {
       crawler = instance;
 
       // Debug hook
-      crawler.on('single:phantom:log', function(message) {
+      crawler.on('phantom:log', function(message) {
         console.log('single:phantom:log', message);
       });
 
-      crawler.on('single:phantom:error', function(message) {
+      crawler.on('phantom:error', function(message) {
         console.log('single:phantom:error', message);
       });
 

@@ -44,10 +44,10 @@ function Task(spy) {
   });
 
   // Event listeners
-  this.on('page:validate', function(response) {
+  this.on('page:validate', function(page) {
 
     // As a normal rule, we do not validate the received data
-    this.emit('page:process', response);
+    this.emit('page:process', page);
   });
 
   this.on('page:scrape', function(feed) {
@@ -58,14 +58,14 @@ function Task(spy) {
         'scrape',
         {
           id: this.id,
-          url: this.url,
+          url: feed,
           scraper: this.scraper,
           timeout: this.settings.timeout
         },
         {timeout: this.settings.timeout}
       )
-      .then(function(response) {
-        self.emit('page:validate', _.omit(response, 'taskId'));
+      .then(function(page) {
+        self.emit('page:validate', _.omit(page, 'taskId'));
       })
       .fail(function(err) {
         self.emit('page:fail', new Error('timeout'));
@@ -110,33 +110,33 @@ Task.prototype.config = function(o) {
 };
 
 Task.prototype.validate = function(spec) {
-  var self = this;
-
   if (!types.check(spec, 'function|object|array|string'))
     throw Error('sandcrawler.task.validate: wrong argument.');
 
   this.removeAllListeners('page:validate');
-  this.on('page:validate', function(response) {
+  this.on('page:validate', function(page) {
     var valid;
 
     if (typeof spec === 'function')
-      valid = spec.call(this, response.data);
+      valid = spec.call(this, page.data);
     else
-      valid = types.check(response.data, spec);
+      valid = types.check(page.data, spec);
 
     if (!!valid)
-      return self.emit('page:process', response);
+      return this.emit('page:process', page);
     else
-      return self.emit('page:fail', new Error('invalid-data'));
+      return this.emit('page:fail', new Error('invalid-data'));
   });
 
   return this;
 };
 
 Task.prototype.process = function(fn) {
-  var self = this;
-  this.on('page:process', function(response) {
-    fn.call(self, response.err || null, response);
+  this.on('page:process', function(page) {
+    fn.call(this, null, page);
+  });
+  this.on('page:fail', function(err) {
+    fn.call(this, err);
   });
   return this;
 };

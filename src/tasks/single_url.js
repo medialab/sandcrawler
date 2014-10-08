@@ -27,8 +27,8 @@ function SingleUrlTask(spy, url) {
     this.emit('task:fail', data);
   });
 
-  this.once('page:process', function(response) {
-    this.emit('task:end', response.data);
+  this.once('page:process', function(page) {
+    this.emit('task:end', page.data);
   });
 }
 

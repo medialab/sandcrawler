@@ -10,21 +10,32 @@ var bothan = require('bothan'),
     path = require('path'),
     types = require('typology'),
     artoo = require('artoo-js'),
-    tasks = require('./tasks');
+    tasks = require('./tasks'),
+    helpers = require('./helpers.js');
 
 // Constructor
-function create(params, callback) {
-  var spyParams = {
-    bindings: path.join(__dirname, '..', 'phantom', 'bindings.js'),
-    data: {
+function create(p, callback) {
+  if (typeof p === 'function') {
+    callback = p;
+    p = null;
+  }
+
+  // Default parameters
+  var params = helpers.extend(p || {});
+
+  // Enforcing basic parameters for the bound spy
+  params.phantom.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
+  params.phantom.data = helpers.extend(
+    {
       paths: {
         artoo: artoo.paths.phantom,
         jquery: require.resolve('jquery')
       }
-    }
-  };
+    },
+    params.phantom.data
+  );
 
-  bothan.deploy(spyParams, function(err, spy) {
+  bothan.deploy(params.phantom, function(err, spy) {
     if (err)
       return callback(err);
 
@@ -49,7 +60,7 @@ Crawler.prototype.task = function(feed) {
   if (types.get(feed) === 'string')
     return new tasks.SingleUrl(this.spy, feed);
   else (types.get(feed) === 'array')
-    return new tasks.MultiUrl(this.spy, fedd);
+    return new tasks.MultiUrl(this.spy, feed);
 };
 
 // TODO: middleware system
