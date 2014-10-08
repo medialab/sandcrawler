@@ -9,7 +9,6 @@ var assert = require('assert'),
     sandcrawler = require('../index.js');
 
 describe('Single Url Task', function() {
-  this.timeout(3000);
 
   // Crawler used throughout the tests
   var crawler = null;
@@ -28,7 +27,11 @@ describe('Single Url Task', function() {
 
       // Debug hook
       crawler.on('phantom:log', function(message) {
-        console.log(message);
+        console.log('phantom:log', message);
+      });
+
+      crawler.on('phantom:error', function(message) {
+        console.log('phantom:error', message);
       });
 
       done();
@@ -70,6 +73,57 @@ describe('Single Url Task', function() {
       .then(function(data) {
 
         assert.deepEqual(data, simpleList);
+        done();
+      });
+  });
+
+  it('should be possible to validate the retrieved data against a function.', function(done) {
+
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .inject(function() {
+
+        var data = artoo.scrape('.url-list a', 'href');
+        artoo.done(data);
+      })
+      .validate(function(data) {
+        return data instanceof Array;
+      })
+      .then(function(data) {
+
+        assert.deepEqual(data, simpleList);
+        done();
+      });
+  });
+
+  it('should be possible to validate the retrieved data against type definition.', function(done) {
+
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .inject(function() {
+
+        var data = artoo.scrape('.url-list a', 'href');
+        artoo.done(data);
+      })
+      .validate('array|object')
+      .then(function(data) {
+
+        assert.deepEqual(data, simpleList);
+        done();
+      });
+  });
+
+  it('should fail when the retrieved data is not valid.', function(done) {
+    crawler
+      .task('http://localhost:8001/basic.html')
+      .inject(function() {
+
+        var data = artoo.scrape('.url-list a', 'href');
+        artoo.done(data);
+      })
+      .validate('string')
+      .fail(function(err) {
+        assert.strictEqual(err.message, 'invalid-data');
         done();
       });
   });

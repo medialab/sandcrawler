@@ -49,7 +49,7 @@ Crawler.prototype.task = function(feed) {
   if (types.get(feed) === 'string')
     return new tasks.SingleUrl(this.spy, feed);
   else (types.get(feed) === 'array')
-    return;
+    return new tasks.MultiUrl(this.spy, fedd);
 };
 
 // TODO: middleware system

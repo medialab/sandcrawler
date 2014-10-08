@@ -20,11 +20,16 @@ function SingleUrlTask(spy, url) {
 
   // Event listeners
   this.on('task:start', function() {
-    this.emit('task:scrape', this.url);
+    this.emit('page:scrape', this.url);
+  });
+
+  this.on('page:fail', function(data) {
+    this.emit('task:fail', data);
   });
 
   // TODO: process should include the url as data
-  this.once('task:process', function(data) {
+  // TODO: process should include a potential error
+  this.once('page:process', function(data) {
     this.emit('task:end', data);
   });
 }

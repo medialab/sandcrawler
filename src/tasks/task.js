@@ -43,7 +43,13 @@ function Task(spy) {
   });
 
   // Event listeners
-  this.on('task:scrape', function(feed) {
+  this.on('page:validate', function(data) {
+
+    // As a normal rule, we do not validate the received data
+    this.emit('page:process', data);
+  });
+
+  this.on('page:scrape', function(feed) {
 
     // Asking the phantom child to scrape the given page
     this.spy.messenger
@@ -58,11 +64,12 @@ function Task(spy) {
         {timeout: this.settings.timeout}
       )
       .then(function(response) {
-        self.emit('task:process', response.data);
+        self.emit('page:validate', response.data);
       })
       .fail(function(err) {
-        self.emit('task:fail', {err: err});
-      });
+        self.emit('page:fail', new Error(err));
+      })
+      .done();
   });
 }
 
@@ -71,10 +78,10 @@ util.inherits(Task, EventEmitter);
 // Prototype
 Task.prototype.inject = function(scraper) {
   if (this.scraper)
-    throw 'sandcrawler.inject: scraper already defined.';
+    throw 'sandcrawler.task.inject: scraper already defined.';
 
   if (!types.check(scraper, 'string|function'))
-    throw 'sandcrawler.inject: wrong argument (must be function or string).';
+    throw 'sandcrawler.task.inject: wrong argument (must be function or string).';
 
   // Closure
   this.scraper = helpers.wrapForPhantom(scraper);
@@ -101,8 +108,32 @@ Task.prototype.config = function(o) {
   return this;
 };
 
-Task.prototype.progress = function(fn) {
-  this.on('task:progress', fn);
+Task.prototype.validate = function(spec) {
+  var self = this;
+
+  if (!types.check(spec, 'function|object|array|string'))
+    throw Error('sandcrawler.task.validate: wrong argument.');
+
+  this.removeAllListeners('page:validate');
+  this.on('page:validate', function(data) {
+    var valid;
+
+    if (typeof spec === 'function')
+      valid = spec.call(this, data);
+    else
+      valid = types.check(data, spec);
+
+    if (!!valid)
+      return self.emit('page:process', data);
+    else
+      return self.emit('page:fail', new Error('invalid-data'));
+  });
+
+  return this;
+};
+
+Task.prototype.process = function(fn) {
+  this.on('page:process', fn);
   return this;
 };
 
