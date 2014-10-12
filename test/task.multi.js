@@ -21,7 +21,7 @@ describe('Multi Url Task', function() {
   ];
 
   before(function(done) {
-    sandcrawler.create({phantom: {port: 7002}}, function(err, instance) {
+    sandcrawler.create({autoClose: false, phantom: {port: 7002}}, function(err, instance) {
       crawler = instance;
 
       // Debug hook

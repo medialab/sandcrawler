@@ -44,6 +44,14 @@ function Task(spy) {
   });
 
   // Event listeners
+  this.on('task:end', function() {
+    this.emit('task:over', true);
+  });
+
+  this.on('task:fail', function() {
+    this.emit('task:over', false);
+  });
+
   this.on('page:validate', function(page) {
 
     // As a normal rule, we do not validate the received data

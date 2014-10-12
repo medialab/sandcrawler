@@ -21,7 +21,7 @@ function create(p, callback) {
   }
 
   // Default parameters
-  var params = helpers.extend(p || {}, {phantom: {}});
+  var params = helpers.extend(p || {}, {autoClose: true, phantom: {}});
 
   // Enforcing basic parameters for the bound spy
   params.phantom.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
@@ -39,15 +39,18 @@ function create(p, callback) {
     if (err)
       return callback(err);
 
-    callback(null, new Crawler(spy));
+    callback(null, new Crawler(spy, params));
   });
 }
 
 // Class
-function Crawler(spy) {
+function Crawler(spy, params) {
 
   // Properties
   this.spy = spy;
+  this.params = params || {};
+  this.runningTasks = [];
+  this.closed = false;
 
   // Bootstrapping spy's event emitter
   this.on = this.spy.on.bind(this.spy);
@@ -55,12 +58,44 @@ function Crawler(spy) {
 }
 
 // Prototype
-// TODO: multi and iterator and object list queue
+// TODO: iterator task
 Crawler.prototype.task = function(feed) {
+  var self = this,
+      task;
+
   if (types.get(feed) === 'string')
-    return new tasks.SingleUrl(this.spy, feed);
-  else (types.get(feed) === 'array')
-    return new tasks.MultiUrl(this.spy, feed);
+    task = new tasks.SingleUrl(this.spy, feed);
+  else if (types.get(feed) === 'array')
+    task = new tasks.MultiUrl(this.spy, feed);
+
+  // Adding the task to running task
+  this.runningTasks.push(task.id);
+
+  // Listening the task end
+  task.on('task:over', function(success) {
+    var idx = self.runningTasks.indexOf(task.id);
+
+    self.runningTasks.splice(idx, 1);
+
+    // If no remaining task, we close the crawler
+    if (!self.runningTasks.length && self.params.autoClose === true)
+      return self.close();
+  });
+
+  return task;
+};
+
+Crawler.prototype.close = function() {
+  if (this.closed)
+    throw Error('sandcrawler.crawler.close: crawler already closed.');
+
+  this.closed = true;
+
+  // TODO: kill socket server only if last one using it
+  this.spy.spynet.close();
+  this.spy.kill();
+
+  return this;
 };
 
 // TODO: middleware system
