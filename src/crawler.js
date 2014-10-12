@@ -21,7 +21,7 @@ function create(p, callback) {
   }
 
   // Default parameters
-  var params = helpers.extend(p || {});
+  var params = helpers.extend(p || {}, {phantom: {}});
 
   // Enforcing basic parameters for the bound spy
   params.phantom.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
