@@ -6,7 +6,8 @@
  * It provides the user with useful chainable utilities and a hand on the final
  * outcome.
  */
-var types = require('typology'),
+var async = require('async'),
+    types = require('typology'),
     helpers = require('../helpers.js'),
     config = require('../../config.json'),
     EventEmitter = require('events').EventEmitter,
@@ -27,6 +28,11 @@ function Task(spy) {
   this.scraper = null;
   this.id = 'Task[' + uuid.v4() + ']';
   this.settings = config;
+
+  // Callbacks
+  this.callbacks = {
+    validate: []
+  };
 
   // Spy Listeners
   this.spy.messenger.on('page:log', function(msg) {
@@ -55,7 +61,15 @@ function Task(spy) {
   this.on('page:validate', function(page) {
 
     // As a normal rule, we do not validate the received data
-    this.emit('page:process', page);
+    if (this.callbacks.validate.length)
+      async.applyEachSeries(this.callbacks.validate, page, function(err) {
+        if (err)
+          return self.emit('page:fail', err);
+
+        self.emit('page:process', page);
+      });
+    else
+      this.emit('page:process', page);
   });
 
   this.on('page:scrape', function(feed) {
@@ -121,8 +135,7 @@ Task.prototype.validate = function(spec) {
   if (!types.check(spec, 'function|object|array|string'))
     throw Error('sandcrawler.task.validate: wrong argument.');
 
-  this.removeAllListeners('page:validate');
-  this.on('page:validate', function(page) {
+  this.callbacks.validate.push(function(page, next) {
     var valid;
 
     if (typeof spec === 'function')
@@ -130,10 +143,7 @@ Task.prototype.validate = function(spec) {
     else
       valid = types.check(page.data, spec);
 
-    if (!!valid)
-      return this.emit('page:process', page);
-    else
-      return this.emit('page:fail', new Error('invalid-data'));
+    return next(valid ? null : new Error('invalid-data'));
   });
 
   return this;
