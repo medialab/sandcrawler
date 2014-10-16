@@ -15,15 +15,17 @@ module.exports = function(messenger, params) {
   // Receiving scraping order
   messenger.on('scrape', function(order, reply) {
 
+    // Creating webpage
+    var page = webpage.create();
+
     // Setting fulfilment timeout
     var timeout = setTimeout(function() {
       return page.close();
     }, order.timeout || 2000);
 
-    // Creating webpage
-    var page = webpage.create();
-
     page.open(order.url, function(status) {
+
+      // TODO: act on status !== success
 
       // Wrapping response helper
       function wrapResponse(o) {
@@ -34,11 +36,29 @@ module.exports = function(messenger, params) {
         };
       }
 
-      // Injecting
-      page.injectArtoo();
+      // On page console message
+      page.onConsoleMessage = function(message, lineNum, sourceId) {
+
+        // Sending back to parent
+        messenger.send('page:log', wrapResponse({
+          message: message,
+          line: lineNum,
+          source: sourceId
+        }));
+      };
+
+      // On page error
+      page.onError = function(message, trace) {
+
+        // Sending back to parent
+        messenger.send('page:error', wrapResponse({
+          message: message,
+          trace: trace
+        }));
+      };
 
       // On page callback
-      page.on('callback', function(msg) {
+      page.onCallback = function(msg) {
         if (msg.header !== 'done')
           return;
 
@@ -50,28 +70,10 @@ module.exports = function(messenger, params) {
 
         // Closing
         return page.close();
-      });
+      };
 
-      // On page console message
-      page.on('consoleMessage', function(message, lineNum, sourceId) {
-
-        // Sending back to parent
-        messenger.send('page:log', wrapResponse({
-          message: message,
-          line: lineNum,
-          source: sourceId
-        }));
-      });
-
-      // On page error
-      page.on('error', function(message, trace) {
-
-        // Sending back to parent
-        messenger.send('page:error', wrapResponse({
-          message: message,
-          trace: trace
-        }));
-      });
+      // Injecting artoo
+      page.injectArtoo();
 
       // Evaluating scraper
       page.evaluateAsync(order.scraper);

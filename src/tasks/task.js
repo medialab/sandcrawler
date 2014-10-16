@@ -93,6 +93,8 @@ function Task(spy) {
 
       // Callback
       function(err, page) {
+
+        // TODO: deal with various errors
         if (err)
           return self.emit('page:fail', new Error('timeout'));
 
