@@ -26,7 +26,7 @@
   "dependencies": {
     "jquery": "~2.1.1",
     "artoo-js": "~0.2.0",
-    "bothan": "~0.0.1",
+    "bothan": "git+https://github.com/medialab/bothan.git",
     "typology": "~0.1.0",
     "uuid": "~2.0.1",
     "lodash": "^2.4.1",
