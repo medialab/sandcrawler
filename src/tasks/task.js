@@ -75,24 +75,30 @@ function Task(spy) {
   this.on('page:scrape', function(feed) {
 
     // Asking the phantom child to scrape the given page
-    this.spy.messenger
-      .request(
-        'scrape',
-        {
-          id: this.id,
-          url: feed,
-          scraper: this.scraper,
-          timeout: this.settings.timeout
-        },
-        {timeout: this.settings.timeout}
-      )
-      .then(function(page) {
+    this.spy.messenger.request(
+
+      // We want to scrape
+      'scrape',
+
+      // Sent data
+      {
+        id: this.id,
+        url: feed,
+        scraper: this.scraper,
+        timeout: this.settings.timeout
+      },
+
+      // Request parameters
+      {timeout: this.settings.timeout},
+
+      // Callback
+      function(err, page) {
+        if (err)
+          return self.emit('page:fail', new Error('timeout'));
+
         self.emit('page:validate', _.omit(page, 'taskId'));
-      })
-      .fail(function(err) {
-        self.emit('page:fail', new Error('timeout'));
-      })
-      .done();
+      }
+    );
   });
 }
 
