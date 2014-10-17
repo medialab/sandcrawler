@@ -5,7 +5,7 @@ Sandcrawler is (or rather will be) a scraping framework meant to be used within 
 
 Its aims is to offer a straightforward API to inject scraping scripts that will be executed client-side (leveraged with jQuery and artoo.js) on target pages thanks to [phantomjs](http://phantomjs.org/).
 
-It should therefore provide a simple enough API to be quick to code for simple use case but should also provide a full array of options to enable the user to perform complex and production-viable tasks if needed.
+It should therefore provide an API simple enough to be quick to code for simple use cases but which should also provide a full array of options to enable its users to perform complex and production-viable tasks if needed.
 
 Finally, even if sandcrawler's primary goal is to target phantomjs, it should remain possible to use the framework through non-dynamic engines such as [request](https://www.npmjs.org/package/request) in a homoiconic fashion.
 
@@ -20,7 +20,7 @@ Sandcrawler is the Jawas' droid transport on Tatooine.
   <img width="300" src="http://img4.wikia.nocookie.net/__cb20130812001443/starwars/images/f/ff/Sandcrawler.png">
 </p>
 
-It references [artoo.js](http://medialab.github.io/artoo/) through the Star Wars universe as well as being a pun on the *crawler* term.
+It refers to [artoo.js](http://medialab.github.io/artoo/) through the Star Wars universe as well as being a pun on the *crawler* word.
 
 
 ### Concepts
@@ -37,13 +37,13 @@ I will use the expression *JawaScript* anytime I have to refer to a function or 
 
 **Note** - should this be named a crawler?
 
-A crawler, in sandcrawler, is an object attached to a phantomjs instance and that can be used to perform scraping tasks and subscribe to its child phantomjs events for debugging purposes.
+A crawler, in sandcrawler, is an object attached to a phantomjs child and that can be used to perform scraping tasks and subscribe to its phantomjs child's events for debugging purposes.
 
 #### Task
 
 **Note** - should this be named a task?
 
-A task, in sandcrawler, is created by a crawler instance and defines the urls to scrape and how the will be scraped.
+A task, in sandcrawler, is created by a crawler instance and defines the urls to scrape and how they should be scraped.
 
 
 ### Scraping lifecycle
@@ -60,7 +60,7 @@ Here is a concise list of events that can be subscribed to:
 
 **Task level**
 
-* `task:before` (before task is started - exposes middleware system *online account logging*)
+* `task:before` (before task is started - exposes middleware system - *Example: online account logging*)
 * `task:start` (the task is starting)
 * `task:fail` (the task failed globally)
 * `task:success` (the task succeeded globally)
@@ -77,9 +77,9 @@ Here is a concise list of events that can be subscribed to:
 
 *Page cycle*
 
-* `page:before` (before page is ordered to be scraped - exposes middleware system *throttle*)
+* `page:before` (before page is ordered to be scraped - exposes middleware system - *Example: throttling*)
 * `page:scrape` (a page will be scraped)
-* `page:after` (after page has been scraped - exposes middleware system* *validation*)
+* `page:after` (after page has been scraped - exposes middleware system* - *Example: data validation*)
 
 *Page done*
 
@@ -89,6 +89,8 @@ Here is a concise list of events that can be subscribed to:
 
 
 ## API Proposition
+
+Overall, I try here to stick to Node.js patterns as firmly as I can so the library can interact without issues with the Node.js environment.
 
 ### Installation
 
@@ -117,7 +119,7 @@ sandcrawler.create(params, function(err, crawler) {
 });
 ```
 
-You can of course indicate a lot of parameters here such as phantomjs command line args etc. and whether you want your crawler to be asynchronous or not.
+You can of course indicate a lot of parameters here such as the phantomjs child command line arguments etc. and whether you want your crawler to be dynamic or not.
 
 **Note** - both crawler and task objects are event emitters.
 
@@ -136,7 +138,7 @@ Possible feeds being:
 * an array of url
 * an iterator function
 
-User can then provide an expressive object rather than a string url through the different feeds if he wants finer and different settings for each of the cases he needs to treat.
+User can also provide an expressive object rather than a string url through the different feeds if he wants finer and different settings for each of the cases he needs to treat.
 
 **Note** - Everything being totally asynchronous, user is free to launch several tasks in parallel if he wants to.
 
@@ -190,7 +192,7 @@ crawler
   // Injecting scraping script from a file
   .injectScript('./scrapers/my-file.js')
 
-  // We want to subscribe to the page javascript log
+  // We want to subscribe to the page's javascript log
   .on('page:log', function(url, msg) {
     console.log('page ' + url + ' logged:', msg);
   })
@@ -201,7 +203,7 @@ crawler
 
   // The task could fail
   .fail(function(err) {
-    // Deal with error...
+    // Deal with errors, life is hard...
   });
 ```
 
@@ -209,7 +211,7 @@ crawler
 
 Simply passing an array to the `task` method will work.
 
-The complex thing here to deal with is that we might need to process each page separately.
+Here, we might want to process each scraped page separately.
 
 ```js
 crawler
@@ -219,7 +221,7 @@ crawler
     done(data);
   })
 
-  // Here we register a callback fired whenever is page has been scraped
+  // Here we register a callback fired whenever a page has been scraped
   .process(function(err, page) {
     if (err) {
       // Something went badly when scraping the page
@@ -242,7 +244,7 @@ crawler
 
 ### Non-dynamic engine
 
-One could easily create a non-dynamic scraper while using cheerio and artoo.js node version to achieve his/her goals.
+One could easily create a non-dynamic scraper while using cheerio and artoo.js' node version to achieve his/her goals.
 
 **Note** - Should we still use *inject* or switch to *parse*? On a more wide subject: how can we ensure homoiconicity? or should we even ensure homoiconicity?
 
@@ -252,7 +254,7 @@ sandcrawler.create({dynamic: false}, function(err, crawler) {
     .task('http://myfancyurl.com')
     .parse(function($) {
 
-      // Here, $ would refer to the cheerio parsed html
+      // Here, $ would refer to the cheerio selector
       return $('.title > a').scrape('href');
     })
     .then(function(data) {
@@ -264,8 +266,6 @@ sandcrawler.create({dynamic: false}, function(err, crawler) {
 ### Retries & Expansion
 
 You might want to be able to tell the crawler that you want to retry scraping a page on failure.
-
-You might also want to tell the crawler to continue scraping other page of whom you found the links in pages you were initially scraping.
 
 ```js
 crawler
@@ -279,9 +279,12 @@ crawler
     done(data);
   })
   .process(function(err, page) {
-    if (err)
+    if (err) {
+      // An error occured, we want to retry
       return this.retry(page, /* params */);
+    }
 
+    // We want to add found links to the current task
     page.data.forEach(function(item) {
       this.add(item.link);
     }, this);
@@ -295,7 +298,7 @@ crawler
 
 As both the crawler and the task class are event emitters, it should be quite easy to hook on their lifecycle to provide reusable logic to them.
 
-Here is my proposition on how we might implement reusable logic:
+Here is my proposition on how reusable logic might be implemented:
 
 #### Proposition
 
@@ -307,8 +310,8 @@ Here is my proposition on how we might implement reusable logic:
 function validate() {
 
   // Hooking a middleware on the after scrape event
-  // Note that this here is the target task
-  this.after(function(page, next) {
+  // Note that `this` here is the task on which the function is plugged
+  this.afterScraping(function(page, next) {
     if (page.data instanceof Array)
       next();
     else
@@ -332,7 +335,7 @@ crawler
 
 ##### Fancy logger
 
-One could want to integrate an helpful and colorful console logger right out of the box.
+One could want to integrate a helpful and colorful console logger right out of the box.
 
 ```js
 // Minimalist implementation
@@ -358,7 +361,7 @@ crawler
 
 * auto-trottling
 * lazy logging (connecting if needed to a facebook account before attempting to scrape)
-* mongo pipeline
+* mongo or other dbs pipelines (scrapy style in a sense...)
 * etc.
 
 ### Task methods index
@@ -373,8 +376,9 @@ crawler
 * `config` (change the task's settings)
 * `add` add url to the task
 * `plug` plug external behaviour
-* `before` register a middleware before the scraping in the lifecycle
-* `after` register a middleware after the scraping in the lifecycle
+* `before` register a middleware before the tasks starts
+* `beforeScraping` register a middleware before the scraping in the lifecycle
+* `afterScraping` register a middleware after the scraping in the lifecycle
 * `on` adding a listener to the task's event emitter
 * `fail` (callback for global task failure)
 * `then` (callback for global task succes)
