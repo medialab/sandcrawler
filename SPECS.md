@@ -5,7 +5,7 @@ Sandcrawler is (or rather will be) a scraping framework meant to be used within 
 
 Its aims is to offer a straightforward API to inject scraping scripts that will be executed client-side (leveraged with jQuery and artoo.js) on target pages thanks to [phantomjs](http://phantomjs.org/).
 
-It should therefore provide an API simple enough to be quick to code for simple use cases but which should also provide a full array of options to enable its users to perform complex and production-viable tasks if needed.
+It should therefore provide an API simple enough to be quick to code for simple use cases but should also provide a full array of options enabling us to perform complex and production-viable tasks if needed.
 
 Finally, even if sandcrawler's primary goal is to target phantomjs, it should remain possible to use the framework through non-dynamic engines such as [request](https://www.npmjs.org/package/request) in a homoiconic fashion.
 
@@ -64,7 +64,7 @@ Here is a concise list of events that can be subscribed to:
 * `task:start` (the task is starting)
 * `task:fail` (the task failed globally)
 * `task:success` (the task succeeded globally)
-* `task:over` (the task is over)
+* `task:end` (the task is over)
 
 **Page level**
 
@@ -155,7 +155,7 @@ crawler
     var data = $('.title > a').scrape('href');
     done(data);
   })
-  .then(function(data) {
+  .then(function(err, data) {
     console.log(data);
   });
 ```
@@ -178,7 +178,7 @@ crawler
 
   // Final callback firing when the task completed successfully
   // and taking the scraped data as a single argument.
-  .then(function(data) {
+  .then(function(err, data) {
     console.log(data);
   });
 ```
@@ -197,13 +197,14 @@ crawler
     console.log('page ' + url + ' logged:', msg);
   })
 
-  .then(function(data) {
-    console.log(data);
-  })
+  .then(function(err, data) {
 
-  // The task could fail
-  .fail(function(err) {
-    // Deal with errors, life is hard...
+    // The task could fail
+    if (err) {
+      // Deal with errors, life is hard...
+    }
+
+    console.log(data);
   });
 ```
 
@@ -235,10 +236,10 @@ crawler
   })
 
   // Final hook
-  .then(function(aggregatedData, remains) {
-    console.log('here are the page failing:', remains);
+  .then(function(err, report) {
+    console.log('here are the page failing:', report.remains);
 
-    console.log(aggregatedData);
+    console.log(report);
   });
 ```
 
@@ -257,7 +258,7 @@ sandcrawler.create({dynamic: false}, function(err, crawler) {
       // Here, $ would refer to the cheerio selector
       return $('.title > a').scrape('href');
     })
-    .then(function(data) {
+    .then(function(err, data) {
       console.log(data);
     });
 });
@@ -380,7 +381,6 @@ crawler
 * `beforeScraping` register a middleware before the scraping in the lifecycle
 * `afterScraping` register a middleware after the scraping in the lifecycle
 * `on` adding a listener to the task's event emitter
-* `fail` (callback for global task failure)
 * `then` (callback for global task succes)
 
 **Note** - should we try to switch to standard node.js pattern [err, results] concerning the global outcome of a task?
