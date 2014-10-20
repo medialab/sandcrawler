@@ -383,4 +383,12 @@ crawler
 * `on` adding a listener to the task's event emitter
 * `then` (callback for global task succes)
 
+### Page object handle
+
+The various page-level callbacks should provide a useful object to the user. This one should contain the following:
+
+* meta of the page (url, status etc. index in the iteration)
+* passed request (basically just an url but, why not, the provided object)
+* scraped data
+
 **Note** - should we try to switch to standard node.js pattern [err, results] concerning the global outcome of a task?
