@@ -138,7 +138,7 @@ Possible feeds being:
 * an array of url
 * an iterator function
 
-User can also provide an expressive object rather than a string url through the different feeds if he wants finer and different settings for each of the cases he needs to treat.
+User can also provide an expressive object rather than a string url through the different feeds if he wants finer and different settings for each of the cases he needs to treat. Also, any additional data given should be kept for an eventual later use in the scraping process.
 
 **Note** - Everything being totally asynchronous, user is free to launch several tasks in parallel if he wants to.
 
