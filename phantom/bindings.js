@@ -31,8 +31,7 @@ module.exports = function(messenger, params) {
       function wrapResponse(o) {
         return {
           data: o,
-          url: page.url,
-          taskId: order.id
+          url: page.url
         };
       }
 

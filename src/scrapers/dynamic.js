@@ -13,6 +13,7 @@ var Scraper = require('./abstract.js'),
  * Main Class
  */
 function DynamicScraper() {
+  var self = this;
 
   // Extending
   Scraper.call(this);
@@ -25,19 +26,41 @@ function DynamicScraper() {
 
   // Listening
   this.on('page:scrape', function(page) {
-    console.log('scrape', page);
+console.log(page);
+    // Sending message to phantom
+    this.engine.spy.messenger.request(
+
+      // We want to scrape
+      'scrape',
+
+      // Sent data
+      {
+        id: page.id,
+        url: page.url,
+        scraper: this._script,
+        timeout: this.config.timeout
+      },
+
+      // Request parameters
+      {timeout: this.config.timeout},
+
+      // Callback
+      function(err, response) {
+console.log(response);
+        page.data = response.data;
+
+        // TODO: deal with various errors
+        if (err)
+          return self.emit('page:fail', err, page);
+
+        self.emit('page:after', page);
+      }
+    );
   });
 }
 
 // Inheriting
 util.inherits(DynamicScraper, Scraper);
-
-/**
- * Hidden prototype
- */
-DynamicScraper.prototype.scrape = function() {
-
-};
 
 /**
  * Prototype

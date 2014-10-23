@@ -37,6 +37,16 @@ Spawn.prototype.start = function(callback) {
 
     self.spy = spy;
 
+    spy.on('phantom:close', function() {
+      console.log(arguments);
+    });
+    spy.on('phantom:error', function() {
+      console.log(arguments);
+    });
+    spy.on('phantom:log', function() {
+      console.log(arguments);
+    });
+
     callback();
   });
 };
@@ -55,16 +65,16 @@ Spawn.prototype.close = function() {
   return this;
 };
 
-// Running the given task
+// Running the given scraper
 Spawn.prototype.run = function(scraper, callback) {
 
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
 
-  // Listening to task ending
+  // Listening to scraper ending
   // TODO: provide autoclose here
-  scraper.on('task:fail', callback);
-  scraper.on('task:success', function() {
+  scraper.on('scraper:fail', callback);
+  scraper.on('scraper:success', function() {
     callback(null);
   });
 

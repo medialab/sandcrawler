@@ -11,7 +11,8 @@ var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     async = require('async'),
     helpers = require('../helpers.js'),
-    config = require('../../config.json');
+    config = require('../../config.json'),
+    _ = require('lodash');
 
 /**
  * Main Class
@@ -38,31 +39,39 @@ function Scraper() {
     afterScraping: []
   };
 
-  // Listening
-  this.once('task:before', function() {
+  // Task-level listeners
+  this.once('scraper:before', function() {
 
     // Applying before middlewares
     async.applyEachSeries(
       this._middlewares.before,
       function(err) {
 
-        // If an error occured, the task failed
+        // If an error occured, the scraper failed
         if (err)
-          return self.emit('task:fail', err);
+          return self.emit('scraper:fail', err);
 
         // Otherwise, we start
-        self.emit('task:start');
+        self.emit('scraper:start');
       }
     );
   });
 
-  this.once('task:start', function() {
+  this.once('scraper:start', function() {
 
     // TODO: concurrency
-    this._stack.unshift(this._pages.shift());
-    this.emit('page:before', this._stack[0]);
+    this._next();
   });
 
+  this.once('scraper:success', function() {
+    this.emit('scraper:end', 'success');
+  });
+
+  this.once('scraper:fail', function() {
+    this.emit('scraper:end', 'fail');
+  });
+
+  // Page-level listeners
   this.on('page:before', function(page) {
 
     // Applying beforeScraping middlewares
@@ -78,12 +87,42 @@ function Scraper() {
     );
   });
 
-  this.once('task:success', function() {
-    this.emit('task:end', 'success');
+  this.on('page:after', function(page) {
+
+    // Applying afterScraping middlewares
+    async.applyEachSeries(
+      this._middlewares.afterScraping,
+      page,
+      function(err) {
+        if (err)
+          return self.emit('page:fail', err, page);
+
+        self.emit('page:success', page);
+      }
+    );
   });
 
-  this.once('task:fail', function() {
-    this.emit('task:end', 'fail');
+  this.on('page:fail', function(err, page) {
+    this.emit('page:end', page);
+  });
+
+  this.on('page:success', function(page) {
+    this.emit('page:end', page);
+  });
+
+  this.on('page:end', function(page) {
+
+    // Removing page from stack
+    var idx = _.findIndex(this._stack, function(e) {
+      return e.id === page.id;
+    });
+
+    this._stack.splice(idx, 1);
+
+    if (!this._pages.length)
+      this.emit('scraper:success');
+    else
+      this._next();
   });
 }
 
@@ -112,7 +151,12 @@ Scraper.prototype._run = function(engine) {
   this.engine = engine;
 
   // Dispatching
-  this.emit('task:before');
+  this.emit('scraper:before');
+};
+
+Scraper.prototype._next = function() {
+  this._stack.unshift(this._pages.shift());
+  this.emit('page:before', this._stack[0]);
 };
 
 /**
