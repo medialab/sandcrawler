@@ -1,12 +1,11 @@
 /**
- * Bothan Webpage Enhancement
- * ===========================
+ * Sandcrawler Webpage Enhancement
+ * ================================
  *
  * Light boostrap on phantomjs' webpage to provide for easy logging in the
  * parent process.
  */
 
-// TODO: find another way to handle exception than with console.error
 var webpage = require('webpage'),
     settings = null;
 

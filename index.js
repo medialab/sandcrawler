@@ -6,9 +6,7 @@
  */
 
 // Main object
-var sandcrawler = {
-  create: require('./src/crawler.js')
-};
+var sandcrawler = {};
 
 // Non writable properties
 Object.defineProperty(sandcrawler, 'version', {
