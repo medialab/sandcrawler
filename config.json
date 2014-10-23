@@ -1,4 +1,9 @@
 {
-  "timeout": 2000,
-  "concurrent": 1
+  "scraper": {
+  	"timeout": 2000,
+  	"concurrent": 1
+  },
+  "spawn": {
+  	"autoClose": true
+  }
 }
