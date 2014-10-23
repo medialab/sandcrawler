@@ -6,7 +6,8 @@
  */
 
 // Main object
-var core = require('./src/core.js');
+var core = require('./src/core.js'),
+    scrapers = require('./src/scrapers');
 
 var sandcrawler = core;
 
@@ -14,6 +15,9 @@ var sandcrawler = core;
 Object.defineProperty(sandcrawler, 'version', {
   value: '0.0.1'
 });
+
+// Public classes
+sandcrawler.scraper = scrapers.dynamic;
 
 // Exporting
 module.exports = sandcrawler;

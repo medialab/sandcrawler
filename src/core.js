@@ -24,21 +24,26 @@ types.add('scraper', function(v) {
 /**
  * Main Class
  */
-function Sandcrawler() {
-
-  // Hidden properties
-  this._runningPhantoms = {};
-}
+function Sandcrawler() {}
 
 /**
  * Prototype
  */
 
 // Running a task in a default phantom
-Sandcrawler.prototype.run = function(scraper) {
+Sandcrawler.prototype.run = function(scraper, callback) {
 
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.run: given argument is not a valid scraper.');
+
+  // TODO: don't spawn if not dynamic
+
+  // We need to spawn a default phantom for this scraper
+  this.spawn(function(err, spawn) {
+
+    // Running the scraper in this newly created spawn
+    spawn.run(scraper, callback);
+  });
 };
 
 // Spawning a custom phantom

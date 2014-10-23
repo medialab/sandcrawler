@@ -4,7 +4,9 @@
  *
  * Sandcrawler abstract wrapper around a custom phantom child process.
  */
-var bothan = require('bothan');
+var bothan = require('bothan'),
+    uuid = require('uuid'),
+    types = require('typology');
 
 /**
  * Main Class
@@ -12,6 +14,7 @@ var bothan = require('bothan');
 function Spawn(params) {
 
   // Properties
+  this.id = 'Spawn[' + uuid.v4() + ']';
   this.params = params;
   this.spy = null;
   this.closed = false;
@@ -53,10 +56,21 @@ Spawn.prototype.close = function() {
 };
 
 // Running the given task
-Spawn.prototype.run = function(task) {
+Spawn.prototype.run = function(scraper, callback) {
 
-  // TODO: check if correct task object
-};
+  if (!types.check(scraper, 'scraper'))
+    throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
+
+  // Listening to task ending
+  // TODO: provide autoclose here
+  scraper.on('task:fail', callback);
+  scraper.on('task:success', function() {
+    callback(null);
+  });
+
+  // Starting
+  scraper._run(this);
+}
 
 /**
  * Exporting
