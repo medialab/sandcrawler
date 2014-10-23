@@ -14,6 +14,7 @@ function Spawn(params) {
   // Properties
   this.params = params;
   this.spy = null;
+  this.closed = false;
 
   // Hidden properties
   this._runningScrapers = {};
@@ -35,6 +36,20 @@ Spawn.prototype.start = function(callback) {
 
     callback();
   });
+};
+
+// Stopping the child phantom
+Spawn.prototype.close = function() {
+  if (this.closed)
+    throw Error('sandcrawler.spawn.close: spawn already closed.');
+
+  this.closed = true;
+
+  // TODO: kill socket server only if last one using it
+  this.spy.spynet.close();
+  this.spy.kill();
+
+  return this;
 };
 
 // Running the given task

@@ -9,7 +9,17 @@ var path = require('path'),
     artoo = require('artoo-js'),
     config = require('../config.json'),
     helpers = require('./helpers.js'),
-    Spawn = require('./spawn.js');
+    Spawn = require('./spawn.js'),
+    scrapers = require('./scrapers'),
+    types = require('typology');
+
+// Registering a scraper type
+types.add('scraper', function(v) {
+
+  return Object.keys(scrapers).some(function(k) {
+    return v instanceof scrapers[k];
+  });
+});
 
 /**
  * Main Class
@@ -24,6 +34,13 @@ function Sandcrawler() {
  * Prototype
  */
 
+// Running a task in a default phantom
+Sandcrawler.prototype.run = function(scraper) {
+
+  if (!types.check(scraper, 'scraper'))
+    throw Error('sandcrawler.run: given argument is not a valid scraper.');
+};
+
 // Spawning a custom phantom
 Sandcrawler.prototype.spawn = function(p, callback) {
 
@@ -37,8 +54,7 @@ Sandcrawler.prototype.spawn = function(p, callback) {
   var params = helpers.extend(p, config.spawn);
 
   // Registering phantom bindings
-  params.bindings = path.join(
-    __dirname, '..', 'phantom', 'bindings.js');
+  params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
 
   // Registering phantom required parameters
   params.data = helpers.extend(
