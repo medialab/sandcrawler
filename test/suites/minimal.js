@@ -5,17 +5,8 @@
  * Testing some simple scrapers use cases.
  */
 var assert = require('assert'),
-    sandcrawler = require('../../index.js');
-
-// Data
-var data = {
-  basic: [
-    'http://nicesite.com',
-    'http://awesomesite.com',
-    'http://prettysite.com',
-    'http://unknownsite.com'
-  ]
-};
+    sandcrawler = require('../../index.js'),
+    samples = require('../samples.js');
 
 describe('When running a minimal scraper', function() {
 
@@ -26,7 +17,7 @@ describe('When running a minimal scraper', function() {
       .url('http://localhost:7337/resources/basic.html')
       .script(__dirname + '/../resources/scrapers/basic.js')
       .result(function(err, req, res) {
-        assert.deepEqual(res.data, data.basic);
+        assert.deepEqual(res.data, samples.basic);
       });
 
     // Running the scraper

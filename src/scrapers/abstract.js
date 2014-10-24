@@ -12,6 +12,7 @@ var EventEmitter = require('events').EventEmitter,
     async = require('async'),
     helpers = require('../helpers.js'),
     defaults = require('../../defaults.json'),
+    validate = require('../plugins/validate.js'),
     _ = require('lodash');
 
 /**
@@ -242,6 +243,32 @@ Scraper.prototype.result = function(fn) {
   });
 
   return this;
+};
+
+// Registering an afterScraping middleware
+Scraper.prototype.afterScraping = function(fn) {
+
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.afterScraping: given argument is not a function');
+
+  this._middlewares.afterScraping.push(fn);
+
+  return this;
+};
+
+// Using a plugin
+Scraper.prototype.use = function(fn) {
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.afterScraping: given argument is not a function');
+
+  fn.call(this, this);
+
+  return this;
+}
+
+// Data validation
+Scraper.prototype.validate = function(definition) {
+  return this.use(validate(definition));
 };
 
 /**
