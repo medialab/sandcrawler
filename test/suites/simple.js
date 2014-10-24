@@ -118,6 +118,31 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('Feed', function() {
+
+    it('should be possible to set arbitrary data to jobs.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url({
+          url: 'http://localhost:7337/resources/basic.html',
+          data: {
+            ok: true
+          }
+        })
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .beforeScraping(function(req, next) {
+          assert(req.params.data.ok);
+          req.params.hello = 'world';
+          next();
+        })
+        .afterScraping(function(req, res, next) {
+          assert.strictEqual(req.params.hello, 'world');
+          next();
+        });
+
+        phantom.run(scraper, done);
+    });
+  });
+
   describe('Data validation', function() {
 
     it('should be possible to validate data with a function.', function(done) {

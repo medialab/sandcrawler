@@ -113,16 +113,18 @@ Scraper.prototype._wrapJob = function(mixed) {
     req: {
       retries: 0,
       retry: null,
-      delay: null,
-      params: {}
+      delay: null
     },
     res: {}
   };
 
-  if (types.get(mixed) === 'string')
+  if (types.get(mixed) === 'string') {
     job.req.url = mixed;
-  else
-    throw Error('unsupported feed right now');
+  }
+  else {
+    job.req.url = mixed.url;
+    job.req.params = mixed;
+  }
 
   return job;
 };
@@ -249,6 +251,17 @@ Scraper.prototype.result = function(fn) {
   this.on('job:fail', function(err, job) {
     fn.call(this, err, job.req, job.res);
   });
+
+  return this;
+};
+
+// Registering a beforeScraping middleware
+Scraper.prototype.beforeScraping = function(fn) {
+
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.beforeScraping: given argument is not a function');
+
+  this._middlewares.beforeScraping.push(fn);
 
   return this;
 };
