@@ -210,10 +210,18 @@ Scraper.prototype._findJob = function(id) {
  */
 
 // Assigning a single url
-Scraper.prototype.url = function(singleUrl) {
+Scraper.prototype.url = function(feed) {
+  var list;
 
-  // TODO: type checking
-  this._jobs.push(this._wrapJob(singleUrl));
+  // TODO: more precise type checking
+  if (!types.check(feed, 'string|array|object'))
+    throw Error('sandcrawler.scraper.url(s): wrong argument.');
+
+  list = !(feed instanceof Array) ? [feed] : feed;
+
+  list.forEach(function(item) {
+    this._jobs.push(this._wrapJob(item));
+  }, this);
 
   return this;
 };

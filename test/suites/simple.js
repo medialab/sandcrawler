@@ -9,7 +9,6 @@ var assert = require('assert'),
     validate = require('../../src/plugins/validate.js'),
     samples = require('../samples.js');
 
-// Data
 var phantom;
 
 describe('When running fairly simple scrapers', function() {

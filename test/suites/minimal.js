@@ -2,7 +2,7 @@
  * Sandcrawler Simple Scrapers Tests
  * ==================================
  *
- * Testing some simple scrapers use cases.
+ * Testing a minimal scraper use case.
  */
 var assert = require('assert'),
     sandcrawler = require('../../index.js'),
