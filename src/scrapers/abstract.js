@@ -102,14 +102,6 @@ function Scraper() {
       }
     );
   });
-
-  this.on('job:fail', function(err, job) {
-    this.emit('job:end', job);
-  });
-
-  this.on('job:success', function(job) {
-    this.emit('job:end', job);
-  });
 }
 
 // Inheriting
@@ -138,7 +130,7 @@ Scraper.prototype._wrapJob = function(mixed) {
   return job;
 };
 
-Scraper.prototype._run = function(engine) {
+Scraper.prototype._run = function(engine, callback) {
 
   this.engine = engine;
 
@@ -146,6 +138,14 @@ Scraper.prototype._run = function(engine) {
   this.emit('scraper:before');
 
   // Listening
+  this.on('job:fail', function(err, job) {
+    this.emit('job:end', job);
+  });
+
+  this.on('job:success', function(job) {
+    this.emit('job:end', job);
+  });
+
   this.on('job:end', function(job) {
 
     // Removing page from stack
@@ -159,6 +159,13 @@ Scraper.prototype._run = function(engine) {
       this.emit('scraper:success');
     else
       this._next();
+  });
+
+  // Listening to scraper ending
+  // TODO: provide autoclose here
+  this.on('scraper:fail', callback);
+  this.on('scraper:success', function() {
+    callback(null);
   });
 
   return this;

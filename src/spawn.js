@@ -39,13 +39,13 @@ Spawn.prototype.start = function(callback) {
 
     // DEBUG: remove this asap
     spy.on('phantom:close', function() {
-      console.log(arguments);
+      console.log('phantom', arguments);
     });
     spy.on('phantom:error', function() {
-      console.log(arguments);
+      console.log('phantom', arguments);
     });
     spy.on('phantom:log', function() {
-      console.log(arguments[0]);
+      console.log('phantom', arguments[0]);
     });
 
     callback();
@@ -72,15 +72,8 @@ Spawn.prototype.run = function(scraper, callback) {
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
 
-  // Listening to scraper ending
-  // TODO: provide autoclose here
-  scraper.on('scraper:fail', callback);
-  scraper.on('scraper:success', function() {
-    callback(null);
-  });
-
   // Starting
-  scraper._run(this);
+  scraper._run(this, callback);
 };
 
 /**

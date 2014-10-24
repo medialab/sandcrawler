@@ -31,7 +31,6 @@ describe('When using sandcrawler API', function() {
       .url('http://localhost:7337/resources/basic.html')
       .script(__dirname + '/../resources/scrapers/basic.js')
       .result(function(err, req, res) {
-        assert(false);
         assert.deepEqual(res.data, simpleList);
       });
 
