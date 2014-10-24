@@ -15,7 +15,20 @@ function Bootstrap(lifespan) {
   // TODO: inject jQuery safely by requesting it with artoo
   // TODO: find a way to setup artoo finely
   this.injectArtoo = function() {
+
+    // jQuery
     this.injectJs(settings.paths.jquery);
+
+    // artoo settings
+    this.evaluate(function() {
+      var settings = document.createElement('div');
+      settings.setAttribute('id', 'artoo_injected_script');
+      settings.setAttribute('settings', '{"log":{"welcome": false}}');
+
+      document.body.appendChild(settings);
+    });
+
+    // artoo
     this.injectJs(settings.paths.artoo);
   };
 

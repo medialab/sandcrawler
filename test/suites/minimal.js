@@ -15,7 +15,7 @@ var data = {
     'http://prettysite.com',
     'http://unknownsite.com'
   ]
-}
+};
 
 describe('When running a minimal scraper', function() {
 

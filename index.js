@@ -18,6 +18,7 @@ Object.defineProperty(sandcrawler, 'version', {
 
 // Public classes
 sandcrawler.scraper = scrapers.dynamic;
+sandcrawler.Scraper = scrapers.dynamic;
 
 // Exporting
 module.exports = sandcrawler;

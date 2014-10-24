@@ -25,6 +25,27 @@ function DynamicScraper() {
   this._script = null;
 
   // Listening
+  this.on('scraper:start', function() {
+
+    // Binding messenger listeners
+    this.engine.spy.messenger.on('page:log', function(msg) {
+      var job = self._findJob(msg.jobId);
+      self.emit('page:log', msg.data.message);
+    });
+
+    this.engine.spy.messenger.on('page:error', function(msg) {
+      var job = self._findJob(msg.jobId);
+      self.emit('page:error', msg.data.message);
+    });
+  });
+
+  this.on('scraper:end', function() {
+
+    // Unbinding messenger listeners
+    this.engine.spy.messenger.off('page:log');
+    this.engine.spy.messenger.off('page:error');
+  });
+
   this.on('job:scrape', function(job) {
 
     // Sending message to phantom

@@ -37,6 +37,13 @@ module.exports = function(messenger, params) {
         return res;
       }
 
+      function wrapData(o) {
+        return {
+          data: o,
+          jobId: order.id
+        };
+      }
+
       // Failing
       if (status !== 'success') {
         reply(wrapResponse(null, 'fail'));
@@ -51,7 +58,7 @@ module.exports = function(messenger, params) {
       page.onConsoleMessage = function(message, lineNum, sourceId) {
 
         // Sending back to parent
-        messenger.send('page:log', wrapResponse({
+        messenger.send('page:log', wrapData({
           message: message,
           line: lineNum,
           source: sourceId
@@ -62,7 +69,7 @@ module.exports = function(messenger, params) {
       page.onError = function(message, trace) {
 
         // Sending back to parent
-        messenger.send('page:error', wrapResponse({
+        messenger.send('page:error', wrapData({
           message: message,
           trace: trace
         }));

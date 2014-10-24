@@ -34,6 +34,7 @@ function Scraper() {
   // Hidden properties
   this._jobs = [];
   this._stack = [];
+
   this._middlewares = {
     before: [],
     beforeScraping: [],
@@ -103,6 +104,8 @@ util.inherits(Scraper, EventEmitter);
 /**
  * Hidden Prototype
  */
+
+// Initializing job object
 Scraper.prototype._wrapJob = function(mixed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
@@ -123,6 +126,7 @@ Scraper.prototype._wrapJob = function(mixed) {
   return job;
 };
 
+// Running the scraper
 Scraper.prototype._run = function(engine, callback) {
 
   this.engine = engine;
@@ -160,11 +164,7 @@ Scraper.prototype._run = function(engine, callback) {
     });
 
     this._stack.splice(idx, 1);
-
-    if (!this._jobs.length)
-      this.emit('scraper:success');
-    else
-      this._next();
+    this._next();
   });
 
   // Listening to scraper ending
@@ -177,11 +177,31 @@ Scraper.prototype._run = function(engine, callback) {
   return this;
 };
 
+// Performing next job
 Scraper.prototype._next = function() {
+
+  // Did we run dry?
+  if (!this._jobs.length)
+    return this.emit('scraper:success');
+
+  // Continuing
   this._stack.unshift(this._jobs.shift());
   this.emit('job:before', this._stack[0]);
 
   return this;
+};
+
+// Retrieve a job in the stack by its id
+Scraper.prototype._findJob = function(id) {
+  var job = _.find(this._stack, function(j) {
+    return id === j.id;
+  });
+
+  if (!job)
+    throw Error('sandcrawler.scraper._findJob: trying to retrieve an ' +
+                'inexistant job in the stack.');
+
+  return job;
 };
 
 /**

@@ -5,8 +5,7 @@
  * JawaScript abstraction useful to wrap pieces of code that will be run on
  * a phantom page context.
  */
-var path = require('path'),
-    fs = require('fs');
+var fs = require('fs');
 
 // Wrap a string into a phantom IIFE
 function wrapString(str) {
@@ -20,7 +19,7 @@ function wrapFunction(fn) {
 
 // Produce a phantom script from a path
 function fromFile(location) {
-  var str = fs.readFileSync(path.resolve(location), 'utf-8');
+  var str = fs.readFileSync(require.resolve(location), 'utf-8');
   return wrapString(str);
 }
 
