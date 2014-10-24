@@ -5,7 +5,8 @@
  * Defines how phantom child processes should behave when controlled by
  * a sandcrawler instance.
  */
-var webpage = require('./custom_page.js');
+var webpage = require('./custom_page.js'),
+    polyfills = require('./polyfills.js');
 
 module.exports = function(messenger, params) {
 
@@ -16,24 +17,35 @@ module.exports = function(messenger, params) {
   messenger.on('scrape', function(order, reply) {
 
     // Creating webpage
-    var page = webpage.create();
+    var page = webpage.create(order.timeout || 5000);
 
-    // Setting fulfilment timeout
-    var timeout = setTimeout(function() {
-      return page.close();
-    }, order.timeout || 2000);
-
+    // Opening url
     page.open(order.url, function(status) {
 
-      // TODO: act on status !== success
-
       // Wrapping response helper
-      function wrapResponse(o) {
-        return {
+      function wrapResponse(o, err) {
+        var res = {
           data: o,
-          url: page.url
+          url: page.url,
+          headers: page.response.headers,
+          status: page.response.status
         };
+
+        if (err)
+          res.error = err;
+
+        return res;
       }
+
+      // Failing
+      if (status !== 'success') {
+        reply(wrapResponse(null, 'fail'));
+        return page.cleanup();
+      }
+
+      /**
+       * Success page callbacks
+       */
 
       // On page console message
       page.onConsoleMessage = function(message, lineNum, sourceId) {
@@ -61,14 +73,11 @@ module.exports = function(messenger, params) {
         if (msg.header !== 'done')
           return;
 
-        // Canceling timeout
-        clearTimeout(timeout);
-
         // On retrieve data, we send back to parent
         reply(wrapResponse(msg.data));
 
         // Closing
-        return page.close();
+        return page.cleanup();
       };
 
       // Injecting artoo
@@ -77,5 +86,21 @@ module.exports = function(messenger, params) {
       // Evaluating scraper
       page.evaluateAsync(order.scraper);
     });
+
+
+    /**
+     * Global page callbacks
+     */
+
+    // On resource received
+    page.onResourceReceived = function(response) {
+
+      // Is the resource matching the page's url?
+      // TODO: track url changes
+      if (response.stage === 'end' && response.url !== order.url)
+        return;
+
+      page.response = response;
+    };
   });
 };

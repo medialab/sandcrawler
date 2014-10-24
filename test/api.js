@@ -9,7 +9,7 @@ var express = require('express'),
     app = express();
 
 // Static files
-app.use(express.static(__dirname + '/resources'));
+app.use('/resources', express.static(__dirname + '/resources'));
 
 // Exporting
 module.exports = app;

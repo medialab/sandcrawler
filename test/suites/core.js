@@ -28,10 +28,11 @@ describe('When using sandcrawler API', function() {
 
     // Creating the scraper
     var scraper = new sandcrawler.scraper()
-      .url('/resources/basic.html')
+      .url('http://localhost:7337/resources/basic.html')
       .script(__dirname + '/../resources/scrapers/basic.js')
-      .result(function(err, page) {
-        assert.deepEqual(page.data, simpleList);
+      .result(function(err, req, res) {
+        assert(false);
+        assert.deepEqual(res.data, simpleList);
       });
 
     // Running the scraper

@@ -25,8 +25,8 @@ function DynamicScraper() {
   this._script = null;
 
   // Listening
-  this.on('page:scrape', function(page) {
-console.log(page);
+  this.on('job:scrape', function(job) {
+
     // Sending message to phantom
     this.engine.spy.messenger.request(
 
@@ -35,8 +35,8 @@ console.log(page);
 
       // Sent data
       {
-        id: page.id,
-        url: page.url,
+        id: job.id,
+        url: job.req.url,
         scraper: this._script,
         timeout: this.config.timeout
       },
@@ -46,14 +46,15 @@ console.log(page);
 
       // Callback
       function(err, response) {
-console.log(response);
-        page.data = response.data;
+
+        // Populating response
+        job.res = response;
 
         // TODO: deal with various errors
         if (err)
-          return self.emit('page:fail', err, page);
+          return self.emit('job:fail', err, job);
 
-        self.emit('page:after', page);
+        self.emit('job:after', job);
       }
     );
   });

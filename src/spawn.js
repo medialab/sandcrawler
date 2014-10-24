@@ -37,6 +37,7 @@ Spawn.prototype.start = function(callback) {
 
     self.spy = spy;
 
+    // DEBUG: remove this asap
     spy.on('phantom:close', function() {
       console.log(arguments);
     });
@@ -44,7 +45,7 @@ Spawn.prototype.start = function(callback) {
       console.log(arguments);
     });
     spy.on('phantom:log', function() {
-      console.log(arguments);
+      console.log(arguments[0]);
     });
 
     callback();

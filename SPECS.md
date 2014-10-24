@@ -80,6 +80,9 @@ Here is a concise list of events that can be subscribed to:
 * `page:before` (before page is ordered to be scraped - exposes middleware system - *Example: throttling*)
 * `page:scrape` (a page will be scraped)
 * `page:after` (after page has been scraped - exposes middleware system* - *Example: data validation*)
+* `page:retry`
+* `page:add`
+* `page:delay` over or under the stack?
 
 *Page done*
 

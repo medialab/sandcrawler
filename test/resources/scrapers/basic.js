@@ -1,3 +1,3 @@
 ;(function(undefined) {
-  artoo.scrape('.url-list a', 'href', artoo.done);
+  artoo.done(artoo.scrape('.url-list a', 'href'));
 })();

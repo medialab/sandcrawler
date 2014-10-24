@@ -1,7 +1,8 @@
 {
   "scraper": {
-  	"timeout": 2000,
-  	"maxConcurrency": 1
+  	"timeout": 5000,
+  	"maxConcurrency": 1,
+  	"maxRetries": 3
   },
   "spawn": {
   	"autoClose": true

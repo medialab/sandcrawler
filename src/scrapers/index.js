@@ -6,5 +6,6 @@
  */
 
 module.exports = {
+  static: require('./static.js'),
   dynamic: require('./dynamic.js')
 };
