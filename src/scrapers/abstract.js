@@ -24,10 +24,11 @@ function Scraper() {
   EventEmitter.call(this);
 
   // Assigning a unique identifer
-  this.id = 'Task[' + uuid.v4() + ']';
+  this.id = 'Scraper[' + uuid.v4() + ']';
 
   // Properties
   this.engine = null;
+  this.done = false;
   this.config = config.scraper;
 
   // Hidden properties
@@ -39,7 +40,7 @@ function Scraper() {
     afterScraping: []
   };
 
-  // Task-level listeners
+  // Scraper-level listeners
   this.once('scraper:before', function() {
 
     // Applying before middlewares
@@ -61,14 +62,6 @@ function Scraper() {
 
     for (var i = 0; i < this.config.maxConcurrency; i++)
       this._next();
-  });
-
-  this.once('scraper:success', function() {
-    this.emit('scraper:end', 'success');
-  });
-
-  this.once('scraper:fail', function() {
-    this.emit('scraper:end', 'fail');
   });
 
   // Job-level listeners
@@ -137,7 +130,20 @@ Scraper.prototype._run = function(engine, callback) {
   // Dispatching
   this.emit('scraper:before');
 
-  // Listening
+  // Listening to scraper
+  this.once('scraper:success', function() {
+    this.emit('scraper:end', 'success');
+  });
+
+  this.once('scraper:fail', function() {
+    this.emit('scraper:end', 'fail');
+  });
+
+  this.once('scraper:end', function() {
+    this.done = true;
+  });
+
+  // Listening to jobs
   this.on('job:fail', function(err, job) {
     this.emit('job:end', job);
   });

@@ -11,7 +11,7 @@ var bothan = require('bothan'),
 /**
  * Main Class
  */
-function Spawn(params) {
+function Spawn(params, anonym) {
 
   // Properties
   this.id = 'Spawn[' + uuid.v4() + ']';
@@ -20,7 +20,7 @@ function Spawn(params) {
   this.closed = false;
 
   // Hidden properties
-  this._runningScrapers = {};
+  this._runningScrapers = [];
 }
 
 /**
@@ -37,14 +37,17 @@ Spawn.prototype.start = function(callback) {
 
     self.spy = spy;
 
+    // Binding
+    self.on = self.spy.on.bind(self);
+
     // DEBUG: remove this asap
-    spy.on('phantom:close', function() {
+    self.on('phantom:close', function() {
       console.log('phantom', arguments);
     });
-    spy.on('phantom:error', function() {
+    self.on('phantom:error', function() {
       console.log('phantom', arguments);
     });
-    spy.on('phantom:log', function() {
+    self.on('phantom:log', function() {
       console.log('phantom', arguments[0]);
     });
 
@@ -68,12 +71,30 @@ Spawn.prototype.close = function() {
 
 // Running the given scraper
 Spawn.prototype.run = function(scraper, callback) {
+  var self = this;
 
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
 
+  if (scraper.done)
+    throw Error('sandcrawler.spawn.run: given scraper has already been fulfilled.');
+
   // Starting
-  scraper._run(this, callback);
+  this._runningScrapers.push(scraper.id);
+  scraper._run(this, function(err) {
+
+    // Autoclosing the spawn?
+    var idx = self._runningScrapers.indexOf(scraper.id);
+    self._runningScrapers.splice(idx, 1);
+
+    if (self.params.autoClose && !self._runningScrapers.length)
+      self.close();
+
+    if (err)
+      return callback(err);
+
+    callback(null);
+  });
 };
 
 /**
