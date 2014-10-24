@@ -9,11 +9,25 @@ var assert = require('assert'),
 
 describe('When using sandcrawler API', function() {
 
-  it('should throw an error when trying to run an invalid scraper.', function() {
+  describe('Core level', function() {
+    it('should throw an error when trying to run an invalid scraper.', function() {
 
-    assert.throws(function() {
-      sandcrawler.run('tada');
-    }, /sandcrawler\.run/);
+      assert.throws(function() {
+        sandcrawler.run('tada');
+      }, /sandcrawler\.run/);
+    });
+  });
+
+  describe('Scraper level', function() {
+    it('should warn the user when his/her script is probably not returning control.', function() {
+
+      assert.throws(function() {
+        var scraper = new sandcrawler.Scraper()
+          .jawascript(function() {
+            console.log('hello');
+          });
+      }, /returning control/);
+    });
   });
 });
 

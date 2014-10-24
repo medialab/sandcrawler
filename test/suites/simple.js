@@ -57,6 +57,50 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('Jawascript', function() {
+
+    it('should be possible to run some jawascript from a function.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .jawascript(function(done) {
+          artoo.done(artoo.scrape('.url-list a', 'href'));
+        })
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(scraper, done);
+    });
+
+    it('should be possible to run some jawascript from a string.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(scraper, done);
+    });
+
+    it('should be possible to notify phantom with done.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .jawascript(function(done) {
+          var data = artoo.scrape('.url-list a', 'href');
+          done(data);
+        })
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(scraper, done);
+    });
+  });
+
   describe('Plugins', function() {
 
     it('should be possible to use a plugin.', function(done) {

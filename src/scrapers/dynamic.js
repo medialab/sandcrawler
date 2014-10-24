@@ -88,7 +88,24 @@ util.inherits(DynamicScraper, Scraper);
  * Prototype
  */
 DynamicScraper.prototype.script = function(path) {
+  if (this._script)
+    throw Error('sandcrawler.scraper.script: script already registered.');
+
   this._script = script.fromFile(path);
+  return this;
+};
+
+DynamicScraper.prototype.jawascript = function(fn) {
+  if (this._script)
+    throw Error('sandcrawler.scraper.jawascript: script already registered.');
+
+  if (typeof fn === 'function')
+    this._script = script.fromFunction(fn);
+  else if (typeof fn === 'string')
+    this._script = script.fromString(fn);
+  else
+    throw Error('sandcrawler.scraper.jawascript: wrong argument.');
+
   return this;
 };
 
