@@ -36,7 +36,14 @@ Sandcrawler.prototype.run = function(scraper, callback) {
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.run: given argument is not a valid scraper.');
 
-  // TODO: don't spawn if not dynamic
+  if (scraper.done)
+    throw Error('sandcrawler.run: given scraper has already been fulfilled.');
+
+  if (scraper.type === 'static') {
+    scraper._run(callback);
+
+    return;
+  }
 
   // We need to spawn a default phantom for this scraper
   this.spawn(function(err, spawn) {
