@@ -30,12 +30,12 @@ function DynamicScraper() {
     // Binding messenger listeners
     this.engine.spy.messenger.on('page:log', function(msg) {
       var job = self._findJob(msg.jobId);
-      self.emit('page:log', msg.data.message);
+      self.emit('page:log', msg.data);
     });
 
     this.engine.spy.messenger.on('page:error', function(msg) {
       var job = self._findJob(msg.jobId);
-      self.emit('page:error', msg.data.message);
+      self.emit('page:error', msg.data);
     });
   });
 
@@ -59,11 +59,11 @@ function DynamicScraper() {
         id: job.id,
         url: job.req.url,
         scraper: this._script,
-        timeout: this.config.timeout
+        timeout: this.params.timeout
       },
 
       // Request parameters
-      {timeout: this.config.timeout},
+      {timeout: this.params.timeout},
 
       // Callback
       function(err, response) {

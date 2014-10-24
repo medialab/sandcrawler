@@ -7,7 +7,7 @@
  */
 var path = require('path'),
     artoo = require('artoo-js'),
-    config = require('../config.json'),
+    defaults = require('../defaults.json'),
     helpers = require('./helpers.js'),
     Spawn = require('./spawn.js'),
     scrapers = require('./scrapers'),
@@ -56,7 +56,7 @@ Sandcrawler.prototype.spawn = function(p, callback) {
   }
 
   // Merging defaults
-  var params = helpers.extend(p, config.spawn);
+  var params = helpers.extend(p, defaults.spawn);
 
   // Registering phantom bindings
   params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');

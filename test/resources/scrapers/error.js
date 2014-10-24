@@ -1,0 +1,1 @@
+throw Error('random-error');

@@ -32,12 +32,25 @@ describe('When running fairly simple scrapers', function() {
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
-        .on('page:log', function(message) {
+        .on('page:log', function(data) {
           i++
 
           // TODO: change when artoo logging issue is solved
           if (i === 3)
-            assert.strictEqual(message, 'Hello world!');
+            assert.strictEqual(data.message, 'Hello world!');
+        });
+
+      phantom.run(scraper, done);
+    });
+
+    it('should be possible to subscribe to page errors.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .config({timeout: 500})
+        .script(__dirname + '/../resources/scrapers/error.js')
+        .on('page:error', function(data) {
+          assert.strictEqual(data.message, 'Error: random-error');
         });
 
       phantom.run(scraper, done);

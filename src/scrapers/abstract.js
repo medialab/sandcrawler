@@ -11,7 +11,7 @@ var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     async = require('async'),
     helpers = require('../helpers.js'),
-    config = require('../../config.json'),
+    defaults = require('../../defaults.json'),
     _ = require('lodash');
 
 /**
@@ -29,7 +29,7 @@ function Scraper() {
   // Properties
   this.engine = null;
   this.done = false;
-  this.config = config.scraper;
+  this.params = defaults.scraper;
 
   // Hidden properties
   this._jobs = [];
@@ -61,7 +61,7 @@ function Scraper() {
 
   this.once('scraper:start', function() {
 
-    for (var i = 0; i < this.config.maxConcurrency; i++)
+    for (var i = 0; i < this.params.maxConcurrency; i++)
       this._next();
   });
 
@@ -220,9 +220,9 @@ Scraper.prototype.url = function(singleUrl) {
 // Alias
 Scraper.prototype.urls = Scraper.prototype.url;
 
-// Configurin gthe scraper
+// Configuring the scraper
 Scraper.prototype.config = function(o) {
-  this.config = helpers.extend(o, this.config);
+  this.params = helpers.extend(o, this.params);
   return this;
 };
 
