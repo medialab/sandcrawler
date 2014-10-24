@@ -46,6 +46,37 @@ describe('When running fairly multi-url scrapers', function() {
         done();
       });
     });
+
+    it('should be possible to increase maxConcurrency.' , function(done) {
+      var count = 0,
+          check = false;
+
+      var scraper = new sandcrawler.Scraper()
+        .urls([
+          {url: 'http://localhost:7337/resources/basic.html', id: 1},
+          {url: 'http://localhost:7337/resources/basic.html', id: 2},
+          {url: 'http://localhost:7337/resources/basic.html', id: 3}
+        ])
+        .config({maxConcurrency: 2})
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          count++;
+
+          // if (req.params.id < 3)
+          //   check = true;
+
+          // if (req.params.id === 3 && !check)
+          //   throw Error('fail');
+
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(scraper, function(err) {
+        assert(count === 3);
+        done();
+      });
+    });
   });
 
   after(function() {

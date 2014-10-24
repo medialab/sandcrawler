@@ -61,8 +61,9 @@ function Scraper() {
   });
 
   this.once('scraper:start', function() {
+    var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
 
-    for (var i = 0; i < this.params.maxConcurrency; i++)
+    for (var i = 0; i < limit; i++)
       this._next();
   });
 
@@ -161,6 +162,7 @@ Scraper.prototype._run = function(engine, callback) {
 
   this.on('job:end', function(job) {
 
+    // TODO: handle retries and such
     // Removing page from stack
     var idx = _.findIndex(this._stack, function(e) {
       return e.id === job.id;
@@ -184,12 +186,14 @@ Scraper.prototype._run = function(engine, callback) {
 Scraper.prototype._next = function() {
 
   // Did we run dry?
-  if (!this._jobs.length)
+  if (!this._jobs.length && !this._stack.length)
     return this.emit('scraper:success');
 
-  // Continuing
-  this._stack.unshift(this._jobs.shift());
-  this.emit('job:before', this._stack[0]);
+  // Adding a job to the stack if possible
+  if (this._jobs.length) {
+    this._stack.unshift(this._jobs.shift());
+    this.emit('job:before', this._stack[0]);
+  }
 
   return this;
 };
@@ -285,7 +289,7 @@ Scraper.prototype.use = function(fn) {
   fn.call(this, this);
 
   return this;
-}
+};
 
 // Data validation
 Scraper.prototype.validate = function(definition) {

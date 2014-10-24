@@ -40,8 +40,8 @@ function fromFile(location) {
   return str;
 }
 
-function fromString(str) {
-  var str = wrapString(str);
+function fromString(s) {
+  var str = wrapString(s);
   check(str);
   return str;
 }
