@@ -81,7 +81,7 @@ Spawn.prototype.run = function(scraper, callback) {
 
   // Starting
   scraper._run(this);
-}
+};
 
 /**
  * Exporting
