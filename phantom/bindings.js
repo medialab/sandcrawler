@@ -13,40 +13,79 @@ module.exports = function(messenger, params) {
   // TODO: find more elegant way
   webpage.setup(params);
 
-  // Receiving scraping order
+  /**
+   * Scraping order
+   */
   messenger.on('scrape', function(order, reply) {
 
     // Creating webpage
     var page = webpage.create(order.timeout || 5000);
+
+    /**
+     * Helpers
+     */
+
+    // Wrapping response helper
+    function wrapResponse(o, err) {
+      var res = {
+        data: o,
+        url: page.url,
+        headers: page.response.headers,
+        status: page.response.status
+      };
+
+      if (err)
+        res.error = err;
+
+      return res;
+    }
+
+    // Wrapping data helper
+    function wrapData(o) {
+      return {
+        data: o,
+        jobId: order.id
+      };
+    }
+
+    /**
+     * Global page callbacks
+     */
+
+    // On resource received
+    page.onResourceReceived = function(response) {
+      if (page.isOpened)
+        return;
+
+      // Is the resource matching the page's url?
+      // TODO: track url changes
+      page.response = response;
+    };
+
+    // On page callback
+    page.onCallback = function(msg) {
+
+      // Page is returning control
+      if (msg.header === 'done') {
+
+        // On retrieve data, we send back to parent
+        reply(wrapResponse(msg.data));
+
+        // Closing
+        return page.cleanup();
+      }
+    };
+
+
+    /**
+     * Opening url
+     */
 
     // Opening url
     page.open(order.url, function(status) {
 
       // Page is now opened
       page.isOpened = true;
-
-      // Wrapping response helper
-      function wrapResponse(o, err) {
-        var res = {
-          data: o,
-          url: page.url,
-          headers: page.response.headers,
-          status: page.response.status
-        };
-
-        if (err)
-          res.error = err;
-
-        return res;
-      }
-
-      // Wrapping data helper
-      function wrapData(o) {
-        return {
-          data: o,
-          jobId: order.id
-        };
-      }
 
       // Failing
       if (status !== 'success') {
@@ -85,38 +124,11 @@ module.exports = function(messenger, params) {
         }));
       };
 
-      // On page callback
-      page.onCallback = function(msg) {
-        if (msg.header !== 'done')
-          return;
-
-        // On retrieve data, we send back to parent
-        reply(wrapResponse(msg.data));
-
-        // Closing
-        return page.cleanup();
-      };
-
-      // Injecting artoo
+      // Injecting necessary javascript
       page.injectArtoo();
 
       // Evaluating scraper
       page.evaluateAsync(order.scraper);
     });
-
-
-    /**
-     * Global page callbacks
-     */
-
-    // On resource received
-    page.onResourceReceived = function(response) {
-      if (page.isOpened)
-        return;
-
-      // Is the resource matching the page's url?
-      // TODO: track url changes
-      page.response = response;
-    };
   });
 };

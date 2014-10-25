@@ -62,13 +62,6 @@ function Scraper(name) {
     );
   });
 
-  this.once('scraper:start', function() {
-    var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
-
-    for (var i = 0; i < limit; i++)
-      this._next();
-  });
-
   // Job-level listeners
   this.on('job:before', function(job) {
 
@@ -138,6 +131,13 @@ Scraper.prototype._wrapJob = function(mixed) {
 Scraper.prototype._run = function(engine, callback) {
 
   this.engine = engine;
+
+  this.once('scraper:start', function() {
+    var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
+
+    for (var i = 0; i < limit; i++)
+      this._next();
+  });
 
   // Dispatching
   this.emit('scraper:before');
