@@ -17,6 +17,10 @@ var Scraper = require('./abstract.js'),
 function StaticScraper(name) {
   var self = this;
 
+  // New safeguard
+  if (!(this instanceof StaticScraper))
+    return new StaticScraper(name);
+
   // Extending
   Scraper.call(this, name);
 

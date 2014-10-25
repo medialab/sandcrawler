@@ -15,6 +15,10 @@ var Scraper = require('./abstract.js'),
 function DynamicScraper(name) {
   var self = this;
 
+  // New safeguard
+  if (!(this instanceof DynamicScraper))
+    return new DynamicScraper(name);
+
   // Extending
   Scraper.call(this, name);
 
