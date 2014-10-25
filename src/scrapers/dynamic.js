@@ -12,11 +12,11 @@ var Scraper = require('./abstract.js'),
 /**
  * Main Class
  */
-function DynamicScraper() {
+function DynamicScraper(name) {
   var self = this;
 
   // Extending
-  Scraper.call(this);
+  Scraper.call(this, name);
 
   // Properties
   this.type = 'dynamic';

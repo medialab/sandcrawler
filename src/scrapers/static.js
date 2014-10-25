@@ -14,11 +14,11 @@ var Scraper = require('./abstract.js'),
 /**
  * Main Class
  */
-function StaticScraper() {
+function StaticScraper(name) {
   var self = this;
 
   // Extending
-  Scraper.call(this);
+  Scraper.call(this, name);
 
   // Hidden properties
   this._parser = null;

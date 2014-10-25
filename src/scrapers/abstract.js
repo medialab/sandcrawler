@@ -18,7 +18,7 @@ var EventEmitter = require('events').EventEmitter,
 /**
  * Main Class
  */
-function Scraper() {
+function Scraper(name) {
   var self = this;
 
   // Extending event emitter
@@ -26,6 +26,7 @@ function Scraper() {
 
   // Assigning a unique identifer
   this.id = 'Scraper[' + uuid.v4() + ']';
+  this.name = name || this.id;
 
   // Properties
   this.engine = null;
