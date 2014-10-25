@@ -34,12 +34,12 @@ function DynamicScraper(name) {
     // Binding messenger listeners
     this.engine.spy.messenger.on('page:log', function(msg) {
       var job = self._findJob(msg.jobId);
-      self.emit('page:log', msg.data);
+      self.emit('page:log', msg.data, job.req, job.res);
     });
 
     this.engine.spy.messenger.on('page:error', function(msg) {
       var job = self._findJob(msg.jobId);
-      self.emit('page:error', msg.data);
+      self.emit('page:error', msg.data, job.req, job.res);
     });
   });
 
