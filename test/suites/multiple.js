@@ -88,9 +88,9 @@ describe('When running fairly multi-url scrapers', function() {
         });
 
       phantom.run(scraper, function(err, remains) {
-        console.log(remains);
         assert(remains.length === 1);
-        assert.scrictEqual(remains[0].id, 3);
+        assert(count === 3);
+        assert.strictEqual(remains[0].id, 3);
         done();
       });
     });

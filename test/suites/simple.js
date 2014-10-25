@@ -79,6 +79,28 @@ describe('When running fairly simple scrapers', function() {
         phantom.run(globalScraper);
       }, /fulfilled/);
     });
+
+    it('should dispatch an error when phantom failed to grasp the page.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url('inexistantpage.html')
+        .script(__dirname + '/../resources/scrapers/logger.js')
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'phantom-fail');
+        });
+
+      phantom.run(scraper, done);
+    });
+
+    it('should dispatch an error when the page status is not correct.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/404.html')
+        .script(__dirname + '/../resources/scrapers/logger.js')
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'status-404');
+        });
+
+      phantom.run(scraper, done);
+    });
   });
 
   describe('Jawascript', function() {

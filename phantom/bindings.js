@@ -22,6 +22,9 @@ module.exports = function(messenger, params) {
     // Opening url
     page.open(order.url, function(status) {
 
+      // Page is now opened
+      page.isOpened = true;
+
       // Wrapping response helper
       function wrapResponse(o, err) {
         var res = {
@@ -37,6 +40,7 @@ module.exports = function(messenger, params) {
         return res;
       }
 
+      // Wrapping data helper
       function wrapData(o) {
         return {
           data: o,
@@ -47,6 +51,12 @@ module.exports = function(messenger, params) {
       // Failing
       if (status !== 'success') {
         reply(wrapResponse(null, 'fail'));
+        return page.cleanup();
+      }
+
+      // Wrong status code
+      if (!page.response.status || page.response.status >= 400) {
+        reply(wrapResponse(null, 'status'));
         return page.cleanup();
       }
 
@@ -101,12 +111,11 @@ module.exports = function(messenger, params) {
 
     // On resource received
     page.onResourceReceived = function(response) {
+      if (page.isOpened)
+        return;
 
       // Is the resource matching the page's url?
       // TODO: track url changes
-      if (response.url !== order.url)
-        return;
-
       page.response = response;
     };
   });

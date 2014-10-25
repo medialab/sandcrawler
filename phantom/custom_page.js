@@ -14,6 +14,7 @@ function Bootstrap(lifespan) {
 
   // Fallback response object
   this.response = {};
+  this.isOpened = false;
 
   // TODO: inject jQuery safely by requesting it with artoo
   // TODO: find a way to setup artoo finely

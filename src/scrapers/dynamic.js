@@ -80,8 +80,15 @@ function DynamicScraper(name) {
           return self.emit('job:fail', err, job);
 
         // Phantom failure
-        if (response.error)
+        if (response.error && response.error === 'fail')
           return self.emit('job:fail', new Error('phantom-fail'), job);
+
+        // Wrong status code
+        if (response.error && response.error === 'status') {
+          var error = new Error('status-' + response.status);
+          error.status = response.status;
+          return self.emit('job:fail', error, job);
+        }
 
         self.emit('job:after', job);
       }
