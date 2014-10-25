@@ -38,17 +38,17 @@ Spawn.prototype.start = function(callback) {
     self.spy = spy;
 
     // Binding
-    self.on = self.spy.on.bind(self);
+    self.on = self.spy.on.bind(self.spy);
 
     // DEBUG: remove this asap
     self.on('phantom:close', function() {
-      console.log('phantom', arguments);
+      console.log('SANDCRAWLER:PHANTOM:DEBUG:CLOSE', arguments);
     });
     self.on('phantom:error', function() {
-      console.log('phantom', arguments);
+      console.log('SANDCRAWLER:PHANTOM:DEBUG:ERROR', arguments);
     });
     self.on('phantom:log', function() {
-      console.log('phantom', arguments[0]);
+      console.log('SANDCRAWLER:PHANTOM:DEBUG:LOG', arguments[0]);
     });
 
     callback();
@@ -81,7 +81,7 @@ Spawn.prototype.run = function(scraper, callback) {
 
   // Starting
   this._runningScrapers.push(scraper.id);
-  scraper._run(this, function(err) {
+  scraper._run(this, function(err, remains) {
 
     // Autoclosing the spawn?
     var idx = self._runningScrapers.indexOf(scraper.id);
@@ -91,9 +91,9 @@ Spawn.prototype.run = function(scraper, callback) {
       self.close();
 
     if (err)
-      return callback(err);
+      return callback(err, remains);
 
-    callback(null);
+    callback(null, remains);
   });
 };
 

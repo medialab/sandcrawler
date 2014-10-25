@@ -36,6 +36,7 @@ function Scraper(name) {
   // Hidden properties
   this._jobs = [];
   this._stack = [];
+  this._remains = [];
 
   this._middlewares = {
     before: [],
@@ -112,6 +113,8 @@ util.inherits(Scraper, EventEmitter);
 Scraper.prototype._wrapJob = function(mixed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
+    original: mixed,
+    failing: false,
     req: {
       retries: 0,
       retry: null,
@@ -154,6 +157,7 @@ Scraper.prototype._run = function(engine, callback) {
 
   // Listening to jobs
   this.on('job:fail', function(err, job) {
+    job.failing = true;
     this.emit('job:end', job);
   });
 
@@ -169,15 +173,21 @@ Scraper.prototype._run = function(engine, callback) {
       return e.id === job.id;
     });
 
+    // If the job is failing, we add it to the remains
+    if (job.failing)
+      this._remains.push(job.original);
+
     this._stack.splice(idx, 1);
     this._next();
   });
 
   // Listening to scraper ending
-  // TODO: provide autoclose here
-  this.on('scraper:fail', callback);
+  this.on('scraper:fail', function(err) {
+    callback(err, this._remains);
+  });
+
   this.on('scraper:success', function() {
-    callback(null);
+    callback(null, this._remains);
   });
 
   return this;

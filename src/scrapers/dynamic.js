@@ -79,6 +79,10 @@ function DynamicScraper(name) {
         if (err)
           return self.emit('job:fail', err, job);
 
+        // Phantom failure
+        if (response.error)
+          return self.emit('job:fail', new Error('phantom-fail'), job);
+
         self.emit('job:after', job);
       }
     );

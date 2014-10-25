@@ -12,6 +12,9 @@ var webpage = require('webpage'),
 function Bootstrap(lifespan) {
   var self = this;
 
+  // Fallback response object
+  this.response = {};
+
   // TODO: inject jQuery safely by requesting it with artoo
   // TODO: find a way to setup artoo finely
   this.injectArtoo = function() {

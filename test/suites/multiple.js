@@ -62,18 +62,35 @@ describe('When running fairly multi-url scrapers', function() {
         .result(function(err, req, res) {
           count++;
 
-          // if (req.params.id < 3)
-          //   check = true;
-
-          // if (req.params.id === 3 && !check)
-          //   throw Error('fail');
-
           assert(err === null);
           assert.deepEqual(res.data, samples.basic);
         });
 
       phantom.run(scraper, function(err) {
         assert(count === 3);
+        done();
+      });
+    });
+
+    it('should be possible to get the remains back after the scraper has been fulfilled.', function(done) {
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .urls([
+          {url: 'http://localhost:7337/resources/basic.html', id: 1},
+          {url: 'http://localhost:7337/resources/basic.html', id: 2},
+          {url: 'http://localhost:7337/resources/404.html', id: 3}
+        ])
+        .config({maxConcurrency: 3, timeout: 300})
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          count++;
+        });
+
+      phantom.run(scraper, function(err, remains) {
+        console.log(remains);
+        assert(remains.length === 1);
+        assert.scrictEqual(remains[0].id, 3);
         done();
       });
     });

@@ -104,7 +104,7 @@ module.exports = function(messenger, params) {
 
       // Is the resource matching the page's url?
       // TODO: track url changes
-      if (response.stage === 'end' && response.url !== order.url)
+      if (response.url !== order.url)
         return;
 
       page.response = response;
