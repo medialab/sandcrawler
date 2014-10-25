@@ -57,6 +57,30 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('Error handling', function() {
+    var globalScraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .config({timeout: 200})
+        .result(function(err) {
+          assert.strictEqual(err.message, 'timeout');
+        });
+
+    it('should timeout correctly.', function(done) {
+      phantom.run(globalScraper, done);
+    });
+
+    it('should throw an error when running a fulfilled scraper.', function() {
+
+      assert.throws(function() {
+        sandcrawler.run(globalScraper);
+      }, /fulfilled/);
+
+      assert.throws(function() {
+        phantom.run(globalScraper);
+      }, /fulfilled/);
+    });
+  });
+
   describe('Jawascript', function() {
 
     it('should be possible to run some jawascript from a function.', function(done) {

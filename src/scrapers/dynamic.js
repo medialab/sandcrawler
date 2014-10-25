@@ -69,7 +69,7 @@ function DynamicScraper(name) {
       function(err, response) {
 
         // Populating response
-        job.res = response;
+        job.res = response || {};
 
         // TODO: deal with various errors
         if (err)
