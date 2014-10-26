@@ -39,6 +39,10 @@ Sandcrawler.prototype.run = function(scraper, callback) {
   if (scraper.done)
     throw Error('sandcrawler.run: given scraper has already been fulfilled.');
 
+  if (scraper.running)
+    throw Error('sandcrawler.run: given scraper has already running.');
+
+  // Running without engine
   if (scraper.type === 'static') {
     scraper._run(callback);
 

@@ -79,6 +79,9 @@ Spawn.prototype.run = function(scraper, callback) {
   if (scraper.done)
     throw Error('sandcrawler.spawn.run: given scraper has already been fulfilled.');
 
+  if (scraper.running)
+    throw Error('sandcrawler.spawn.run: given scraper has already running.');
+
   // Starting
   this._runningScrapers.push(scraper.id);
   scraper._run(this, function(err, remains) {

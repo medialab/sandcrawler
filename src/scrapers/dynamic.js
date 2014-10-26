@@ -75,7 +75,6 @@ function DynamicScraper(name) {
         // Populating response
         job.res = response || {};
 
-        // TODO: deal with various errors
         if (err)
           return self.emit('job:fail', err, job);
 

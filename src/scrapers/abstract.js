@@ -30,6 +30,7 @@ function Scraper(name) {
 
   // Properties
   this.engine = null;
+  this.running = false;
   this.done = false;
   this.params = defaults.scraper;
 
@@ -136,6 +137,7 @@ Scraper.prototype._wrapJob = function(mixed) {
 Scraper.prototype._run = function(engine, callback) {
 
   this.engine = engine;
+  this.running = true;
 
   this.once('scraper:start', function() {
     var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
