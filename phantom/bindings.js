@@ -42,7 +42,7 @@ module.exports = function(messenger, params) {
         settings.setAttribute('id', 'artoo_injected_script');
         settings.setAttribute('settings', '{"log":{"welcome": false}}');
 
-        document.body.appendChild(settings);
+        document.documentElement.appendChild(settings);
       });
 
       // artoo
@@ -104,6 +104,12 @@ module.exports = function(messenger, params) {
     // On page callback
     page.onCallback = function(msg) {
 
+      // Body is now loaded
+      if (msg.header === 'documentReady') {
+        page.onDocumentReady && page.onDocumentReady();
+        return;
+      }
+
       // Page is returning control
       if (msg.header === 'done') {
 
@@ -113,6 +119,16 @@ module.exports = function(messenger, params) {
         // Closing
         return cleanup();
       }
+    };
+
+    // On body loaded
+    page.onDocumentReady = function() {
+
+      // Injecting necessary javascript
+      injectArtoo();
+
+      // Evaluating scraper
+      page.evaluateAsync(order.scraper);
     };
 
     // On page console message
@@ -157,11 +173,15 @@ module.exports = function(messenger, params) {
         return cleanup();
       }
 
-      // Injecting necessary javascript
-      injectArtoo();
-
-      // Evaluating scraper
-      page.evaluateAsync(order.scraper);
+      // Waiting for body to load
+      page.evaluateAsync(function() {
+        var interval = setInterval(function() {
+          if (document.readyState === 'complete') {
+            clearInterval(interval);
+            window.callPhantom({header: 'documentReady', data: true});
+          }
+        }, 30);
+      });
     });
   });
 };
