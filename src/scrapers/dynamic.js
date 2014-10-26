@@ -85,7 +85,7 @@ function DynamicScraper(name) {
 
         // Wrong status code
         if (response.error && response.error === 'status') {
-          var error = new Error('status-' + response.status);
+          var error = new Error('status-' + (response.status || 'unknown'));
           error.status = response.status;
           return self.emit('job:fail', error, job);
         }
