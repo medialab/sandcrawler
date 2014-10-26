@@ -108,14 +108,19 @@ Scraper.prototype._wrapJob = function(mixed) {
     id: 'Job[' + uuid.v4() + ']',
     original: mixed,
     failing: false,
+    retrying: false,
     req: {
-      retries: 0,
-      retry: null,
-      delay: null
+      retries: 0
     },
     res: {}
   };
 
+  // Binding methods
+  job.req.retry = this._retryJob.bind(this, job);
+  job.req.retryNow = this._retryJob.bind(this, job, 'now');
+  job.req.retryLater = this._retryJob.bind(this, job, 'later');
+
+  // Populating
   if (types.get(mixed) === 'string') {
     job.req.url = mixed;
   }
@@ -136,7 +141,7 @@ Scraper.prototype._run = function(engine, callback) {
     var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
 
     for (var i = 0; i < limit; i++)
-      this._next();
+      this._nextJob();
   });
 
   // Dispatching
@@ -167,7 +172,10 @@ Scraper.prototype._run = function(engine, callback) {
 
   this.on('job:end', function(job) {
 
-    // TODO: handle retries and such
+    // If retrying, we skip to the next job
+    if (job.retrying)
+      return this._nextJob();
+
     // Removing page from stack
     var idx = _.findIndex(this._stack, function(e) {
       return e.id === job.id;
@@ -178,7 +186,7 @@ Scraper.prototype._run = function(engine, callback) {
       this._remains.push(job.original);
 
     this._stack.splice(idx, 1);
-    this._next();
+    this._nextJob();
   });
 
   // Listening to scraper ending
@@ -194,7 +202,7 @@ Scraper.prototype._run = function(engine, callback) {
 };
 
 // Performing next job
-Scraper.prototype._next = function() {
+Scraper.prototype._nextJob = function() {
 
   // Did we run dry?
   if (!this._jobs.length && !this._stack.length)
@@ -203,6 +211,9 @@ Scraper.prototype._next = function() {
   // Adding a job to the stack if possible
   if (this._jobs.length) {
     this._stack.unshift(this._jobs.shift());
+
+    // Reinitializing "retrying" flag
+    this._stack[0].retrying = false;
     this.emit('job:before', this._stack[0]);
   }
 
@@ -220,6 +231,34 @@ Scraper.prototype._findJob = function(id) {
                 'inexistant job in the stack.');
 
   return job;
+};
+
+// Retry a job
+Scraper.prototype._retryJob = function(job, when) {
+
+  // By default, we retry later
+  when = when || 'later';
+
+  // Assigning a retry value
+  job.retrying = true;
+
+  // Incrementing the number of retries
+  job.req.retries++;
+
+  // TODO: maxRetries
+
+  // Dropping from stack
+  var idx = _.findIndex(this._stack, function(e) {
+    return e.id === job.id;
+  });
+
+  this._stack.splice(idx, 1);
+
+  // Reinstating in the job stack at the desired position
+  this._jobs[when === 'now' ? 'unshift' : 'push'](job);
+
+  // Emitting
+  this.emit('job:retry', job);
 };
 
 /**

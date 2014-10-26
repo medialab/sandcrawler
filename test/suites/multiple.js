@@ -131,6 +131,33 @@ describe('When running multi-url scrapers', function() {
     });
   });
 
+  describe('Retries', function() {
+
+    it('should be possible to retry some jobs.', function(done) {
+      var eventCount = 0,
+          resultCount = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/retries')
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          resultCount++;
+          if (err) req.retryLater();
+        })
+        .on('job:retry', function(job) {
+          eventCount++;
+          assert(job.req.retries === 1);
+          assert.strictEqual(job.req.url, 'http://localhost:7337/retries');
+        });
+
+      phantom.run(scraper, function(err, remains) {
+        assert(resultCount === 2);
+        assert(eventCount === 1);
+        done();
+      });
+    });
+  });
+
   after(function() {
 
     // Now closing the phantom
