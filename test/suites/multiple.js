@@ -10,7 +10,7 @@ var assert = require('assert'),
 
 var phantom;
 
-describe('When running fairly multi-url scrapers', function() {
+describe('When running multi-url scrapers', function() {
 
   before(function(done) {
 
@@ -91,6 +91,41 @@ describe('When running fairly multi-url scrapers', function() {
         assert(remains.length === 1);
         assert(count === 3);
         assert.strictEqual(remains[0].id, 3);
+        done();
+      });
+    });
+  });
+
+  describe('Expansion', function() {
+
+    it('should be possible to add new jobs to the stack.', function(done) {
+      var i = 0,
+          count = 0,
+          eventCount = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          count++;
+
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+
+          // Expanding
+          if (i < 2)
+            this.addUrl('http://localhost:7337/resources/basic.html');
+
+          i++;
+        })
+        .on('job:added', function(job) {
+          eventCount++;
+          assert.strictEqual(job.req.url, 'http://localhost:7337/resources/basic.html');
+        });
+
+      phantom.run(scraper, function(err, remains) {
+        assert(count === 3);
+        assert(eventCount === 2);
         done();
       });
     });

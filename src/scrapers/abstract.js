@@ -243,8 +243,30 @@ Scraper.prototype.url = function(feed) {
   return this;
 };
 
-// Alias
+// Adding a new url during runtime
+Scraper.prototype.addUrl = function(feed) {
+  var list;
+
+  // TODO: more precise type checking
+  if (!types.check(feed, 'string|array|object'))
+    throw Error('sandcrawler.scraper.addUrl(s): wrong argument.');
+
+  list = !(feed instanceof Array) ? [feed] : feed;
+
+  list.forEach(function(item) {
+    var job = this._wrapJob(item);
+    this._jobs.push(job);
+
+    // Emitting
+    this.emit('job:added', job);
+  }, this);
+
+  return this;
+};
+
+// Aliases
 Scraper.prototype.urls = Scraper.prototype.url;
+Scraper.prototype.addUrls = Scraper.prototype.addUrl;
 
 // Configuring the scraper
 Scraper.prototype.config = function(o) {
