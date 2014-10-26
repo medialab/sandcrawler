@@ -33,9 +33,17 @@ function StaticScraper(name) {
 
       // Overloading job's response
       job.res.body = body;
+      job.res.status = response.statusCode;
 
-      // TODO: harsh refining and options.
+      // Dispatching error if any
       if (err) return self.emit('job:fail', err, job);
+
+      // Status error
+      if (response.statusCode >= 400) {
+        var error = new Error('status-' + (response.statusCode || 'unknown'));
+        error.status = response.statusCode;
+        return self.emit('job:fail', error, job);
+      }
 
       // Do parsing
       if (self._parser) {
