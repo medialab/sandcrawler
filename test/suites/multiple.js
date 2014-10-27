@@ -124,7 +124,24 @@ describe('When running multi-url scrapers', function() {
     });
 
     it('should be possible to set a limit to the iterator.', function(done) {
-      done();
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .iterate(function(i, req, res) {
+          return 'http://localhost:7337/resources/basic.html';
+        })
+        .config({limit: 3})
+        .jawascript(function(done) {
+          done();
+        })
+        .result(function() {
+          count++;
+        });
+
+      phantom.run(scraper, function() {
+        assert(count === 3);
+        done();
+      });
     });
 
     it('should be possible to start from a single url.', function(done) {

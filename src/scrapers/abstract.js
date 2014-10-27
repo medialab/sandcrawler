@@ -229,8 +229,9 @@ Scraper.prototype._nextJob = function(lastJob) {
     if (feed) this.addUrl(feed);
   }
 
-  // Did we run dry?
-  if (!this._jobs.length && !this._stack.length)
+  // Did we run dry or did we hit the limit?
+  if ((!this._jobs.length && !this._stack.length) ||
+      (this.params.limit && this._doneCount >= this.params.limit))
     return this.emit('scraper:success');
 
   // Adding a job to the stack if possible
