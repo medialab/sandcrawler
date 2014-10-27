@@ -99,6 +99,25 @@ describe('When running multi-url scrapers', function() {
   describe('Iterator', function() {
 
     it('should be possible to use a function as iterator.', function(done) {
+      var count = 0;
+
+      // var scraper = new sandcrawler.Scraper()
+      //   .iterate(function(i, req, res) {
+      //     return !i ?
+      //       'http://localhost:7337/resources/basic.html' :
+      //       res.data.nextPage;
+      //   })
+      //   .jawascript(function(done) {
+      //     done({nextPage: 'http://localhost:7337/resources/basic.html'});
+      //   })
+      //   .result(function(err, req, res) {
+      //     count++;
+      //   });
+
+      done();
+    });
+
+    it('should be possible to set a limit to the iterator.', function(done) {
       done();
     });
 

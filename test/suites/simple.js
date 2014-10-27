@@ -53,7 +53,7 @@ describe('When running fairly simple scrapers', function() {
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .on('page:log', function(data) {
-          i++
+          i++;
 
           // TODO: change when artoo logging issue is solved
           if (i === 3)

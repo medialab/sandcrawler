@@ -5,7 +5,8 @@ var gulp = require('gulp'),
 // Files
 var files = [
   './phantom/*.js',
-  './src/**/*.js'
+  './src/**/*.js',
+  './test/**/*.js'
 ];
 
 // Lint

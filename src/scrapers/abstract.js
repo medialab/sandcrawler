@@ -36,6 +36,7 @@ function Scraper(name) {
 
   // Hidden properties
   this._iterator = null;
+  this._doneCount = 0;
   this._jobs = [];
   this._stack = [];
   this._remains = [];
@@ -181,6 +182,9 @@ Scraper.prototype._run = function(engine, callback) {
     if (job.state.retrying)
       return this._nextJob();
 
+    // A job has been done, we increment the count
+    this._doneCount++;
+
     // Removing page from stack
     var idx = _.findIndex(this._stack, function(e) {
       return e.id === job.id;
@@ -211,7 +215,15 @@ Scraper.prototype._nextJob = function(lastJob) {
 
   // Running iterator if needed
   if (!this._jobs.length && this._iterator && lastJob) {
-    var feed = this._iterator.call(this, lastJob.req, lastJob.res);
+
+    // We call the iterator
+    var feed = this._iterator.call(this,
+      this._doneCount,
+      lastJob.req,
+      lastJob.res
+    );
+
+    // If a feed was returned, we add it to the jobs
     if (feed) this.addUrl(feed);
   }
 
