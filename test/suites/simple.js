@@ -24,6 +24,26 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('Minimal use case', function() {
+
+    it('should work correctly.', function(done) {
+
+      // Creating the scraper
+      var scraper = new sandcrawler.scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      // Running the scraper
+      sandcrawler.run(scraper, function(err) {
+        assert(err === null);
+        done();
+      });
+    });
+  });
+
   describe('Event subscription', function() {
 
     it('should be possible to subscribe to page log.', function(done) {
