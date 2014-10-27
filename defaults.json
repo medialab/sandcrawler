@@ -1,5 +1,11 @@
 {
   "scraper": {
+    "artoo": {
+      "log": {
+        "welcome": false,
+        "enabled": false
+      }
+    },
     "limit": false,
     "maxConcurrency": 1,
     "maxRetries": 3,
@@ -9,13 +15,6 @@
     "autoClose": true,
     "args": {
       "ignoreSslErrors": true
-    }
-  },
-  "artoo": {
-    "settings": {
-      "log": {
-        "welcome": false
-      }
     }
   }
 }

@@ -30,20 +30,19 @@ module.exports = function(messenger, params) {
     page.isOpened = false;
 
     // TODO: inject jQuery safely by requesting it with artoo
-    // TODO: find a way to setup artoo finely
     function injectArtoo() {
 
       // jQuery
       page.injectJs(params.paths.jquery);
 
       // artoo settings
-      page.evaluate(function() {
+      page.evaluate(function(jsonSettings) {
         var settings = document.createElement('div');
         settings.setAttribute('id', 'artoo_injected_script');
-        settings.setAttribute('settings', '{"log":{"welcome": false}}');
+        settings.setAttribute('settings', jsonSettings);
 
         document.documentElement.appendChild(settings);
-      });
+      }, JSON.stringify(order.artooSettings));
 
       // artoo
       page.injectJs(params.paths.artoo);
