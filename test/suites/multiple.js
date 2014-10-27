@@ -101,20 +101,26 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to use a function as iterator.', function(done) {
       var count = 0;
 
-      // var scraper = new sandcrawler.Scraper()
-      //   .iterate(function(i, req, res) {
-      //     return !i ?
-      //       'http://localhost:7337/resources/basic.html' :
-      //       res.data.nextPage;
-      //   })
-      //   .jawascript(function(done) {
-      //     done({nextPage: 'http://localhost:7337/resources/basic.html'});
-      //   })
-      //   .result(function(err, req, res) {
-      //     count++;
-      //   });
+      var scraper = new sandcrawler.Scraper()
+        .iterate(function(i, req, res) {
+          if (i === 3)
+            return false;
 
-      done();
+          return !i ?
+            'http://localhost:7337/resources/basic.html' :
+            res.data.nextPage;
+        })
+        .jawascript(function(done) {
+          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        })
+        .result(function(err, req, res) {
+          count++;
+        });
+
+      phantom.run(scraper, function() {
+        assert(count === 3);
+        done();
+      });
     });
 
     it('should be possible to set a limit to the iterator.', function(done) {
@@ -122,11 +128,54 @@ describe('When running multi-url scrapers', function() {
     });
 
     it('should be possible to start from a single url.', function(done) {
-      done();
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .iterate(function(i, req, res) {
+          if (i === 3)
+            return false;
+
+          return res.data.nextPage;
+        })
+        .jawascript(function(done) {
+          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        })
+        .result(function(err, req, res) {
+          count++;
+        });
+
+      phantom.run(scraper, function() {
+        assert(count === 3);
+        done();
+      });
     });
 
     it('should be possible to start from a list of urls.', function(done) {
-      done();
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .iterate(function(i, req, res) {
+          if (i === 5)
+            return false;
+
+          return res.data.nextPage;
+        })
+        .jawascript(function(done) {
+          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        })
+        .result(function(err, req, res) {
+          count++;
+        });
+
+      phantom.run(scraper, function() {
+        assert(count === 5);
+        done();
+      });
     });
   });
 
@@ -175,6 +224,10 @@ describe('When running multi-url scrapers', function() {
         .url('http://localhost:7337/retries')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
+          assert(typeof req.retry === 'function');
+          assert(typeof req.retryLater === 'function');
+          assert(typeof req.retryNow === 'function');
+
           resultCount++;
           if (err) req.retryLater();
         })

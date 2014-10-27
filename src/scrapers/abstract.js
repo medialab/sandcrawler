@@ -214,13 +214,15 @@ Scraper.prototype._run = function(engine, callback) {
 Scraper.prototype._nextJob = function(lastJob) {
 
   // Running iterator if needed
-  if (!this._jobs.length && this._iterator && lastJob) {
+  if (this._iterator &&
+      !this._jobs.length &&
+      ((this._doneCount && lastJob) || true)) {
 
     // We call the iterator
     var feed = this._iterator.call(this,
       this._doneCount,
-      lastJob.req,
-      lastJob.res
+      (lastJob || {}).req,
+      (lastJob || {}).res
     );
 
     // If a feed was returned, we add it to the jobs
