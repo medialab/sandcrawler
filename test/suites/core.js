@@ -28,6 +28,14 @@ describe('When using sandcrawler API', function() {
           });
       }, /returning control/);
     });
+
+    it('should throw an error when trying to register a script twice.', function() {
+      assert.throws(function() {
+        var scraper = new sandcrawler.Scraper()
+          .script(__dirname + '/../resources/scrapers/basic.js')
+          .script(__dirname + '/../resources/scrapers/basic.js');
+      }, /script already registered/);
+    });
   });
 });
 
