@@ -47,7 +47,7 @@ module.exports = function(messenger, params) {
 
       // artoo
       page.injectJs(params.paths.artoo);
-    };
+    }
 
     // Kill
     function cleanup() {
@@ -55,7 +55,7 @@ module.exports = function(messenger, params) {
         clearTimeout(page.timeout);
 
       page.close();
-    };
+    }
 
     // Creating timeout
     page.timeout = setTimeout(cleanup, lifespan);
@@ -105,10 +105,8 @@ module.exports = function(messenger, params) {
     page.onCallback = function(msg) {
 
       // Body is now loaded
-      if (msg.header === 'documentReady') {
-        page.onDocumentReady && page.onDocumentReady();
-        return;
-      }
+      if (msg.header === 'documentReady' && page.onDocumentReady)
+        return page.onDocumentReady();
 
       // Page is returning control
       if (msg.header === 'done') {
@@ -128,7 +126,7 @@ module.exports = function(messenger, params) {
       injectArtoo();
 
       // Evaluating scraper
-      page.evaluateAsync(order.scraper);
+      page.evaluateAsync(order.script);
     };
 
     // On page console message

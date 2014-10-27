@@ -62,7 +62,7 @@ function DynamicScraper(name) {
       {
         id: job.id,
         url: job.req.url,
-        scraper: this._script,
+        script: this._script,
         timeout: this.params.timeout
       },
 
