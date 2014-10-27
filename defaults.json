@@ -6,7 +6,10 @@
     "timeout": 5000
   },
   "spawn": {
-    "autoClose": true
+    "autoClose": true,
+    "args": {
+      "ignoreSslErrors": true
+    }
   },
   "artoo": {
     "settings": {
