@@ -109,8 +109,10 @@ Scraper.prototype._wrapJob = function(mixed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: mixed,
-    failing: false,
-    retrying: false,
+    state: {
+      failing: false,
+      retrying: false
+    },
     req: {
       retries: 0
     },
@@ -165,7 +167,7 @@ Scraper.prototype._run = function(engine, callback) {
 
   // Listening to jobs
   this.on('job:fail', function(err, job) {
-    job.failing = true;
+    job.state.failing = true;
     this.emit('job:end', job);
   });
 
@@ -176,7 +178,7 @@ Scraper.prototype._run = function(engine, callback) {
   this.on('job:end', function(job) {
 
     // If retrying, we skip to the next job
-    if (job.retrying)
+    if (job.state.retrying)
       return this._nextJob();
 
     // Removing page from stack
@@ -185,7 +187,7 @@ Scraper.prototype._run = function(engine, callback) {
     });
 
     // If the job is failing, we add it to the remains
-    if (job.failing)
+    if (job.state.failing)
       this._remains.push(job.original);
 
     this._stack.splice(idx, 1);
@@ -208,7 +210,7 @@ Scraper.prototype._run = function(engine, callback) {
 Scraper.prototype._nextJob = function(lastJob) {
 
   // Running iterator if needed
-  if (this._iterator && lastJob) {
+  if (!this._jobs.length && this._iterator && lastJob) {
     var feed = this._iterator.call(this, lastJob.req, lastJob.res);
     if (feed) this.addUrl(feed);
   }
@@ -222,7 +224,7 @@ Scraper.prototype._nextJob = function(lastJob) {
     this._stack.unshift(this._jobs.shift());
 
     // Reinitializing "retrying" flag
-    this._stack[0].retrying = false;
+    this._stack[0].state.retrying = false;
     this.emit('job:before', this._stack[0]);
   }
 
@@ -249,7 +251,7 @@ Scraper.prototype._retryJob = function(job, when) {
   when = when || 'later';
 
   // Assigning a retry value
-  job.retrying = true;
+  job.state.retrying = true;
 
   // Incrementing the number of retries
   job.req.retries++;
