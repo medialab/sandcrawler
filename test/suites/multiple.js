@@ -23,7 +23,7 @@ describe('When running multi-url scrapers', function() {
     });
   });
 
-  describe('Fetching a series of urls', function() {
+  describe('Series', function() {
 
     it('should work correctly.' , function(done) {
       var count = 0;
@@ -93,6 +93,21 @@ describe('When running multi-url scrapers', function() {
         assert.strictEqual(remains[0].id, 3);
         done();
       });
+    });
+  });
+
+  describe('Iterator', function() {
+
+    it('should be possible to use a function as iterator.', function(done) {
+      done();
+    });
+
+    it('should be possible to start from a single url.', function(done) {
+      done();
+    });
+
+    it('should be possible to start from a list of urls.', function(done) {
+      done();
     });
   });
 

@@ -1,10 +1,17 @@
 {
   "scraper": {
-  	"timeout": 5000,
-  	"maxConcurrency": 1,
-  	"maxRetries": 3
+    "timeout": 5000,
+    "maxConcurrency": 1,
+    "maxRetries": 3
   },
   "spawn": {
-  	"autoClose": true
+    "autoClose": true
+  },
+  "artoo": {
+    "settings": {
+      "log": {
+        "welcome": false
+      }
+    }
   }
 }

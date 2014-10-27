@@ -35,6 +35,7 @@ function Scraper(name) {
   this.params = defaults.scraper;
 
   // Hidden properties
+  this._iterator = null;
   this._jobs = [];
   this._stack = [];
   this._remains = [];
@@ -188,7 +189,7 @@ Scraper.prototype._run = function(engine, callback) {
       this._remains.push(job.original);
 
     this._stack.splice(idx, 1);
-    this._nextJob();
+    this._nextJob(job);
   });
 
   // Listening to scraper ending
@@ -204,7 +205,13 @@ Scraper.prototype._run = function(engine, callback) {
 };
 
 // Performing next job
-Scraper.prototype._nextJob = function() {
+Scraper.prototype._nextJob = function(lastJob) {
+
+  // Running iterator if needed
+  if (this._iterator && lastJob) {
+    var feed = this._iterator.call(this, lastJob.req, lastJob.res);
+    if (feed) this.addUrl(feed);
+  }
 
   // Did we run dry?
   if (!this._jobs.length && !this._stack.length)
@@ -308,6 +315,20 @@ Scraper.prototype.addUrl = function(feed) {
 // Aliases
 Scraper.prototype.urls = Scraper.prototype.url;
 Scraper.prototype.addUrls = Scraper.prototype.addUrl;
+
+// Using an url iterator
+Scraper.prototype.iterate = function(fn) {
+
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.iterate: given argument is not a function.');
+
+  if (this._iterator)
+    throw Error('sandcrawler.scraper.iterate: iterator has already been provided.');
+
+  this._iterator = fn;
+
+  return this;
+};
 
 // Configuring the scraper
 Scraper.prototype.config = function(o) {
