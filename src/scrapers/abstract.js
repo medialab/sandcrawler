@@ -26,7 +26,7 @@ function Scraper(name) {
 
   // Assigning a unique identifer
   this.id = 'Scraper[' + uuid.v4() + ']';
-  this.name = name || this.id;
+  this.name = name || this.id.substr(0, 16) + ']';
 
   // Properties
   this.engine = null;
@@ -269,6 +269,33 @@ Scraper.prototype._retryJob = function(job, when) {
   // Emitting
   this.emit('job:retry', job);
 };
+
+// Cleaning internals
+Scraper.prototype._cleanup = function() {
+
+  // Removing every event listeners
+  this.removeAllListeners();
+
+  // Cleaning properties
+  this.engine = null;
+  this.running = false;
+  this.done = false;
+  this.params = defaults.scraper;
+
+  // Cleaning hidden properties
+  this._iterator = null;
+  this._jobs = [];
+  this._stack = [];
+  this._remains = [];
+
+  // Cleaning hidden properties
+  this._middlewares = {
+    before: [],
+    beforeScraping: [],
+    afterScraping: []
+  };
+};
+
 
 /**
  * Prototype
