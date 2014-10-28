@@ -51,6 +51,8 @@ Sandcrawler.prototype.run = function(scraper, callback) {
 
   // We need to spawn a default phantom for this scraper
   this.spawn(function(err, spawn) {
+    if (err)
+      return callback(err);
 
     // Running the scraper in this newly created spawn
     spawn.run(scraper, callback);
