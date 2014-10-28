@@ -51,6 +51,10 @@ function Scraper(name) {
   };
 
   // Scraper-level listeners
+  this.once('scraper:fail', function() {
+    this._cleanup();
+  });
+
   this.once('scraper:before', function() {
 
     // Applying before middlewares
