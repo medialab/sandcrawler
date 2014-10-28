@@ -32,6 +32,7 @@ function Scraper(name) {
   this.engine = null;
   this.params = defaults.scraper;
   this.state = {
+    paused: false,
     running: false,
     done: false
   };
@@ -240,8 +241,9 @@ Scraper.prototype._nextJob = function(lastJob) {
   if (this._jobs.length) {
     this._stack.unshift(this._jobs.shift());
 
-    // Reinitializing "retrying" flag
+    // Reinitializing state
     this._stack[0].state.retrying = false;
+    this._stack[0].state.failing = false;
     this.emit('job:before', this._stack[0]);
   }
 
@@ -258,6 +260,10 @@ Scraper.prototype._findJob = function(id) {
 // Retry a job
 Scraper.prototype._retryJob = function(job, when) {
 
+  // If we hit the max retry
+  if (job.req.retries >= this.params.maxRetries)
+    return;
+
   // By default, we retry later
   when = when || 'later';
 
@@ -266,8 +272,6 @@ Scraper.prototype._retryJob = function(job, when) {
 
   // Incrementing the number of retries
   job.req.retries++;
-
-  // TODO: maxRetries
 
   // Dropping from stack
   var idx = _.findIndex(this._stack, function(e) {
