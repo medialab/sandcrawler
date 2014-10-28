@@ -250,15 +250,9 @@ Scraper.prototype._nextJob = function(lastJob) {
 
 // Retrieve a job in the stack by its id
 Scraper.prototype._findJob = function(id) {
-  var job = _.find(this._stack, function(j) {
+  return _.find(this._stack, function(j) {
     return id === j.id;
   });
-
-  if (!job)
-    throw Error('sandcrawler.scraper._findJob: trying to retrieve an ' +
-                'inexistant job in the stack.');
-
-  return job;
 };
 
 // Retry a job
