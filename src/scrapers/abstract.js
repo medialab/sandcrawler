@@ -268,6 +268,10 @@ Scraper.prototype._retryJob = function(job, when) {
   if (job.req.retries >= this.params.maxRetries)
     return;
 
+  // If the job is already retrying, we stop
+  if (job.state.retrying)
+    return;
+
   // By default, we retry later
   when = when || 'later';
 
