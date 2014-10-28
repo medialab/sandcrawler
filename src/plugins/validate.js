@@ -8,6 +8,7 @@ var types = require('typology');
 
 module.exports = function(definition) {
 
+  // The function applied by and to the scraper
   return function(scraper) {
 
     // Adding a middleware to the afterScraping stack
