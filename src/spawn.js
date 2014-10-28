@@ -76,10 +76,10 @@ Spawn.prototype.run = function(scraper, callback) {
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
 
-  if (scraper.done)
+  if (scraper.state.done)
     throw Error('sandcrawler.spawn.run: given scraper has already been fulfilled.');
 
-  if (scraper.running)
+  if (scraper.state.running)
     throw Error('sandcrawler.spawn.run: given scraper has already running.');
 
   // Starting

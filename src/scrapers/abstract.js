@@ -30,9 +30,11 @@ function Scraper(name) {
 
   // Properties
   this.engine = null;
-  this.running = false;
-  this.done = false;
   this.params = defaults.scraper;
+  this.state = {
+    running: false,
+    done: false
+  };
 
   // Hidden properties
   this._iterator = null;
@@ -141,7 +143,7 @@ Scraper.prototype._wrapJob = function(mixed) {
 Scraper.prototype._run = function(engine, callback) {
 
   this.engine = engine;
-  this.running = true;
+  this.state.running = true;
 
   this.once('scraper:start', function() {
     var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
@@ -163,7 +165,7 @@ Scraper.prototype._run = function(engine, callback) {
   });
 
   this.once('scraper:end', function() {
-    this.done = true;
+    this.state.done = true;
   });
 
   // Listening to jobs
@@ -295,9 +297,11 @@ Scraper.prototype._cleanup = function() {
 
   // Cleaning properties
   this.engine = null;
-  this.running = false;
-  this.done = false;
   this.params = defaults.scraper;
+  this.state = {
+    running: false,
+    done: false
+  };
 
   // Cleaning hidden properties
   this._iterator = null;
