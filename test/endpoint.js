@@ -10,5 +10,6 @@ var tests = {
   core: require('./suites/core.js'),
   simple: require('./suites/simple.js'),
   multiple: require('./suites/multiple.js'),
+  // complex: require('./suites/complex.js'),
   static: require('./suites/static.js')
 };
