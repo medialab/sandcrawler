@@ -167,6 +167,29 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('jQuery', function() {
+
+    it('should be possible to inject jQuery without breaking the page.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/jquery.html')
+        .jawascript(function(done) {
+          var data = {
+            fromDollar: window.$,
+            fromArtoo: $('p').scrapeOne()
+          };
+          return done(data);
+        })
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, {
+            fromDollar: 'hello',
+            fromArtoo: 'welcome'
+          });
+        });
+
+      phantom.run(scraper, done);
+    });
+  });
+
   describe('Plugins', function() {
 
     it('should be possible to use a plugin.', function(done) {

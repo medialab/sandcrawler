@@ -29,13 +29,9 @@ module.exports = function(parent, params) {
     page.response = {};
     page.isOpened = false;
 
-    // TODO: inject jQuery safely by requesting it with artoo
     function injectArtoo() {
 
-      // jQuery
-      page.injectJs(params.paths.jquery);
-
-      // artoo settings
+      // Settings
       page.evaluate(function(jsonSettings) {
         var settings = document.createElement('div');
         settings.setAttribute('id', 'artoo_injected_script');
@@ -111,6 +107,14 @@ module.exports = function(parent, params) {
       // Body is now loaded
       if (msg.head === 'documentReady' && page.onDocumentReady)
         return page.onDocumentReady();
+
+      // Page is requesting jquery
+      if (msg.head === 'jquery') {
+        page.injectJs(params.paths.jquery);
+        return page.evaluate(function() {
+          artoo.phantom.notify('jquery');
+        });
+      }
 
       // Page is returning control
       if (msg.head === 'done') {
