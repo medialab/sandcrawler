@@ -16,7 +16,7 @@ describe('When running fairly simple scrapers', function() {
   before(function(done) {
 
     // Spawning a custom phantom for the tests
-    sandcrawler.spawn({autoClose: false, port: 7484}, function(err, spawn) {
+    sandcrawler.spawn({autoClose: false}, function(err, spawn) {
       if (err) throw err;
 
       phantom = spawn;
