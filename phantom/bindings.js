@@ -35,6 +35,7 @@ module.exports = function(parent, params) {
 
     // Fallback response object
     page.response = {};
+    page.error = {};
     page.isOpened = false;
 
     function injectArtoo() {
@@ -68,18 +69,31 @@ module.exports = function(parent, params) {
      */
 
     // Wrapping response helper
-    function wrapResponse(o, err) {
+    function wrapFailure(reason) {
       var res = {
-        data: o,
+        fail: true,
         url: page.url,
         headers: page.response.headers,
         status: page.response.status
       };
 
-      if (err)
-        res.error = err;
+      if (reason)
+        res.reason = reason;
+
+      if (page.error)
+        res.error = page.error;
 
       return res;
+    }
+
+    // Wrapping success helper
+    function wrapSuccess(data) {
+      return {
+        url: page.url,
+        headers: page.response.headers,
+        status: page.response.status,
+        data: data
+      };
     }
 
     // Wrapping data helper
@@ -105,8 +119,9 @@ module.exports = function(parent, params) {
     };
 
     // On resource error
-    page.onResourceError = function(err) {
-      // console.log(JSON.stringify(err, null, 2));
+    page.onResourceError = function(error) {
+      if (error.url === order.url || !!~error.url.search(order.url))
+        page.error = error;
     };
 
     // On page callback
@@ -133,7 +148,7 @@ module.exports = function(parent, params) {
       if (msg.head === 'done') {
 
         // On retrieve data, we send back to parent
-        reply(wrapResponse(msg.body));
+        reply(wrapSuccess(msg.body));
 
         // Closing
         return cleanup();
@@ -182,13 +197,13 @@ module.exports = function(parent, params) {
 
       // Failing
       if (status !== 'success') {
-        reply(wrapResponse(null, 'fail'));
+        reply(wrapFailure('fail'));
         return cleanup();
       }
 
       // Wrong status code
       if (!page.response.status || page.response.status >= 400) {
-        reply(wrapResponse(null, 'status'));
+        reply(wrapFailure('status'));
         return cleanup();
       }
 

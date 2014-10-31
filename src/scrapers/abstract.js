@@ -80,10 +80,10 @@ Scraper.prototype._wrapJob = function(mixed) {
 
   // Populating
   if (types.get(mixed) === 'string') {
-    job.req.url = mixed;
+    job.req.url = decodeURIComponent(mixed);
   }
   else {
-    job.req.url = mixed.url;
+    job.req.url = decodeURIComponent(mixed.url);
     job.req.params = mixed;
   }
 

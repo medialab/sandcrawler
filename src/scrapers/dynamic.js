@@ -66,11 +66,15 @@ function DynamicScraper(name) {
           return self.emit('job:fail', err, job);
 
         // Phantom failure
-        if (response.error && response.error === 'fail')
-          return self.emit('job:fail', new Error('network-error'), job);
+        if (response.fail && response.reason === 'fail') {
+          var error = new Error('phantom-fail');
+          error.code = response.error.errorCode;
+          error.reason = response.error.errorString;
+          return self.emit('job:fail', error, job);
+        }
 
         // Wrong status code
-        if (response.error && response.error === 'status') {
+        if (response.fail && response.reason === 'status') {
           var error = new Error('status-' + (response.status || 'unknown'));
           error.status = response.status;
           return self.emit('job:fail', error, job);

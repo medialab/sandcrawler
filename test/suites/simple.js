@@ -105,7 +105,7 @@ describe('When running fairly simple scrapers', function() {
         .url('inexistantpage.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .result(function(err, req, res) {
-          assert.strictEqual(err.message, 'network-error');
+          assert.strictEqual(err.message, 'phantom-fail');
         });
 
       phantom.run(scraper, done);
