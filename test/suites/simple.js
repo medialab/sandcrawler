@@ -278,6 +278,24 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  describe('Page customization', function(done) {
+
+    it('should be possible to set your own user agent.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/useragent')
+        .config({page: {userAgent: 'tada'}})
+        .jawascript(function(done) {
+          done($('body').scrapeOne());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      phantom.run(scraper, done);
+    });
+  });
+
   after(function() {
 
     // Now closing the phantom

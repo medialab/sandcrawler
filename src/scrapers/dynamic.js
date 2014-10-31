@@ -47,7 +47,8 @@ function DynamicScraper(name) {
         url: job.req.url,
         script: this._script,
         timeout: this.params.timeout,
-        artooSettings: this.params.artoo
+        artooSettings: this.params.artoo,
+        pageSettings: this.params.page
       },
 
       // Request parameters

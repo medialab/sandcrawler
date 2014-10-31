@@ -6,7 +6,8 @@
  * a sandcrawler instance.
  */
 var webpage = require('webpage'),
-    polyfills = require('./polyfills.js');
+    polyfills = require('./polyfills.js'),
+    helpers = require('../src/helpers.js');
 
 module.exports = function(parent, params) {
 
@@ -21,6 +22,9 @@ module.exports = function(parent, params) {
 
     // Creating webpage
     var page = webpage.create();
+
+    // Applying precise page settings
+    page.settings = helpers.extend(order.pageSettings || {}, page.settings);
 
     /**
      * Enhancing webpage
@@ -95,6 +99,11 @@ module.exports = function(parent, params) {
 
       // Is the resource matching the page's url?
       page.response = response;
+    };
+
+    // On resource error
+    page.onResourceError = function(err) {
+      // console.log(JSON.stringify(err, null, 2));
     };
 
     // On page callback
