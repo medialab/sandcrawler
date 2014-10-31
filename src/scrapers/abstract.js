@@ -280,6 +280,17 @@ Scraper.prototype.config = function(o) {
   return this;
 };
 
+// Shorthands
+Scraper.prototype.limit = function(nb) {
+  this.params = helpers.extend({limit: nb}, this.params);
+  return this;
+};
+
+Scraper.prototype.timeout = function(nb) {
+  this.params = helpers.extend({timeout: nb}, this.params);
+  return this;
+};
+
 // Registering a processing callback
 Scraper.prototype.result = function(fn) {
 

@@ -80,7 +80,7 @@ describe('When running fairly simple scrapers', function() {
   describe('Error handling', function() {
     var globalScraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/resources/basic.html')
-        .config({timeout: 200})
+        .timeout(200)
         .result(function(err) {
           assert.strictEqual(err.message, 'timeout');
         });
