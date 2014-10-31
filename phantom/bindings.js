@@ -13,7 +13,8 @@ module.exports = function(parent, params) {
   /**
    * Scraping order
    */
-  parent.on('scrape', function(order, reply) {
+  parent.on('scrape', function(msg, reply) {
+    var order = msg.body;
 
     // Order's lifespan
     var lifespan = order.timeout || 5000;

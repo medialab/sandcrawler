@@ -7,7 +7,8 @@
  */
 var Scraper = require('./abstract.js'),
     util = require('util'),
-    script = require('../phantom_script.js');
+    script = require('../phantom_script.js'),
+    pageLog = require('../plugins/page.js');
 
 /**
  * Main Class
@@ -25,31 +26,13 @@ function DynamicScraper(name) {
   // Properties
   this.type = 'dynamic';
 
+  // Plugins
+  this.use(pageLog());
+
   // Hidden properties
   this._script = null;
 
   // Listening
-  this.on('scraper:start', function() {
-
-    // Binding messenger listeners
-    this.engine.spy.messenger.on('page:log', function(msg) {
-      var job = self._findJob(msg.jobId);
-      if (job) self.emit('page:log', msg.data, job.req, job.res);
-    });
-
-    this.engine.spy.messenger.on('page:error', function(msg) {
-      var job = self._findJob(msg.jobId);
-      if (job) self.emit('page:error', msg.data, job.req, job.res);
-    });
-  });
-
-  this.on('scraper:end', function() {
-
-    // Unbinding messenger listeners
-    this.engine.spy.messenger.off('page:log');
-    this.engine.spy.messenger.off('page:error');
-  });
-
   this.on('job:scrape', function(job) {
 
     // Sending message to phantom
@@ -71,10 +54,11 @@ function DynamicScraper(name) {
       {timeout: this.params.timeout},
 
       // Callback
-      function(err, response) {
+      function(err, msg) {
+        var response = (msg || {}).body || {};
 
         // Populating response
-        job.res = response || {};
+        job.res = response;
 
         if (err)
           return self.emit('job:fail', err, job);
