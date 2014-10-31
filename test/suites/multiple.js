@@ -196,6 +196,40 @@ describe('When running multi-url scrapers', function() {
     });
   });
 
+  describe('Pausing', function() {
+
+    it('should be possible to pause the scraper.', function(done) {
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .config({limit: 3})
+        .iterate(function(i, req, res) {
+          return 'http://localhost:7337/resources/basic.html';
+        })
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req, res) {
+          var self = this;
+
+          count++;
+
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+
+          if (count === 2) {
+            this.pause();
+            setTimeout(function() {
+              self.resume();
+            }, 300);
+          }
+        });
+
+      phantom.run(scraper, function(err, remains) {
+        assert(count === 3);
+        done();
+      });
+    });
+  });
+
   describe('Expansion', function() {
 
     it('should be possible to add new jobs to the stack.', function(done) {

@@ -193,12 +193,14 @@ Scraper.prototype._cleanup = function() {
   this.engine = null;
   this.params = defaults.scraper;
   this.state = {
+    paused: false,
     running: false,
     done: false
   };
 
   // Cleaning hidden properties
   this._iterator = null;
+  this._doneCount = 0;
   this._jobs = [];
   this._stack = [];
   this._remains = [];
@@ -331,6 +333,16 @@ Scraper.prototype.use = function(fn) {
 // Data validation
 Scraper.prototype.validate = function(definition) {
   return this.use(validate(definition));
+};
+
+// Pausing the scraper
+Scraper.prototype.pause = function() {
+  return this.emit('scraper:pause');
+};
+
+// Resuming
+Scraper.prototype.resume = function() {
+  return this.emit('scraper:resume');
 };
 
 /**

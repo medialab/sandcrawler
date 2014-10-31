@@ -12,6 +12,21 @@ module.exports = function(callback) {
   return function(scraper) {
     var self = scraper;
 
+    // Pausing events
+    scraper.on('scraper:pause', function() {
+      if (this.state.paused)
+        return;
+
+      this.state.paused = true;
+    });
+
+    scraper.on('scraper:resume', function() {
+      if (!this.state.paused)
+        return;
+
+      this.state.paused = false;
+    });
+
     // Before scraper execution hook
     scraper.once('scraper:before', function() {
 
@@ -47,6 +62,12 @@ module.exports = function(callback) {
         job.req,
         function(err) {
           // TODO: handle error
+
+          // If the scraper is paused, we delay the job
+          if (self.state.paused)
+            return self.once('scraper:resume', function() {
+              self.emit('job:scrape', job);
+            });
 
           // Otherwise we start scraping
           self.emit('job:scrape', job);
