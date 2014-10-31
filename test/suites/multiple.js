@@ -276,7 +276,7 @@ describe('When running multi-url scrapers', function() {
       phantom.run(scraper, function() {
         assert(count === 3);
         done();
-      })
+      });
     });
   });
 
