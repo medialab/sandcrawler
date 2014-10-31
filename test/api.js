@@ -31,5 +31,14 @@ app.get('/useragent', function(req, res) {
     return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
 });
 
+app.get('/headers', function(req, res) {
+  var h = req.headers['x-tada'];
+
+  if (!h)
+    return res.status(403).send('Unauthorized');
+  else
+    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+});
+
 // Exporting
 module.exports = app;

@@ -26,6 +26,9 @@ module.exports = function(parent, params) {
     // Applying precise page settings
     page.settings = helpers.extend(order.pageSettings || {}, page.settings);
 
+    // Applying precise page headers
+    page.customHeaders = helpers.extend(order.customHeaders || {}, page.customHeaders);
+
     /**
      * Enhancing webpage
      */

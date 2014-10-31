@@ -294,6 +294,21 @@ describe('When running fairly simple scrapers', function() {
 
       phantom.run(scraper, done);
     });
+
+    it('should be possible to set your own headers.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/headers')
+        .config({headers: {'x-tada': 'valid'}})
+        .jawascript(function(done) {
+          done($('body').scrapeOne());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      phantom.run(scraper, done);
+    });
   });
 
   after(function() {
