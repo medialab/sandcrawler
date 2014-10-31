@@ -8,12 +8,12 @@
 var webpage = require('webpage'),
     polyfills = require('./polyfills.js');
 
-module.exports = function(messenger, params) {
+module.exports = function(parent, params) {
 
   /**
    * Scraping order
    */
-  messenger.on('scrape', function(order, reply) {
+  parent.on('scrape', function(order, reply) {
 
     // Order's lifespan
     var lifespan = order.timeout || 5000;
@@ -29,13 +29,9 @@ module.exports = function(messenger, params) {
     page.response = {};
     page.isOpened = false;
 
-    // TODO: inject jQuery safely by requesting it with artoo
     function injectArtoo() {
 
-      // jQuery
-      page.injectJs(params.paths.jquery);
-
-      // artoo settings
+      // Settings
       page.evaluate(function(jsonSettings) {
         var settings = document.createElement('div');
         settings.setAttribute('id', 'artoo_injected_script');
@@ -102,16 +98,29 @@ module.exports = function(messenger, params) {
 
     // On page callback
     page.onCallback = function(msg) {
+      msg = msg || {};
+
+      // If the passphrase is wrong, we break
+      if (typeof msg !== 'object' || msg.passphrase !== 'detoo')
+        return;
 
       // Body is now loaded
-      if (msg.header === 'documentReady' && page.onDocumentReady)
+      if (msg.head === 'documentReady' && page.onDocumentReady)
         return page.onDocumentReady();
 
+      // Page is requesting jquery
+      if (msg.head === 'jquery') {
+        page.injectJs(params.paths.jquery);
+        return page.evaluate(function() {
+          artoo.phantom.notify('jquery');
+        });
+      }
+
       // Page is returning control
-      if (msg.header === 'done') {
+      if (msg.head === 'done') {
 
         // On retrieve data, we send back to parent
-        reply(wrapResponse(msg.data));
+        reply(wrapResponse(msg.body));
 
         // Closing
         return cleanup();
@@ -132,7 +141,7 @@ module.exports = function(messenger, params) {
     page.onConsoleMessage = function(message, lineNum, sourceId) {
 
       // Sending back to parent
-      messenger.send('page:log', wrapData({
+      parent.send('page:log', wrapData({
         message: message,
         line: lineNum,
         source: sourceId
@@ -143,7 +152,7 @@ module.exports = function(messenger, params) {
     page.onError = function(message, trace) {
 
       // Sending back to parent
-      messenger.send('page:error', wrapData({
+      parent.send('page:error', wrapData({
         message: message,
         trace: trace
       }));
@@ -175,7 +184,11 @@ module.exports = function(messenger, params) {
         var interval = setInterval(function() {
           if (document.readyState === 'complete') {
             clearInterval(interval);
-            window.callPhantom({header: 'documentReady', data: true});
+            window.callPhantom({
+              head: 'documentReady',
+              body: true,
+              passphrase: 'detoo'
+            });
           }
         }, 30);
       });

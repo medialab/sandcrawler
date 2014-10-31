@@ -16,7 +16,7 @@ describe('When running fairly simple scrapers', function() {
   before(function(done) {
 
     // Spawning a custom phantom for the tests
-    sandcrawler.spawn({autoClose: false, port: 7484}, function(err, spawn) {
+    sandcrawler.spawn({autoClose: false}, function(err, spawn) {
       if (err) throw err;
 
       phantom = spawn;
@@ -161,6 +161,29 @@ describe('When running fairly simple scrapers', function() {
         })
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(scraper, done);
+    });
+  });
+
+  describe('jQuery', function() {
+
+    it('should be possible to inject jQuery without breaking the page.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/jquery.html')
+        .jawascript(function(done) {
+          var data = {
+            fromDollar: window.$,
+            fromArtoo: $('p').scrapeOne()
+          };
+          return done(data);
+        })
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, {
+            fromDollar: 'hello',
+            fromArtoo: 'welcome'
+          });
         });
 
       phantom.run(scraper, done);

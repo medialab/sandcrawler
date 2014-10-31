@@ -41,9 +41,6 @@ Spawn.prototype.start = function(callback) {
     self.on = self.spy.on.bind(self.spy);
 
     // DEBUG: remove this asap
-    self.on('phantom:close', function() {
-      console.log('SANDCRAWLER:PHANTOM:DEBUG:CLOSE', arguments);
-    });
     self.on('phantom:error', function() {
       console.log('SANDCRAWLER:PHANTOM:DEBUG:ERROR', arguments);
     });
@@ -62,8 +59,6 @@ Spawn.prototype.close = function() {
 
   this.closed = true;
 
-  // TODO: kill socket server only if last one using it
-  this.spy.spynet.close();
   this.spy.kill();
 
   return this;

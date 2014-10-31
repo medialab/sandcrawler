@@ -78,7 +78,9 @@ Sandcrawler.prototype.spawn = function(p, callback) {
   params.data = helpers.extend(
     {
       paths: {
-        artoo: artoo.paths.phantom,
+        // artoo: artoo.paths.phantom,
+        // TODO: temporary
+        artoo: __dirname + '/../temp/artoo.phantom.js',
         jquery: require.resolve('jquery')
       }
     },
