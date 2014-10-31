@@ -36,7 +36,7 @@ function DynamicScraper(name) {
   this.on('job:scrape', function(job) {
 
     // Sending message to phantom
-    this.engine.spy.messenger.request(
+    this.engine.messenger.request(
 
       // We want to scrape
       'scrape',

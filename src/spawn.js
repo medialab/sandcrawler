@@ -79,7 +79,7 @@ Spawn.prototype.run = function(scraper, callback) {
 
   // Starting
   this._runningScrapers.push(scraper.id);
-  scraper._run(this, function(err, remains) {
+  scraper._run(this.spy, function(err, remains) {
 
     // Autoclosing the spawn?
     var idx = self._runningScrapers.indexOf(scraper.id);

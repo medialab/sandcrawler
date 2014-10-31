@@ -15,14 +15,14 @@ module.exports = function(opts) {
     scraper.on('scraper:start', function() {
       var self = this;
 
-      listeners.log = this.engine.spy.messenger.on('page:log', function(msg) {
+      listeners.log = this.engine.messenger.on('page:log', function(msg) {
         var body = msg.body;
 
         var job = self._findJob(body.jobId);
         if (job) self.emit('page:log', body.data, job.req, job.res);
       });
 
-      listeners.error = this.engine.spy.messenger.on('page:error', function(msg) {
+      listeners.error = this.engine.messenger.on('page:error', function(msg) {
         var body = msg.body;
 
         var job = self._findJob(body.jobId);
@@ -32,8 +32,8 @@ module.exports = function(opts) {
 
     // Unbinding messenger listener on end
     scraper.on('scraper:end', function() {
-      this.engine.spy.messenger.removeListener('page:log', listeners.log);
-      this.engine.spy.messenger.removeListener('page:error', listeners.error);
+      this.engine.messenger.removeListener('page:log', listeners.log);
+      this.engine.messenger.removeListener('page:error', listeners.error);
 
       listeners = {};
     });
