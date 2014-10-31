@@ -11,7 +11,8 @@ var path = require('path'),
     helpers = require('./helpers.js'),
     Spawn = require('./spawn.js'),
     scrapers = require('./scrapers'),
-    types = require('typology');
+    types = require('typology'),
+    bothan = require('bothan');
 
 // Registering a scraper type
 types.add('scraper', function(v) {
@@ -29,6 +30,11 @@ function Sandcrawler() {}
 /**
  * Prototype
  */
+
+Sandcrawler.prototype.config = function(o) {
+  bothan.config(o);
+  return this;
+};
 
 // Running a task in a default phantom
 Sandcrawler.prototype.run = function(scraper, callback) {
