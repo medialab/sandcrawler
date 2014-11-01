@@ -246,6 +246,9 @@ Scraper.prototype._retryJob = function(job, when) {
 // Cleaning internals
 Scraper.prototype._cleanup = function() {
 
+  // Emitting cleanup hook
+  this.emit('scraper:cleanup');
+
   // Removing every event listeners
   this.removeAllListeners();
 
@@ -414,6 +417,11 @@ Scraper.prototype.pause = function() {
 // Resuming
 Scraper.prototype.resume = function() {
   return this.emit('scraper:resume');
+};
+
+// Exiting the scraper
+Scraper.prototype.exit = function(err) {
+  return this.emit('scraper:fail', err || new Error('exited'));
 };
 
 /**

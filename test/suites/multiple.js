@@ -357,6 +357,29 @@ describe('When running multi-url scrapers', function() {
     });
   });
 
+  describe('Exiting', function() {
+
+    it('should be possible to exit the scraper.', function(done) {
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .jawascript(function(done) {
+          done(true);
+        })
+        .result(function() {
+          count++;
+          this.exit();
+        });
+
+      phantom.run(scraper, function(err) {
+        assert.strictEqual(err.message, 'exited');
+        assert(count === 1);
+        done();
+      });
+    });
+  });
+
   after(function() {
 
     // Now closing the phantom

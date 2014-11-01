@@ -31,12 +31,22 @@ function DynamicScraper(name) {
 
   // Hidden properties
   this._script = null;
+  this._calls = [];
 
   // Listening
+  this.on('scaper:cleanup', function() {
+    this._calls.forEach(function(call) {
+      this.engine.messenger.cancel(call);
+    }, this);
+
+    this._script = null;
+    this._calls = [];
+  });
+
   this.on('job:scrape', function(job) {
 
     // Sending message to phantom
-    this.engine.messenger.request(
+    var call = this.engine.messenger.request(
 
       // We want to scrape
       'scrape',
@@ -83,6 +93,8 @@ function DynamicScraper(name) {
         self.emit('job:after', job);
       }
     );
+
+    this._calls.push(call);
   });
 }
 
