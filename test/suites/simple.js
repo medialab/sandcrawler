@@ -242,12 +242,12 @@ describe('When running fairly simple scrapers', function() {
         })
         .script(__dirname + '/../resources/scrapers/basic.js')
         .beforeScraping(function(req, next) {
-          assert(req.params.data.ok);
-          req.params.hello = 'world';
+          assert(req.data.ok);
+          req.data.hello = 'world';
           next();
         })
         .afterScraping(function(req, res, next) {
-          assert.strictEqual(req.params.hello, 'world');
+          assert.strictEqual(req.data.hello, 'world');
           next();
         });
 

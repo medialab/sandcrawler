@@ -30,11 +30,20 @@ describe('When using sandcrawler API', function() {
     });
 
     it('should throw an error when trying to register a script twice.', function() {
+
       assert.throws(function() {
         var scraper = new sandcrawler.Scraper()
           .script(__dirname + '/../resources/scrapers/basic.js')
           .script(__dirname + '/../resources/scrapers/basic.js');
       }, /script already registered/);
+    });
+
+    it('should throw an error when trying to add a feed without an url.', function() {
+
+      assert.throws(function() {
+        var scraper = new sandcrawler.Scraper()
+          .url({data: 'hello'});
+      }, /_wrapJob/);
     });
   });
 });

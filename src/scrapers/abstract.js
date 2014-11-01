@@ -153,7 +153,9 @@ Scraper.prototype._wrapJob = function(mixed) {
       retrying: false
     },
     req: {
-      retries: 0
+      retries: 0,
+      data: {},
+      params: {}
     },
     res: {}
   };
@@ -168,8 +170,14 @@ Scraper.prototype._wrapJob = function(mixed) {
     job.req.url = decodeURIComponent(mixed);
   }
   else {
+
+    // Safeguard
+    if (!mixed.url)
+      throw Error('sandcrawler.scraper._wrapJob: no url provided.');
+
     job.req.url = decodeURIComponent(mixed.url);
-    job.req.params = mixed;
+    job.req.data = mixed.data || {};
+    job.req.params = mixed.params || {};
   }
 
   return job;
