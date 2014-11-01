@@ -2,15 +2,18 @@
   "scraper": {
     "autoExit": true,
     "autoRetry": false,
-    "artoo": {
-      "log": {
-        "welcome": false,
-        "enabled": false
-      }
-    },
+    "globalTimeout": false,
     "limit": false,
     "maxConcurrency": 1,
     "maxRetries": 3,
+    "params": {
+      "artoo": {
+        "log": {
+          "welcome": false,
+          "enabled": false
+        }
+      }
+    },
     "timeout": 5000
   },
   "spawn": {

@@ -32,7 +32,7 @@ module.exports = function(callback) {
 
     // Scraper will now start
     this.once('scraper:start', function() {
-      var limit = Math.min(this.params.maxConcurrency, this._jobs.length || 1);
+      var limit = Math.min(this.settings.maxConcurrency, this._jobs.length || 1);
 
       for (var i = 0; i < limit; i++)
         this._nextJob();

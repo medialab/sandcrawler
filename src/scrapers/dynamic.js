@@ -8,7 +8,8 @@
 var Scraper = require('./abstract.js'),
     util = require('util'),
     phscript = require('../phantom_script.js'),
-    pageLog = require('../plugins/page.js');
+    pageLog = require('../plugins/page.js'),
+    helpers = require('../helpers.js');
 
 /**
  * Main Class
@@ -44,6 +45,7 @@ function DynamicScraper(name) {
   });
 
   this.on('job:scrape', function(job) {
+    var timeout = job.req.timeout || this.settings.timeout;
 
     // Sending message to phantom
     var call = this.engine.messenger.request(
@@ -56,14 +58,11 @@ function DynamicScraper(name) {
         id: job.id,
         url: job.req.url,
         script: this._script,
-        timeout: job.req.params.timeout || this.params.timeout,
-        artooSettings: job.req.params.artoo || this.params.artoo,
-        pageSettings: job.req.params.page || this.params.page,
-        customHeaders: job.req.params.headers || this.params.headers
+        params: helpers.extend(job.req.params, this.settings.params)
       },
 
       // Request parameters
-      {timeout: this.params.timeout},
+      {timeout: timeout},
 
       // Callback
       function(err, msg) {

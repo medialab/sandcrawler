@@ -13,16 +13,16 @@ module.exports = function(parent, params) {
     var order = msg.body;
 
     // Order's lifespan
-    var lifespan = order.timeout || 5000;
+    var lifespan = msg.timeout || 5000;
 
     // Creating webpage
     var page = webpage.create();
 
     // Applying precise page settings
-    page.settings = helpers.extend(order.pageSettings || {}, page.settings);
+    page.settings = helpers.extend(order.params.page || {}, page.settings);
 
     // Applying precise page headers
-    page.customHeaders = helpers.extend(order.customHeaders || {}, page.customHeaders);
+    page.customHeaders = helpers.extend(order.params.headers || {}, page.customHeaders);
 
     /**
      * Enhancing webpage
@@ -42,7 +42,7 @@ module.exports = function(parent, params) {
         settings.setAttribute('settings', jsonSettings);
 
         document.documentElement.appendChild(settings);
-      }, JSON.stringify(order.artooSettings));
+      }, JSON.stringify(order.params.artoo));
 
       // artoo
       page.injectJs(params.paths.artoo);

@@ -307,7 +307,13 @@ describe('When running fairly simple scrapers', function() {
 
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/useragent')
-        .config({page: {userAgent: 'tada'}})
+        .config({
+          params: {
+            page: {
+              userAgent: 'tada'
+            }
+          }
+        })
         .jawascript(function(done) {
           done($('body').scrapeOne());
         })
@@ -322,7 +328,13 @@ describe('When running fairly simple scrapers', function() {
 
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/headers')
-        .config({headers: {'x-tada': 'valid'}})
+        .config({
+          params: {
+            headers: {
+              'x-tada': 'valid'
+            }
+          }
+        })
         .jawascript(function(done) {
           done($('body').scrapeOne());
         })

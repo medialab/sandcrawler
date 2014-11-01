@@ -30,7 +30,7 @@ function Scraper(name) {
 
   // Properties
   this.engine = null;
-  this.params = defaults.scraper;
+  this.settings = defaults.scraper;
   this.state = {
     locked: false,
     paused: false,
@@ -94,12 +94,12 @@ function Scraper(name) {
 
   // Emitting the scraper:end event
   this.once('scraper:success', function() {
-    if (this.params.autoExit !== false)
+    if (this.settings.autoExit !== false)
       this.emit('scraper:end', 'success', this._remains);
   });
 
   this.once('scraper:fail', function() {
-    if (this.params.autoExit !== false)
+    if (this.settings.autoExit !== false)
       this.emit('scraper:end', 'fail', this._remains);
   });
 
@@ -113,8 +113,8 @@ function Scraper(name) {
     job.state.failing = true;
 
     // If autoRetry is on, we retry
-    if (this.params.autoRetry)
-      if (this.params.autoRetry === 'now')
+    if (this.settings.autoRetry)
+      if (this.settings.autoRetry === 'now')
         job.req.retryNow();
       else
         job.req.retryLater();
@@ -178,6 +178,9 @@ Scraper.prototype._wrapJob = function(mixed) {
     job.req.url = decodeURIComponent(mixed.url);
     job.req.data = mixed.data || {};
     job.req.params = mixed.params || {};
+
+    if (mixed.timeout)
+      job.req.timeout = mixed.timeout;
   }
 
   return job;
@@ -211,7 +214,7 @@ Scraper.prototype._nextJob = function(lastJob) {
 
   // Did we run dry or did we hit the limit?
   if ((!this._jobs.length && !this._stack.length) ||
-      (this.params.limit && this._doneCount >= this.params.limit))
+      (this.settings.limit && this._doneCount >= this.settings.limit))
     return this.emit('scraper:success');
 
   // Adding a job to the stack if possible
@@ -241,7 +244,7 @@ Scraper.prototype._retryJob = function(job, when) {
     return;
 
   // If we hit the max retry
-  if (job.req.retries >= this.params.maxRetries)
+  if (job.req.retries >= this.settings.maxRetries)
     return;
 
   // If the job is already retrying, we stop
@@ -282,7 +285,7 @@ Scraper.prototype._cleanup = function() {
 
   // Cleaning properties
   this.engine = null;
-  this.params = defaults.scraper;
+  this.settings = defaults.scraper;
   this.state = {
     paused: false,
     running: false,
@@ -367,18 +370,18 @@ Scraper.prototype.iterate = function(fn) {
 
 // Configuring the scraper
 Scraper.prototype.config = function(o) {
-  this.params = helpers.extend(o, this.params);
+  this.settings = helpers.extend(o, this.settings);
   return this;
 };
 
 // Shorthands
 Scraper.prototype.limit = function(nb) {
-  this.params = helpers.extend({limit: nb}, this.params);
+  this.settings = helpers.extend({limit: nb}, this.settings);
   return this;
 };
 
 Scraper.prototype.timeout = function(nb) {
-  this.params = helpers.extend({timeout: nb}, this.params);
+  this.settings = helpers.extend({timeout: nb}, this.settings);
   return this;
 };
 
