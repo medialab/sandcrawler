@@ -49,6 +49,49 @@ function Scraper(name) {
     beforeScraping: [],
     afterScraping: []
   };
+
+  /**
+   * Predominant listeners
+   */
+
+  // Pausing events
+  this.on('scraper:pause', function() {
+    if (this.state.paused)
+      return;
+
+    this.state.paused = true;
+  });
+
+  this.on('scraper:resume', function() {
+    if (!this.state.paused)
+      return;
+
+    this.state.paused = false;
+  });
+
+  // If for some reason the scraper fails, we clean its mess up
+  this.once('scraper:fail', function() {
+    this._cleanup();
+  });
+
+  // Emitting the scraper:end event
+  this.once('scraper:success', function() {
+    this.emit('scraper:end', 'success');
+  });
+
+  this.once('scraper:fail', function() {
+    this.emit('scraper:end', 'fail');
+  });
+
+  // When the scraper is over, we update its state
+  this.once('scraper:end', function() {
+    this.state.done = true;
+  });
+
+  // When a job fail, we update its state
+  this.on('job:fail', function(err, job) {
+    job.state.failing = true;
+  });
 }
 
 // Inheriting
@@ -57,6 +100,21 @@ util.inherits(Scraper, EventEmitter);
 /**
  * Hidden Prototype
  */
+
+// Running the scraper
+Scraper.prototype._run = function(engine, callback) {
+
+  this.engine = engine;
+  this.state.running = true;
+
+  // Deploying runtime
+  this.use(runtime(callback));
+
+  // Dispatching before event so the lifecycle can start
+  this.emit('scraper:before');
+
+  return this;
+};
 
 // Initializing job object
 Scraper.prototype._wrapJob = function(mixed) {
@@ -90,18 +148,10 @@ Scraper.prototype._wrapJob = function(mixed) {
   return job;
 };
 
-// Running the scraper
-Scraper.prototype._run = function(engine, callback) {
-
-  this.engine = engine;
-  this.state.running = true;
-
-  // Deploying runtime
-  this.use(runtime(callback));
-
-  // Dispatching before event so the lifecycle can start
-  this.emit('scraper:before');
-
+// Clean a job's state
+Scraper.prototype._cleanJobState = function(job) {
+  job.state.retrying = false;
+  job.state.failing = false;
   return this;
 };
 
@@ -134,8 +184,7 @@ Scraper.prototype._nextJob = function(lastJob) {
     this._stack.unshift(this._jobs.shift());
 
     // Reinitializing state
-    this._stack[0].state.retrying = false;
-    this._stack[0].state.failing = false;
+    this._cleanJobState(this._stack[0]);
     this.emit('job:before', this._stack[0]);
   }
 
@@ -151,6 +200,10 @@ Scraper.prototype._findJob = function(id) {
 
 // Retry a job
 Scraper.prototype._retryJob = function(job, when) {
+
+  // If the job is not failing, we shan't retry
+  if (!job.state.failing)
+    return;
 
   // If we hit the max retry
   if (job.req.retries >= this.params.maxRetries)

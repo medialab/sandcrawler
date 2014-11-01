@@ -12,21 +12,6 @@ module.exports = function(callback) {
   return function(scraper) {
     var self = scraper;
 
-    // Pausing events
-    scraper.on('scraper:pause', function() {
-      if (this.state.paused)
-        return;
-
-      this.state.paused = true;
-    });
-
-    scraper.on('scraper:resume', function() {
-      if (!this.state.paused)
-        return;
-
-      this.state.paused = false;
-    });
-
     // Before scraper execution hook
     scraper.once('scraper:before', function() {
 
@@ -92,32 +77,14 @@ module.exports = function(callback) {
       );
     });
 
-    // If for some reason the scraper fails, we clean its mess up
-    scraper.once('scraper:fail', function() {
-      this._cleanup();
-    });
-
-    // Emitting the scraper:end event
-    scraper.once('scraper:success', function() {
-      this.emit('scraper:end', 'success');
-    });
-
-    scraper.once('scraper:fail', function() {
-      this.emit('scraper:end', 'fail');
-    });
-
-    // When the scraper is over, we update its state
-    scraper.once('scraper:end', function() {
-      this.state.done = true;
-    });
-
     // Emitting job:end event
-    scraper.on('job:fail', function(err, job) {
-      job.state.failing = true;
+    // NOTE: those emitters must be registered last because job:end alters
+    // the stack itself
+    this.on('job:fail', function(err, job) {
       this.emit('job:end', job);
     });
 
-    scraper.on('job:success', function(job) {
+    this.on('job:success', function(job) {
       this.emit('job:end', job);
     });
 
@@ -145,11 +112,11 @@ module.exports = function(callback) {
     });
 
     // Listening to scraper ending
-    scraper.on('scraper:fail', function(err) {
+    scraper.once('scraper:fail', function(err) {
       callback(err, this._remains);
     });
 
-    scraper.on('scraper:success', function() {
+    scraper.once('scraper:success', function() {
       callback(null, this._remains);
     });
   };
