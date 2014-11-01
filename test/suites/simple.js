@@ -82,6 +82,22 @@ describe('When running fairly simple scrapers', function() {
 
       phantom.run(scraper, done);
     });
+
+    it('should be possible to react to page navigation.', function(done) {
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .script(__dirname + '/../resources/scrapers/changer.js')
+        .on('page:navigation', function(nav, req, res) {
+          nav.replyWithJawascript(function(done) {
+            done($('title').scrapeOne());
+          });
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Basic 2');
+        });
+
+      phantom.run(scraper, done);
+    });
   });
 
   describe('Error handling', function() {

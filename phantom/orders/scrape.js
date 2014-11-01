@@ -190,11 +190,43 @@ module.exports = function(parent, params) {
       }));
     };
 
+    // On page change
+    var initial = true;
+    page.onNavigationRequested = function(url, type, willNavigate, main) {
 
-    /**
-     * Opening url
-     */
-    page.open(order.url, function(status) {
+      // Avoiding first time
+      if (initial) {
+        initial = false;
+        return;
+      }
+
+      // Switching url
+      order.url = url;
+      page.isOpened = false;
+
+      // Requesting response from parent
+      parent.request(
+        'page:navigation',
+        wrapData({
+          url: url,
+          type: type,
+          willNavigate: willNavigate,
+          main: main
+        }),
+        {
+          timeout: 2000
+        },
+        function(err, response) {
+          if (err)
+            return;
+
+          // Switching to new script
+          order.script = response.body;
+        }
+      );
+    };
+
+    page.onLoadFinished = function(status) {
 
       // Page is now opened
       page.isOpened = true;
@@ -224,6 +256,11 @@ module.exports = function(parent, params) {
           }
         }, 30);
       });
-    });
+    };
+
+    /**
+     * Opening url
+     */
+    page.open(order.url);
   };
 };

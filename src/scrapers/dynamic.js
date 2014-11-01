@@ -67,7 +67,8 @@ function DynamicScraper(name) {
 
       // Callback
       function(err, msg) {
-        var response = (msg || {}).body || {};
+        var response = (msg || {}).body || {},
+            error;
 
         // Resolving call
         self._calls.splice(self._calls.indexOf(call), 1);
@@ -80,7 +81,7 @@ function DynamicScraper(name) {
 
         // Phantom failure
         if (response.fail && response.reason === 'fail') {
-          var error = new Error('phantom-fail');
+          error = new Error('phantom-fail');
           error.code = response.error.errorCode;
           error.reason = response.error.errorString;
           return self.emit('job:fail', error, job);
@@ -88,7 +89,7 @@ function DynamicScraper(name) {
 
         // Wrong status code
         if (response.fail && response.reason === 'status') {
-          var error = new Error('status-' + (response.status || 'unknown'));
+          error = new Error('status-' + (response.status || 'unknown'));
           error.status = response.status;
           return self.emit('job:fail', error, job);
         }
