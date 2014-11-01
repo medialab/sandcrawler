@@ -85,6 +85,11 @@ describe('When running multi-url scrapers', function() {
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
           count++;
+        })
+        .on('scraper:end', function(status, remains) {
+          assert.strictEqual(status, 'success');
+          assert.strictEqual(remains[0].id, 3);
+          assert(remains.length === 1);
         });
 
       phantom.run(scraper, function(err, remains) {
