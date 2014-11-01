@@ -91,6 +91,13 @@ function Scraper(name) {
   // When a job fail, we update its state
   this.on('job:fail', function(err, job) {
     job.state.failing = true;
+
+    // If autoRetry is on, we retry
+    if (this.params.autoRetry)
+      if (this.params.autoRetry === 'now')
+        job.req.retryNow();
+      else
+        job.req.retryLater();
   });
 }
 

@@ -338,6 +338,23 @@ describe('When running multi-url scrapers', function() {
         done();
       });
     });
+
+    it('should be possible to use the autoRetry setting.', function(done) {
+      var count = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/404.html')
+        .config({maxRetries: 2, autoRetry: true})
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function(err, req) {
+          count++;
+        });
+
+      phantom.run(scraper, function() {
+        assert(count === 3);
+        done();
+      });
+    });
   });
 
   after(function() {
