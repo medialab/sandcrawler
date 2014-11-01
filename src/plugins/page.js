@@ -4,7 +4,7 @@
  *
  * A plugin listening to messages sent by phantomjs scraped pages.
  */
-var script = require('../phantom_script.js');
+var phscript = require('../phantom_script.js');
 
 module.exports = function(opts) {
 
@@ -44,7 +44,7 @@ module.exports = function(opts) {
 
         body.data.replyWithJawascript = function(fn) {
 
-          reply(script.fromFunction(fn));
+          reply(phscript.fromFunction(fn, false));
         };
 
         var job = self._findJob(body.jobId);
@@ -54,10 +54,9 @@ module.exports = function(opts) {
 
     // Unbinding messenger listener on end
     scraper.on('scraper:end', function() {
-      this.engine.messenger.removeListener('page:log', listeners.log);
-      this.engine.messenger.removeListener('page:error', listeners.error);
-      this.engine.messenger.removeListener('page:alert', listeners.alert);
-      this.engine.messenger.removeListener('page:navigation', listeners.navigation);
+
+      for (var k in listeners)
+        this.engine.messenger.removeListener('page:' + k, listeners[k]);
 
       listeners = {};
     });

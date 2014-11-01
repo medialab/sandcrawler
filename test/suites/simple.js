@@ -63,7 +63,7 @@ describe('When running fairly simple scrapers', function() {
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/resources/basic.html')
         .config({timeout: 500})
-        .script(__dirname + '/../resources/scrapers/error.js')
+        .script(__dirname + '/../resources/scrapers/error.js', false)
         .on('page:error', function(data) {
           assert.strictEqual(data.message, 'Error: random-error');
         });
@@ -86,7 +86,7 @@ describe('When running fairly simple scrapers', function() {
     it('should be possible to react to page navigation.', function(done) {
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/changer.js')
+        .script(__dirname + '/../resources/scrapers/changer.js', false)
         .on('page:navigation', function(nav, req, res) {
           nav.replyWithJawascript(function(done) {
             done($('title').scrapeOne());

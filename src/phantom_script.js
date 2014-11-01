@@ -9,8 +9,8 @@ var fs = require('fs');
 
 var prerequisites = /done\(/g;
 
-function check(str) {
-  if (!~str.search(prerequisites))
+function check(str, enabled) {
+  if (enabled !== false && !~str.search(prerequisites))
     throw Error('sandcrawler.phantom_script: cannot find any mention of ' +
                 '"done" in your script. You are probably never returning ' +
                 'control.');
@@ -34,21 +34,21 @@ function wrapFunction(fn) {
 }
 
 // Produce a phantom script from a path
-function fromFile(location) {
+function fromFile(location, e) {
   var str = wrapString(fs.readFileSync(require.resolve(location), 'utf-8'));
-  check(str);
+  check(str, e);
   return str;
 }
 
-function fromString(s) {
+function fromString(s, e) {
   var str = wrapString(s);
-  check(str);
+  check(str, e);
   return str;
 }
 
-function fromFunction(fn) {
+function fromFunction(fn, e) {
   var str = wrapFunction(fn);
-  check(str);
+  check(str, e);
   return str;
 }
 

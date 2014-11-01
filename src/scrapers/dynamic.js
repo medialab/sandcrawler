@@ -7,7 +7,7 @@
  */
 var Scraper = require('./abstract.js'),
     util = require('util'),
-    script = require('../phantom_script.js'),
+    phscript = require('../phantom_script.js'),
     pageLog = require('../plugins/page.js');
 
 /**
@@ -108,22 +108,22 @@ util.inherits(DynamicScraper, Scraper);
 /**
  * Prototype
  */
-DynamicScraper.prototype.script = function(path) {
+DynamicScraper.prototype.script = function(path, check) {
   if (this._script)
     throw Error('sandcrawler.scraper.script: script already registered.');
 
-  this._script = script.fromFile(path);
+  this._script = phscript.fromFile(path, check);
   return this;
 };
 
-DynamicScraper.prototype.jawascript = function(fn) {
+DynamicScraper.prototype.jawascript = function(fn, check) {
   if (this._script)
     throw Error('sandcrawler.scraper.jawascript: script already registered.');
 
   if (typeof fn === 'function')
-    this._script = script.fromFunction(fn);
+    this._script = phscript.fromFunction(fn, check);
   else if (typeof fn === 'string')
-    this._script = script.fromString(fn);
+    this._script = phscript.fromString(fn, check);
   else
     throw Error('sandcrawler.scraper.jawascript: wrong argument.');
 
