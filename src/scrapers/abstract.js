@@ -32,6 +32,7 @@ function Scraper(name) {
   this.engine = null;
   this.params = defaults.scraper;
   this.state = {
+    locked: false,
     paused: false,
     running: false,
     done: false
@@ -54,6 +55,23 @@ function Scraper(name) {
    * Predominant listeners
    */
 
+  // Locking events
+  this.on('scraper:lock', function() {
+    if (this.state.locked)
+      return;
+
+    this.state.paused = true;
+    this.state.locked = true;
+  });
+
+  this.on('scraper:unlock', function() {
+    if (!this.state.locked)
+      return;
+
+    this.state.locked = false;
+    this.emit('scraper:resume');
+  });
+
   // Pausing events
   this.on('scraper:pause', function() {
     if (this.state.paused)
@@ -63,7 +81,7 @@ function Scraper(name) {
   });
 
   this.on('scraper:resume', function() {
-    if (!this.state.paused)
+    if (!this.state.paused || this.state.locked)
       return;
 
     this.state.paused = false;
