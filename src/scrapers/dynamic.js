@@ -69,6 +69,9 @@ function DynamicScraper(name) {
       function(err, msg) {
         var response = (msg || {}).body || {};
 
+        // Resolving call
+        self._calls.splice(self._calls.indexOf(call), 1);
+
         // Populating response
         job.res = response;
 
