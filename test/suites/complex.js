@@ -59,6 +59,43 @@ describe('When running fairly complex scrapers', function() {
     });
   });
 
+  // describe('Scraper as a service', function() {
+
+  //   it('should be possible to disable autoExit in a crawler.', function(done) {
+  //     var count = 0;
+
+  //     var scraper = new sandcrawler.Scraper()
+  //       .config({autoExit: false})
+  //       .script(__dirname + '/../resources/scrapers/basic.js')
+  //       .result(function(err, req, res) {
+  //         count++;
+  //         assert.deepEqual(res.data, samples.basic);
+  //       })
+  //       .on('scraper:end', function(err) {
+  //         assert.strictEqual(err.message, 'exited');
+  //         done();
+  //       });
+
+  //     phantom.run(scraper);
+
+  //     var i = 0;
+
+  //     async.whilst(
+  //       function() {
+  //         return i < 2;
+  //       },
+  //       function(next) {
+  //         i++;
+  //         scraper.addUrl('http://localhost:7337/resources/basic.html');
+  //         setTimeout(next, 100);
+  //       },
+  //       function() {
+  //         // Done...
+  //       }
+  //     );
+  //   });
+  // });
+
   after(function() {
 
     // Now closing the phantom

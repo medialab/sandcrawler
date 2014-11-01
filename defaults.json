@@ -1,5 +1,6 @@
 {
   "scraper": {
+    "autoExit": true,
     "autoRetry": false,
     "artoo": {
       "log": {

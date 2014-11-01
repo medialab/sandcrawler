@@ -88,6 +88,9 @@ Spawn.prototype.run = function(scraper, callback) {
     if (self.params.autoClose && !self._runningScrapers.length)
       self.close();
 
+    if (typeof callback !== 'function')
+      return;
+
     if (err)
       return callback(err, remains);
 

@@ -94,11 +94,13 @@ function Scraper(name) {
 
   // Emitting the scraper:end event
   this.once('scraper:success', function() {
-    this.emit('scraper:end', 'success', this._remains);
+    if (this.params.autoExit !== false)
+      this.emit('scraper:end', 'success', this._remains);
   });
 
   this.once('scraper:fail', function() {
-    this.emit('scraper:end', 'fail', this._remains);
+    if (this.params.autoExit !== false)
+      this.emit('scraper:end', 'fail', this._remains);
   });
 
   // When the scraper is over, we update its state
