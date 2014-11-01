@@ -181,6 +181,15 @@ module.exports = function(parent, params) {
       }));
     };
 
+    // On page alert
+    page.onAlert = function(message) {
+
+      // Sending back to parent
+      parent.send('page:alert', wrapData({
+        message: message
+      }));
+    };
+
 
     /**
      * Opening url

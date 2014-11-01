@@ -28,12 +28,20 @@ module.exports = function(opts) {
         var job = self._findJob(body.jobId);
         if (job) self.emit('page:error', body.data, job.req, job.res);
       });
+
+      listeners.alert = this.engine.messenger.on('page:alert', function(msg) {
+        var body = msg.body;
+
+        var job = self._findJob(body.jobId);
+        if (job) self.emit('page:alert', body.data, job.req, job.res);
+      });
     });
 
     // Unbinding messenger listener on end
     scraper.on('scraper:end', function() {
       this.engine.messenger.removeListener('page:log', listeners.log);
       this.engine.messenger.removeListener('page:error', listeners.error);
+      this.engine.messenger.removeListener('page:alert', listeners.alert);
 
       listeners = {};
     });

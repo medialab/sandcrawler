@@ -47,17 +47,12 @@ describe('When running fairly simple scrapers', function() {
   describe('Event subscription', function() {
 
     it('should be possible to subscribe to page log.', function(done) {
-      var i = 0;
 
       var scraper = new sandcrawler.Scraper()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .on('page:log', function(data) {
-          i++;
-
-          // TODO: change when artoo logging issue is solved
-          if (i === 3)
-            assert.strictEqual(data.message, 'Hello world!');
+          assert.strictEqual(data.message, 'Hello world!');
         });
 
       phantom.run(scraper, done);
@@ -71,6 +66,18 @@ describe('When running fairly simple scrapers', function() {
         .script(__dirname + '/../resources/scrapers/error.js')
         .on('page:error', function(data) {
           assert.strictEqual(data.message, 'Error: random-error');
+        });
+
+      phantom.run(scraper, done);
+    });
+
+    it('should be possible to subscribe to page alerts.', function(done) {
+
+      var scraper = new sandcrawler.Scraper()
+        .url('http://localhost:7337/resources/basic.html')
+        .script(__dirname + '/../resources/scrapers/alert.js')
+        .on('page:alert', function(data) {
+          assert.strictEqual(data.message, 'Hello world!');
         });
 
       phantom.run(scraper, done);
