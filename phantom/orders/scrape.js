@@ -261,6 +261,14 @@ module.exports = function(parent, params) {
     /**
      * Opening url
      */
-    page.open(order.url);
+    var args = [order.url];
+
+    if (order.params.method !== 'GET')
+      args.push(order.params.method);
+
+    if (order.params.querystring)
+      args.push(order.params.querystring);
+
+    page.open.apply(page, args);
   };
 };
