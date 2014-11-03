@@ -35,7 +35,7 @@ function wrapFunction(fn) {
 
 // Produce a phantom script from a path
 function fromFile(location, e) {
-  var str = wrapString(fs.readFileSync(require.resolve(location), 'utf-8'));
+  var str = wrapString(fs.readFileSync(location, 'utf-8'));
   check(str, e);
   return str;
 }
