@@ -29,6 +29,7 @@ function Scraper(name) {
   this.name = name || this.id.substr(0, 16) + ']';
 
   // Properties
+  this.index = 0;
   this.engine = null;
   this.settings = defaults.scraper;
   this.state = {
@@ -40,7 +41,6 @@ function Scraper(name) {
 
   // Hidden properties
   this._iterator = null;
-  this._doneCount = 0;
   this._jobs = [];
   this._stack = [];
   this._remains = [];
@@ -148,10 +148,7 @@ Scraper.prototype._wrapJob = function(mixed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: mixed,
-    state: {
-      failing: false,
-      retrying: false
-    },
+    state: {},
     req: {
       retries: 0,
       data: {},
@@ -159,6 +156,9 @@ Scraper.prototype._wrapJob = function(mixed) {
     },
     res: {}
   };
+
+  // Setting state
+  this._setJobState(job);
 
   // Binding methods
   job.req.retry = this._retryJob.bind(this, job);
@@ -186,8 +186,8 @@ Scraper.prototype._wrapJob = function(mixed) {
   return job;
 };
 
-// Clean a job's state
-Scraper.prototype._cleanJobState = function(job) {
+// Set or reset a job's state
+Scraper.prototype._setJobState = function(job) {
   job.state.retrying = false;
   job.state.failing = false;
   return this;
@@ -199,11 +199,11 @@ Scraper.prototype._nextJob = function(lastJob) {
   // Running iterator if needed
   if (this._iterator &&
       !this._jobs.length &&
-      ((this._doneCount && lastJob) || true)) {
+      ((this.index && lastJob) || true)) {
 
     // We call the iterator
     var feed = this._iterator.call(this,
-      this._doneCount,
+      this.index,
       (lastJob || {}).req,
       (lastJob || {}).res
     );
@@ -214,7 +214,7 @@ Scraper.prototype._nextJob = function(lastJob) {
 
   // Did we run dry or did we hit the limit?
   if ((!this._jobs.length && !this._stack.length) ||
-      (this.settings.limit && this._doneCount >= this.settings.limit))
+      (this.settings.limit && this.index >= this.settings.limit))
     return this.emit('scraper:success');
 
   // Adding a job to the stack if possible
@@ -222,7 +222,7 @@ Scraper.prototype._nextJob = function(lastJob) {
     this._stack.unshift(this._jobs.shift());
 
     // Reinitializing state
-    this._cleanJobState(this._stack[0]);
+    this._setJobState(this._stack[0]);
     this.emit('job:before', this._stack[0]);
   }
 
@@ -294,7 +294,7 @@ Scraper.prototype._cleanup = function() {
 
   // Cleaning hidden properties
   this._iterator = null;
-  this._doneCount = 0;
+  this.index = 0;
   this._jobs = [];
   this._stack = [];
   this._remains = [];

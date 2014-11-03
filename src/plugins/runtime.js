@@ -96,7 +96,7 @@ module.exports = function(callback) {
         return this._nextJob();
 
       // A job has been done, we increment the count
-      this._doneCount++;
+      this.index++;
 
       // Removing page from stack
       var idx = _.findIndex(this._stack, function(e) {
