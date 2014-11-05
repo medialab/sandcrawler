@@ -103,8 +103,13 @@ module.exports = function(parent, params) {
      * Registering global page callbacks
      */
 
-    // On resource received
+    // On url changed, we track it
     // TODO: track redirects
+    page.onUrlChanged = function(targetUrl) {
+      order.url = targetUrl;
+    };
+
+    // On resource received
     page.onResourceReceived = function(response) {
       if (page.isOpened || response.url !== order.url)
         return;

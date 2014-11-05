@@ -167,7 +167,7 @@ Scraper.prototype._wrapJob = function(mixed) {
 
   // Populating
   if (types.get(mixed) === 'string') {
-    job.req.url = decodeURIComponent(mixed);
+    job.req.url = mixed;
   }
   else {
 
@@ -175,7 +175,7 @@ Scraper.prototype._wrapJob = function(mixed) {
     if (!mixed.url)
       throw Error('sandcrawler.scraper._wrapJob: no url provided.');
 
-    job.req.url = decodeURIComponent(mixed.url);
+    job.req.url = mixed.url;
     job.req.data = mixed.data || {};
     job.req.params = mixed.params || {};
 
