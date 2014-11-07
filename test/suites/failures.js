@@ -26,7 +26,7 @@ describe('When dealing with failures', function() {
 
       sandcrawler.spawn(function(err, ghost) {
         ghost.run(scraper, function(err, remains) {
-          console.log(err, remains);
+          assert.strictEqual(err.message, 'phantom-crash');
           done();
         });
       });

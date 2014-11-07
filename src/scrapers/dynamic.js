@@ -38,7 +38,7 @@ function DynamicScraper(name) {
     crash: function() {
 
       // Terminating ongoing calls and failing the scraper
-      this.emit('scraper:fail', new Error('phantom-crash'));
+      self.emit('scraper:fail', new Error('phantom-crash'));
     }
   };
 
@@ -50,9 +50,11 @@ function DynamicScraper(name) {
 
   // Listening
   this.once('scraper:cleanup', function() {
-    this._calls.forEach(function(call) {
-      this.engine.messenger.cancel(call);
-    }, this);
+
+
+    // this._calls.forEach(function(call) {
+    //   this.engine.messenger.cancel(call);
+    // }, this);
 
     this._script = null;
     this._calls = [];
