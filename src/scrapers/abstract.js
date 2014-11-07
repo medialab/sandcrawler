@@ -87,11 +87,6 @@ function Scraper(name) {
     this.state.paused = false;
   });
 
-  // If for some reason the scraper fails, we clean its mess up
-  this.once('scraper:fail', function() {
-    this._cleanup();
-  });
-
   // Emitting the scraper:end event
   this.once('scraper:success', function() {
     if (this.settings.autoExit !== false)
@@ -106,6 +101,7 @@ function Scraper(name) {
   // When the scraper is over, we update its state
   this.once('scraper:end', function() {
     this.state.done = true;
+    this.state.running = false;
   });
 
   // When a job fail, we update its state
@@ -285,16 +281,9 @@ Scraper.prototype._cleanup = function() {
 
   // Cleaning properties
   this.engine = null;
-  this.settings = defaults.scraper;
-  this.state = {
-    paused: false,
-    running: false,
-    done: false
-  };
 
   // Cleaning hidden properties
   this._iterator = null;
-  this.index = 0;
   this._jobs = [];
   this._stack = [];
   this._remains = [];

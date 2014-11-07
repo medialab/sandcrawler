@@ -34,14 +34,31 @@ function DynamicScraper(name) {
   this._script = null;
   this._calls = [];
 
+  this._listeners = {
+    crash: function() {
+
+      // Terminating ongoing calls and failing the scraper
+      this.emit('scraper:fail', new Error('phantom-crash'));
+    }
+  };
+
+  // Hooking on phantom exit for safety
+  this.once('scraper:before', function() {
+
+    this.engine.once('phantom:crash', this._listeners.crash);
+  });
+
   // Listening
-  this.on('scaper:cleanup', function() {
+  this.once('scraper:cleanup', function() {
     this._calls.forEach(function(call) {
       this.engine.messenger.cancel(call);
     }, this);
 
     this._script = null;
     this._calls = [];
+
+    // Removing engine listeners
+    this.engine.removeListener('phantom:crash', this._listeners.crash);
   });
 
   this.on('job:scrape', function(job) {

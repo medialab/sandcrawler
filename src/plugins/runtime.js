@@ -2,7 +2,8 @@
  * Sandcrawler Runtime Plugin
  * ===========================
  *
- * This fundamental plugin takes care of the abstract scraper's runtime.
+ * This fundamental plugin takes care of the abstract scraper's runtime. This
+ * is where events that have to be registered last should be.
  */
 var async = require('async'),
     _ = require('lodash');
@@ -114,10 +115,12 @@ module.exports = function(callback) {
     // Listening to scraper ending
     scraper.once('scraper:fail', function(err) {
       callback(err, this._remains);
+      this._cleanup();
     });
 
     scraper.once('scraper:success', function() {
       callback(null, this._remains);
+      this._cleanup();
     });
   };
 };

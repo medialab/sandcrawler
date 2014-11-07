@@ -18,6 +18,7 @@
   },
   "spawn": {
     "autoClose": true,
+    "autoRestart": true,
     "args": {
       "ignoreSslErrors": true
     }

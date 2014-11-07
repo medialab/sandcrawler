@@ -11,5 +11,6 @@ var tests = {
   simple: require('./suites/simple.js'),
   multiple: require('./suites/multiple.js'),
   complex: require('./suites/complex.js'),
+  // failures: require('./suites/failures.js'),
   static: require('./suites/static.js')
 };

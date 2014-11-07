@@ -144,6 +144,10 @@ module.exports = function(parent, params) {
         });
       }
 
+      // Page wants to exit phantom
+      if (msg.head === 'exit')
+        return phantom.exit(msg.body || 0);
+
       // Page is returning control
       if (msg.head === 'done') {
 

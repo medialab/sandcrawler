@@ -18,482 +18,560 @@
     }
   }
 
-  // Main function
-  function Artoo() {
-
-    // Properties
-    this.$ = {};
-    this.jquery = {
+  // Main object
+  var artoo = {
+    $: {},
+    jquery: {
       plugins: []
-    };
-    this.mountNode = body;
-    this.stylesheets = {};
-    this.templates = {};
-  }
-
-  var artoo = new Artoo();
+    },
+    mountNode: body,
+    stylesheets: {},
+    templates: {},
+    _handlers: {},
+    _handlersAll: []
+  };
 
   // Non-writable version
   Object.defineProperty(artoo, 'version', {
-    value: '0.2.0'
+    value: '0.3.0'
   });
 
   // Exporting to global scope
   this.artoo = artoo;
 }).call(this);
 
-/*!
- * EventEmitter v4.2.9 - git.io/ee
- * Oliver Caldwell
- * MIT license
- * @preserve
- */
-
-(function () {
+;(function() {
   'use strict';
 
-  /**
-   * Class for managing events.
-   * Can be extended to provide event functionality in other classes.
-   *
-   * @class EventEmitter Manages event registering and emitting.
-   */
-  function EventEmitter() {}
-
-  // Shortcuts to improve speed and size
-  var proto = EventEmitter.prototype;
-  var exports = this;
-  var originalGlobalValue = exports.EventEmitter;
 
   /**
-   * Finds the index of the listener for the event in its storage array.
+   * The emitter's constructor. It initializes the handlers-per-events store and
+   * the global handlers store.
    *
-   * @param {Function[]} listeners Array of listeners to search through.
-   * @param {Function} listener Method to look for.
-   * @return {Number} Index of the specified listener, -1 if not found
-   * @api private
+   * Emitters are useful for non-DOM events communication. Read its methods
+   * documentation for more information about how it works.
+   *
+   * @return {Emitter} The fresh new instance.
    */
-  function indexOfListener(listeners, listener) {
-    var i = listeners.length;
-    while (i--) {
-      if (listeners[i].listener === listener) {
-        return i;
-      }
-    }
+  var Emitter = function() {
+    this._handlers = {};
+    this._handlersAll = [];
+  };
 
-    return -1;
-  }
 
   /**
-   * Alias a method while keeping the context correct, to allow for overwriting of target method.
+   * This method binds one or more functions to the emitter, handled to one or a
+   * suite of events. So, these functions will be executed anytime one related
+   * event is emitted.
    *
-   * @param {String} name The name of the target method.
-   * @return {Function} The aliased method
-   * @api private
-   */
-  function alias(name) {
-    return function aliasClosure() {
-      return this[name].apply(this, arguments);
-    };
-  }
-
-  /**
-   * Returns the listener array for the specified event.
-   * Will initialise the event object and listener arrays if required.
-   * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
-   * Each property in the object response is an array of listener functions.
+   * It is also possible to bind a function to any emitted event by not specifying
+   * any event to bind the function to.
    *
-   * @param {String|RegExp} evt Name of the event to return the listeners from.
-   * @return {Function[]|Object} All listener functions for the event.
+   * Variant 1:
+   * **********
+   * > myEmitter.on('myEvent', function(e) { console.log(e); });
+   *
+   * @param  {string}   event   The event to listen to.
+   * @param  {function} handler The function to bind.
+   * @return {Emitter}          Returns this.
+   *
+   * Variant 2:
+   * **********
+   * > myEmitter.on(['myEvent1', 'myEvent2'], function(e) { console.log(e); });
+   *
+   * @param  {array}    events  The events to listen to.
+   * @param  {function} handler The function to bind.
+   * @return {Emitter}          Returns this.
+   *
+   * Variant 3:
+   * **********
+   * > myEmitter.on({
+   * >   myEvent1: function(e) { console.log(e); },
+   * >   myEvent2: function(e) { console.log(e); }
+   * > });
+   *
+   * @param  {object} bindings An object containing pairs event / function.
+   * @return {Emitter}         Returns this.
+   *
+   * Variant 4:
+   * **********
+   * > myEmitter.on(function(e) { console.log(e); });
+   *
+   * @param  {function} handler The function to bind to every events.
+   * @return {Emitter}          Returns this.
    */
-  proto.getListeners = function getListeners(evt) {
-    var events = this._getEvents();
-    var response;
-    var key;
+  Emitter.prototype.on = function(events, handler, onlyOnce) {
+    var i,
+        l,
+        event,
+        eArray,
+        last = arguments[arguments.length - 1];
 
-    // Return a concatenated array of all matching events if
-    // the selector is a regular expression.
-    if (evt instanceof RegExp) {
-      response = {};
-      for (key in events) {
-        if (events.hasOwnProperty(key) && evt.test(key)) {
-          response[key] = events[key];
-        }
-      }
+    // Dealing with once polymorphism
+    // NOTE: this is hardly clean
+    if (typeof last === 'boolean') {
+      onlyOnce = last;
+      arguments.length--;
     }
     else {
-      response = events[evt] || (events[evt] = []);
+      onlyOnce = false;
     }
 
-    return response;
-  };
+    if (
+      arguments.length === 1 &&
+      typeof arguments[0] === 'object'
+    )
+      for (event in arguments[0])
+        Emitter.prototype.on.call(this, event, arguments[0][event], onlyOnce);
 
-  /**
-   * Takes a list of listener objects and flattens it into a list of listener functions.
-   *
-   * @param {Object[]} listeners Raw listener objects.
-   * @return {Function[]} Just the listener functions.
-   */
-  proto.flattenListeners = function flattenListeners(listeners) {
-    var flatListeners = [];
-    var i;
+    else if (
+      arguments.length === 1 &&
+      typeof arguments[0] === 'function'
+    )
+      this._handlersAll.push({
+        handler: arguments[0]
+      });
 
-    for (i = 0; i < listeners.length; i += 1) {
-      flatListeners.push(listeners[i].listener);
-    }
+    else if (
+      arguments.length === 2 &&
+      typeof arguments[1] === 'function'
+    ) {
+      eArray = typeof events === 'string' ?
+        [events] :
+        events;
 
-    return flatListeners;
-  };
+      for (i = 0, l = eArray.length; i !== l; i += 1) {
+        event = eArray[i];
 
-  /**
-   * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
-   *
-   * @param {String|RegExp} evt Name of the event to return the listeners from.
-   * @return {Object} All listener functions for an event in an object.
-   */
-  proto.getListenersAsObject = function getListenersAsObject(evt) {
-    var listeners = this.getListeners(evt);
-    var response;
+        // Check that event is not '':
+        if (!event)
+          continue;
 
-    if (listeners instanceof Array) {
-      response = {};
-      response[evt] = listeners;
-    }
+        if (!this._handlers[event])
+          this._handlers[event] = [];
 
-    return response || listeners;
-  };
-
-  /**
-   * Adds a listener function to the specified event.
-   * The listener will not be added if it is a duplicate.
-   * If the listener returns true then it will be removed after it is called.
-   * If you pass a regular expression as the event name then the listener will be added to all events that match it.
-   *
-   * @param {String|RegExp} evt Name of the event to attach the listener to.
-   * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.addListener = function addListener(evt, listener) {
-    var listeners = this.getListenersAsObject(evt);
-    var listenerIsWrapped = typeof listener === 'object';
-    var key;
-
-    for (key in listeners) {
-      if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
-        listeners[key].push(listenerIsWrapped ? listener : {
-          listener: listener,
-          once: false
+        // Using an object instead of directly the handler will make possible
+        // later to add flags
+        this._handlers[event].push({
+          once: !!onlyOnce,
+          handler: handler
         });
       }
-    }
+
+    } else
+      throw new Error('Wrong arguments.');
 
     return this;
   };
 
-  /**
-   * Alias of addListener
-   */
-  proto.on = alias('addListener');
 
   /**
-   * Semi-alias of addListener. It will add a listener that will be
-   * automatically removed after its first execution.
+   * This method is basically the same as `on` but comes with a notable
+   * difference: the handler will fire only once, the first time a relevant
+   * event is emitted and will be removed immediately after.
    *
-   * @param {String|RegExp} evt Name of the event to attach the listener to.
-   * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-   * @return {Object} Current instance of EventEmitter for chaining.
+   * Variant 1:
+   * **********
+   * > myEmitter.once('myEvent', function(e) { console.log(e); });
+   *
+   * @param  {string}   event   The event to listen to.
+   * @param  {function} handler The function to bind.
+   * @return {Emitter}          Returns this.
+   *
+   * Variant 2:
+   * **********
+   * > myEmitter.once(['myEvent1', 'myEvent2'], function(e) { console.log(e); });
+   *
+   * @param  {array}    events  The events to listen to.
+   * @param  {function} handler The function to bind.
+   * @return {Emitter}          Returns this.
+   *
+   * Variant 3:
+   * **********
+   * > myEmitter.once({
+   * >   myEvent1: function(e) { console.log(e); },
+   * >   myEvent2: function(e) { console.log(e); }
+   * > });
+   *
+   * @param  {object} bindings An object containing pairs event / function.
+   * @return {Emitter}         Returns this.
+   *
+   * Variant 4:
+   * **********
+   * > myEmitter.once(function(e) { console.log(e); });
+   *
+   * @param  {function} handler The function to bind to every events.
+   * @return {Emitter}          Returns this.
    */
-  proto.addOnceListener = function addOnceListener(evt, listener) {
-    return this.addListener(evt, {
-      listener: listener,
-      once: true
-    });
+  Emitter.prototype.once = function() {
+    var args = Array.prototype.slice.call(arguments).concat(true);
+    return this.on.apply(this, args);
   };
 
-  /**
-   * Alias of addOnceListener.
-   */
-  proto.once = alias('addOnceListener');
 
   /**
-   * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
-   * You need to tell it what event names should be matched by a regex.
+   * This method unbinds one or more functions from events of the emitter. So,
+   * these functions will no more be executed when the related events are emitted.
+   * If the functions were not bound to the events, nothing will happen, and no
+   * error will be thrown.
    *
-   * @param {String} evt Name of the event to create.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.defineEvent = function defineEvent(evt) {
-    this.getListeners(evt);
-    return this;
-  };
-
-  /**
-   * Uses defineEvent to define multiple events.
+   * It is also possible to unbind a function from every AND any emitted event by
+   * not specifying any event to bind the function to.
    *
-   * @param {String[]} evts An array of event names to define.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.defineEvents = function defineEvents(evts) {
-    for (var i = 0; i < evts.length; i += 1) {
-      this.defineEvent(evts[i]);
-    }
-    return this;
-  };
-
-  /**
-   * Removes a listener function from the specified event.
-   * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+   * Variant 1:
+   * **********
+   * > myEmitter.off('myEvent');
    *
-   * @param {String|RegExp} evt Name of the event to remove the listener from.
-   * @param {Function} listener Method to remove from the event.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.removeListener = function removeListener(evt, listener) {
-    var listeners = this.getListenersAsObject(evt);
-    var index;
-    var key;
-
-    for (key in listeners) {
-      if (listeners.hasOwnProperty(key)) {
-        index = indexOfListener(listeners[key], listener);
-
-        if (index !== -1) {
-          listeners[key].splice(index, 1);
-        }
-      }
-    }
-
-    return this;
-  };
-
-  /**
-   * Alias of removeListener
-   */
-  proto.off = alias('removeListener');
-
-  /**
-   * Adds listeners in bulk using the manipulateListeners method.
-   * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
-   * You can also pass it a regular expression to add the array of listeners to all events that match it.
-   * Yeah, this function does quite a bit. That's probably a bad thing.
+   * @param  {string} event The event to unbind.
+   * @return {Emitter}      Returns this.
    *
-   * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
-   * @param {Function[]} [listeners] An optional array of listener functions to add.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.addListeners = function addListeners(evt, listeners) {
-    // Pass through to manipulateListeners
-    return this.manipulateListeners(false, evt, listeners);
-  };
-
-  /**
-   * Removes listeners in bulk using the manipulateListeners method.
-   * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-   * You can also pass it an event name and an array of listeners to be removed.
-   * You can also pass it a regular expression to remove the listeners from all events that match it.
+   * Variant 1:
+   * **********
+   * > myEmitter.off(['myEvent1', 'myEvent2']);
    *
-   * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
-   * @param {Function[]} [listeners] An optional array of listener functions to remove.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.removeListeners = function removeListeners(evt, listeners) {
-    // Pass through to manipulateListeners
-    return this.manipulateListeners(true, evt, listeners);
-  };
-
-  /**
-   * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
-   * The first argument will determine if the listeners are removed (true) or added (false).
-   * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-   * You can also pass it an event name and an array of listeners to be added/removed.
-   * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+   * @param  {array} events The events to unbind.
+   * @return {Emitter}      Returns this.
    *
-   * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
-   * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
-   * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
-   * @return {Object} Current instance of EventEmitter for chaining.
+   * Variant 2:
+   * **********
+   * > myEmitter.off(['myEvent1', 'myEvent2'], myHandler);
+   *
+   * @param  {array}    events  The events to unbind to.
+   * @param  {function} handler The function to unbind.
+   * @return {Emitter}          Returns this.
+   *
+   * Variant 3:
+   * **********
+   * > myEmitter.off({
+   * >   myEvent1: myHandler1,
+   * >   myEvent2: myHandler2
+   * > });
+   *
+   * @param  {object} bindings An object containing pairs event / function.
+   * @return {Emitter}         Returns this.
+   *
+   * Variant 4:
+   * **********
+   * > myEmitter.off(myHandler);
+   *
+   * @param  {function} handler The function to unbind to every events.
+   * @return {Emitter}          Returns this.
    */
-  proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
-    var i;
-    var value;
-    var single = remove ? this.removeListener : this.addListener;
-    var multiple = remove ? this.removeListeners : this.addListeners;
+  Emitter.prototype.off = function(events, handler, onlyOnce) {
+    var i,
+        n,
+        j,
+        m,
+        k,
+        a,
+        event,
+        last = arguments[arguments.length - 1],
+        eArray = typeof events === 'string' ?
+          [events] :
+          events;
 
-    // If evt is an object then pass each of its properties to this method
-    if (typeof evt === 'object' && !(evt instanceof RegExp)) {
-      for (i in evt) {
-        if (evt.hasOwnProperty(i) && (value = evt[i])) {
-          // Pass the single listener straight through to the singular method
-          if (typeof value === 'function') {
-            single.call(this, i, value);
-          }
-          else {
-            // Otherwise pass back to the multiple function
-            multiple.call(this, i, value);
-          }
-        }
-      }
+    // Dealing with once polymorphism
+    // NOTE: this is hardly clean
+    if (typeof last === 'boolean') {
+      onlyOnce = last;
+      arguments.length--;
     }
     else {
-      // So evt must be a string
-      // And listeners must be an array of listeners
-      // Loop over it and pass each one to the multiple method
-      i = listeners.length;
-      while (i--) {
-        single.call(this, evt, listeners[i]);
+      onlyOnce = false;
+    }
+
+    if (!arguments.length) {
+      this._handlersAll = [];
+      for (k in this._handlers)
+        delete this._handlers[k];
+    }
+
+    else if (arguments.length === 1 && typeof eArray !== 'function')
+      for (i = 0, n = eArray.length; i !== n; i += 1)
+        delete this._handlers[eArray[i]];
+
+    else if (arguments.length === 1 && typeof eArray === 'function') {
+      handler = arguments[0];
+
+      // Handlers bound to events:
+      for (k in this._handlers) {
+        a = [];
+        for (i = 0, n = this._handlers[k].length; i !== n; i += 1)
+          if (this._handlers[k][i].handler !== handler)
+            a.push(this._handlers[k][i]);
+        this._handlers[k] = a;
+      }
+
+      a = [];
+      for (i = 0, n = this._handlersAll.length; i !== n; i += 1)
+        if (this._handlersAll[i].handler !== handler)
+          a.push(this._handlersAll[i]);
+      this._handlersAll = a;
+    }
+
+    else if (arguments.length === 2) {
+      for (i = 0, n = eArray.length; i !== n; i += 1) {
+        event = eArray[i];
+        if (this._handlers[event]) {
+          a = [];
+          for (j = 0, m = this._handlers[event].length; j !== m; j += 1) {
+            if (this._handlers[event][j].handler !== handler ||
+                (onlyOnce && !this._handlers[event][j].once))
+              a.push(this._handlers[event][j]);
+          }
+
+          this._handlers[event] = a;
+        }
+
+        if (this._handlers[event] && this._handlers[event].length === 0)
+          delete this._handlers[event];
       }
     }
 
     return this;
   };
 
-  /**
-   * Removes all listeners from a specified event.
-   * If you do not specify an event then all listeners will be removed.
-   * That means every event will be emptied.
-   * You can also pass a regex to remove all events that match it.
-   *
-   * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.removeEvent = function removeEvent(evt) {
-    var type = typeof evt;
-    var events = this._getEvents();
-    var key;
 
-    // Remove different things depending on the state of evt
-    if (type === 'string') {
-      // Remove all listeners for the specified event
-      delete events[evt];
-    }
-    else if (evt instanceof RegExp) {
-      // Remove all events matching the regex.
-      for (key in events) {
-        if (events.hasOwnProperty(key) && evt.test(key)) {
-          delete events[key];
+  /**
+   * This method emits the specified event(s), and executes every handlers bound
+   * to the event(s).
+   *
+   * Use cases:
+   * **********
+   * > myEmitter.emit('myEvent');
+   * > myEmitter.emit('myEvent', myData);
+   * > myEmitter.emit(['myEvent1', 'myEvent2']);
+   * > myEmitter.emit(['myEvent1', 'myEvent2'], myData);
+   *
+   * @param  {string|array} events The event(s) to emit.
+   * @param  {object?}      data   The data.
+   * @return {Emitter}             Returns this.
+   */
+  Emitter.prototype.emit = function(events, data) {
+    var i,
+        n,
+        j,
+        m,
+        event,
+        handlers,
+        eventName,
+        self = this,
+        eArray = typeof events === 'string' ?
+          [events] :
+          events;
+
+    data = data === undefined ? {} : data;
+
+    for (i = 0, n = eArray.length; i !== n; i += 1) {
+      eventName = eArray[i];
+      handlers = (this._handlers[eventName] || []).concat(this._handlersAll);
+
+      if (handlers.length) {
+        event = {
+          type: eventName,
+          data: data || {},
+          target: this
+        };
+
+        for (j = 0, m = handlers.length; j !== m; j += 1) {
+          handlers[j].handler.call(this, event);
+
+          // Removing handler if once
+          if (handlers[j].once)
+            this.off(eventName, handlers[j].handler, true);
         }
       }
     }
-    else {
-      // Remove all listeners in all events
-      delete this._events;
+
+    return this;
+  };
+
+
+  /**
+   * This method will create a binder, to help enable / disable a bunch of
+   * functions as a single entity. This binder extends the on / off API of the
+   * emitter.
+   *
+   * @param  {object} bindings The initial bindings.
+   * @return {Binder}          The binder.
+   */
+  Emitter.prototype.binder = function() {
+    var k,
+        i,
+        l,
+        a,
+        binder = new Binder(this);
+
+    // Bind initial bindings:
+    if (arguments.length)
+      binder.on.apply(binder, arguments);
+
+    return binder;
+  };
+
+
+
+
+
+
+  /**
+   * The binder's constructor. Binders are useful if you want to manage your
+   * bindings as batches instead of individually.
+   *
+   * @return {Emitter} The fresh new instance.
+   */
+  var Binder = function(emitter) {
+    // Initialize the emitter
+    Emitter.call(this);
+
+    // Reference the parent emitter:
+    this._emitter = emitter;
+
+    // Add current state:
+    this._enabled = true;
+  };
+
+
+  /**
+   * This method registers the pairs event(s) / function in the binder, and
+   * binds them to the emitter if the binder is activated.
+   *
+   * The polymorphism is exactly the one from Emitter.prototype.on.
+   */
+  Binder.prototype.on = function() {
+    // Store the bindings as if it were an emitter:
+    Emitter.prototype.on.apply(this, arguments);
+
+    // Actually send the bindings to the parent emitter if the binder is on:
+    if (this._enabled)
+      this._emitter.on.apply(this._emitter, arguments);
+
+    return this;
+  };
+
+
+  /**
+   * This method registers the pairs event(s) / function in the binder, and
+   * binds them to the emitter if the binder is activated.
+   *
+   * The only difference with Binder.prototype.on is that the handler will
+   * only be fired the first time the relevant event is emitted.
+   *
+   * The polymorphism is exactly the one from Emitter.prototype.on.
+   */
+  Binder.prototype.once = function() {
+    var args = Array.prototype.slice.call(arguments).concat(true);
+
+    // Store the bindings as if it were an emitter:
+    Emitter.prototype.on.apply(this, args);
+
+    // Actually send the bindings to the parent emitter if the binder is on:
+    if (this._enabled)
+      this._emitter.on.apply(this._emitter, args);
+
+    return this;
+  };
+
+
+  /**
+   * This method unregister the pairs event(s) / function from the binder, and
+   * unbinds them from the emitter if the binder is activated.
+   *
+   * The polymorphism is exactly the one from Emitter.prototype.off.
+   */
+  Binder.prototype.off = function() {
+    // Store the bindings as if it were an emitter:
+    Emitter.prototype.off.apply(this, arguments);
+
+    // Actually send the bindings to the parent emitter if the binder is on:
+    if (this._enabled)
+      this._emitter.off.apply(this._emitter, arguments);
+
+    return this;
+  };
+
+
+  /**
+   * If the binder if not enabled yet, this method will enable it and bind each
+   * stored event(s) / function pair to the emitter.
+   *
+   * @return {Binder} Returns this.
+   */
+  Binder.prototype.enable = function() {
+    var k,
+        a,
+        i,
+        l;
+
+    if (this._enabled)
+      return this;
+
+    this._enabled = true;
+
+    // First, let's deal with the _handlersAll index:
+    a = this._handlersAll;
+    for (i = a.length - 1; i >= 0; i--)
+      this._emitter.on(a[i].handler);
+
+    // Let's now deal with the _handlers index:
+    for (k in this._handlers) {
+      a = this._handlers[k];
+      for (i = a.length - 1; i >= 0; i--)
+        this._emitter.on(k, a[i].handler);
     }
 
     return this;
   };
 
-  /**
-   * Alias of removeEvent.
-   *
-   * Added to mirror the node API.
-   */
-  proto.removeAllListeners = alias('removeEvent');
 
   /**
-   * Emits an event of your choice.
-   * When emitted, every listener attached to that event will be executed.
-   * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
-   * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
-   * So they will not arrive within the array on the other side, they will be separate.
-   * You can also pass a regular expression to emit to all events that match it.
+   * If the binder if enabled, this method will disable it and unbind each stored
+   * event(s) / function pair from the emitter.
    *
-   * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-   * @param {Array} [args] Optional array of arguments to be passed to each listener.
-   * @return {Object} Current instance of EventEmitter for chaining.
+   * @return {Binder} Returns this.
    */
-  proto.emitEvent = function emitEvent(evt, args) {
-    var listeners = this.getListenersAsObject(evt);
-    var listener;
-    var i;
-    var key;
-    var response;
+  Binder.prototype.disable = function() {
+    var i,
+        k,
+        a;
 
-    for (key in listeners) {
-      if (listeners.hasOwnProperty(key)) {
-        i = listeners[key].length;
+    if (!this._enabled)
+      return this;
 
-        while (i--) {
-          // If the listener returns true then it shall be removed from the event
-          // The function is executed either with a basic call or an apply if there is an args array
-          listener = listeners[key][i];
-
-          if (listener.once === true) {
-            this.removeListener(evt, listener.listener);
-          }
-
-          response = listener.listener.apply(this, args || []);
-
-          if (response === this._getOnceReturnValue()) {
-            this.removeListener(evt, listener.listener);
-          }
-        }
-      }
+    // First, let's deal with the _handlersAll index:
+    // NOTE: Since the Emitter API does not allow to unbind functions ONLY from
+    // the _handlersAll index, I had to do it manually here.
+    function checkHandler(obj) {
+      return obj.handler === a[i].handler;
     }
+    a = this._emitter._handlersAll;
+    for (i = a.length - 1; i >= 0; i--)
+      /*jslint browser: true, plusplus: true */
+      if (this._handlersAll.find(checkHandler))
+        a.splice(i, 1);
+
+    // Let's now deal with the _handlers index:
+    for (k in this._handlers) {
+      a = this._handlers[k];
+      for (i = a.length - 1; i >= 0; i--)
+        this._emitter.off(k, a[i].handler);
+    }
+
+    this._enabled = false;
 
     return this;
   };
 
-  /**
-   * Alias of emitEvent
-   */
-  proto.trigger = alias('emitEvent');
 
   /**
-   * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
-   * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
-   *
-   * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-   * @param {...*} Optional additional arguments to be passed to each listener.
-   * @return {Object} Current instance of EventEmitter for chaining.
+   * Version:
    */
-  proto.emit = function emit(evt) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return this.emitEvent(evt, args);
-  };
+  Emitter.version = '1.0.0';
 
-  /**
-   * Sets the current value to check against when executing listeners. If a
-   * listeners return value matches the one set here then it will be removed
-   * after execution. This value defaults to true.
-   *
-   * @param {*} value The new value to check for when executing listeners.
-   * @return {Object} Current instance of EventEmitter for chaining.
-   */
-  proto.setOnceReturnValue = function setOnceReturnValue(value) {
-    this._onceReturnValue = value;
-    return this;
-  };
 
-  /**
-   * Fetches the current value to check against when executing listeners. If
-   * the listeners return value matches this one then it should be removed
-   * automatically. It will return true by default.
-   *
-   * @return {*|Boolean} The current value to check for or the default, true.
-   * @api private
-   */
-  proto._getOnceReturnValue = function _getOnceReturnValue() {
-    if (this.hasOwnProperty('_onceReturnValue')) {
-      return this._onceReturnValue;
-    }
-    else {
-      return true;
-    }
-  };
-
-  /**
-   * Fetches the events object and creates one if required.
-   *
-   * @return {Object} The events storage object.
-   * @api private
-   */
-  proto._getEvents = function _getEvents() {
-    return this._events || (this._events = {});
-  };
-
-  // Export
-  exports.EventEmitter = EventEmitter;
-}.call(artoo));
+  // Export:
+  artoo.emitter = Emitter;
+}).call(this);
 
 /*!
  * jQuery Simulate v1.0.1-pre - simulate browser mouse and keyboard events
@@ -840,26 +918,38 @@
    * Experimental feature designed to make artoo beep.
    */
 
-  var sounds = [
-    'announce', 'assert', 'determined', 'excited', 'flourish', 'hello',
-    'laugh', 'music', 'original', 'playful', 'question', 'quick', 'sad',
-    'sassy', 'scream', 'shocked', 'snappy', 'strange', 'talk', 'threat',
-    'weep', 'welcome', 'whistling'
-  ];
+  var collections = {
+    greet: ['announce', 'excited', 'hello', 'music', 'original', 'welcome'],
+    info: ['determined', 'flourish', 'playful', 'sassy', 'talk', 'whistling'],
+    warn: ['assert', 'laugh', 'question', 'quick', 'strange', 'threat'],
+    error: ['sad', 'scream', 'shocked', 'weep']
+  };
+
+  var sounds = collections.greet
+    .concat(collections.info)
+    .concat(collections.warn)
+    .concat(collections.error);
 
   // Helpers
-  function randomSound() {
-    return sounds[Math.floor(Math.random() * sounds.length)];
+  function randomInArray(a) {
+    return a[Math.floor(Math.random() * a.length)];
   }
 
   // Playing the base64 sound
   artoo.beep = function(sound) {
-    sound = sound || randomSound();
+    var chosenSound;
+    if (artoo.helpers.isArray(sound))
+      chosenSound = randomInArray(sound);
+    else
+      chosenSound = sound || randomInArray(sounds);
 
-    if (!~sounds.indexOf(sound))
+    if (chosenSound in collections)
+      chosenSound = randomInArray(collections[chosenSound]);
+
+    if (!~sounds.indexOf(chosenSound))
       throw Error('artoo.beep: wrong sound specified.');
 
-    new Audio(artoo.settings.beep.endpoint + sound + '.ogg').play();
+    new Audio(artoo.settings.beep.endpoint + chosenSound + '.ogg').play();
   };
 
   // Exposing available beeps
@@ -867,8 +957,14 @@
     value: sounds
   });
 
+  // Exposing collections
+  Object.defineProperty(artoo.beep, 'collections', {
+    value: collections
+  });
+
   // Creating shortcuts
-  sounds.forEach(function(s) {
+  // NOTE: not using bind here to avoid messing with phantomjs
+  sounds.concat(Object.keys(collections)).forEach(function(s) {
     artoo.beep[s] = function() {
       artoo.beep(s);
     };
@@ -906,9 +1002,6 @@
       delimiter: '%'
     },
     dependencies: [],
-    instructions: {
-      autoRecord: true
-    },
     jquery: {
       version: '2.1.1',
       force: false
@@ -941,13 +1034,23 @@
    */
   var _root = this;
 
-  // Extending EventEmitter
+  // Extending Emmett
   Object.setPrototypeOf = Object.setPrototypeOf || function (obj, proto) {
     obj.__proto__ = proto;
     return obj;
   };
-  var ee = new artoo.EventEmitter();
+  var ee = new artoo.emitter();
   Object.setPrototypeOf(artoo, Object.getPrototypeOf(ee));
+
+
+  // Legacy support
+  // TODO: drop this asap
+  artoo.hooks = {
+    trigger: function(name) {
+      artoo.emit(name);
+    }
+  };
+
 
   /**
    * Generic Helpers
@@ -974,20 +1077,6 @@
           res[k] = arguments[i][k];
 
     return res;
-  }
-
-  // Creating repeating sequences
-  function repeatString(string, nb) {
-    var s = string,
-        l,
-        i;
-
-    if (nb <= 0)
-      return '';
-
-    for (i = 1, l = nb | 0; i < l; i++)
-      s += string;
-    return s;
   }
 
   // Is the var an array?
@@ -1038,232 +1127,6 @@
         return i;
     }
     return -1;
-  }
-
-
-  /**
-   * Data Handling
-   * --------------
-   *
-   * Functions to deal with data formats such as CSV, YAML etc.
-   */
-
-  // Convert an object into an array of its properties
-  function objectToArray(o, order) {
-    order = order || Object.keys(o);
-
-    return order.map(function(k) {
-      return o[k];
-    });
-  }
-
-  // Retrieve an index of keys present in an array of objects
-  function keysIndex(a) {
-    var keys = [],
-        l,
-        k,
-        i;
-
-    for (i = 0, l = a.length; i < l; i++)
-      for (k in a[i])
-        if (!~keys.indexOf(k))
-          keys.push(k);
-
-    return keys;
-  }
-
-  // Escape a string for a RegEx
-  function rescape(s) {
-    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-  }
-
-  // Converting an array of arrays into a CSV string
-  function toCSVString(data, params) {
-    params = params || {};
-
-    var header = params.headers || [],
-        plainObject = isPlainObject(data[0]),
-        keys = plainObject && (params.order || keysIndex(data)),
-        oData,
-        i;
-
-    // Defaults
-    var escape = params.escape || '"',
-        delimiter = params.delimiter || ',';
-
-    // Dealing with headers polymorphism
-    if (!header.length)
-      if (plainObject && params.headers !== false)
-        header = keys;
-
-    // Should we append headers
-    oData = (header.length ? [header] : []).concat(
-      plainObject ?
-        data.map(function(e) { return objectToArray(e, keys); }) :
-        data
-    );
-
-    // Converting to string
-    return oData.map(function(row) {
-      return row.map(function(item) {
-
-        // Wrapping escaping characters
-        var i = ('' + (typeof item === 'undefined' ? '' : item)).replace(
-          new RegExp(rescape(escape), 'g'),
-          escape + escape
-        );
-
-        // Escaping if needed
-        return ~i.indexOf(delimiter) || ~i.indexOf(escape) || ~i.indexOf('\n') ?
-          escape + i + escape :
-          i;
-      }).join(delimiter);
-    }).join('\n');
-  }
-
-  // Characters to escape in YAML
-  var ymlEscape = /[:#,\-\[\]\{\}&%]|!{1,2}/;
-
-  // YAML conversion
-  var yml = {
-    string: function(string) {
-      return (~string.search(ymlEscape)) ?
-        '\'' + string.replace(/'/g, '\'\'') + '\'' :
-        string;
-    },
-    number: function(nb) {
-      return '' + nb;
-    },
-    array: function(a, lvl) {
-      lvl = lvl || 0;
-
-      if (!a.length)
-        return '[]';
-
-      var string = '',
-          l,
-          i;
-
-      for (i = 0, l = a.length; i < l; i++) {
-        string += repeatString('  ', lvl);
-
-        if (isScalar(a[i])) {
-          string += '- ' + processYAMLVariable(a[i]) + '\n';
-        }
-        else {
-          if (isPlainObject(a[i]))
-            string += '-' + processYAMLVariable(a[i], lvl + 1, true);
-          else
-            string += processYAMLVariable(a[i], lvl + 1);
-        }
-      }
-
-      return string;
-    },
-    object: function(o, lvl, indent) {
-      lvl = lvl || 0;
-
-      if (!Object.keys(o).length)
-        return (lvl ? '- ' : '') + '{}';
-
-      var string = '',
-          key,
-          c = 0,
-          i;
-
-      for (i in o) {
-        key = yml.string(i);
-        string += repeatString('  ', lvl);
-        if (indent && !c)
-          string = string.slice(0, -1);
-        string += key + ': ' + (isNonScalar(o[i]) ? '\n' : '') +
-          processYAMLVariable(o[i], lvl + 1) + '\n';
-
-        c++;
-      }
-
-      return string;
-    },
-    fn: function(fn) {
-      return yml.string(fn.toString());
-    },
-    boolean: function(v) {
-      return '' + v;
-    },
-    nullValue: function(v) {
-      return '~';
-    }
-  };
-
-  // Get the correct handler corresponding to variable type
-  function processYAMLVariable(v, lvl, indent) {
-
-    // Scalars
-    if (typeof v === 'string')
-      return yml.string(v);
-    else if (typeof v === 'number')
-      return yml.number(v);
-    else if (typeof v === 'boolean')
-      return yml.boolean(v);
-    else if (typeof v === 'undefined' || v === null || isRealNaN(v))
-      return yml.nullValue(v);
-
-    // Nonscalars
-    else if (isPlainObject(v))
-      return yml.object(v, lvl, indent);
-    else if (isArray(v))
-      return yml.array(v, lvl);
-    else if (typeof v === 'function')
-      return yml.fn(v);
-
-    // Error
-    else
-      throw TypeError('artoo.helpers.toYAMLString: wrong type.');
-  }
-
-  // Converting JavaScript variables to a YAML string
-  function toYAMLString(data) {
-    return '---\n' + processYAMLVariable(data);
-  }
-
-  function parseQueryString(s) {
-    var data = {};
-
-    s.split('&').forEach(function(item) {
-      var pair = item.split('=');
-      data[decodeURIComponent(pair[0])] =
-        pair[1] ? decodeURIComponent(pair[1]) : true;
-    });
-
-    return data;
-  }
-
-  function parseUrlParameters(url) {
-    var data = {};
-
-    var params = url.split('?')[1];
-
-    if (params)
-      params.split('&').forEach(function(item) {
-        var pair = item.split('=');
-        data[decodeURIComponent(pair[0])] =
-          pair[1] ? decodeURIComponent(pair[1]) : true;
-      });
-
-    return data;
-  }
-
-  function parseHeaders(headers) {
-    var data = {};
-
-    headers.split('\n').slice(1).forEach(function(item) {
-      if (item) {
-        var pair = item.split(': ');
-        data[pair[0]] = pair[1];
-      }
-    });
-
-    return data;
   }
 
 
@@ -1434,6 +1297,7 @@
     return o;
   }
 
+
   /**
    * Async Helpers
    * --------------
@@ -1454,13 +1318,13 @@
 
     var i = setInterval(function() {
       if (check()) {
-        cb(null);
         clearInterval(i);
+        cb(null);
       }
 
       if (params.timeout && params.timeout - (j * milliseconds) <= 0) {
-        cb(new Error('timeout'));
         clearInterval(i);
+        cb(new Error('timeout'));
       }
 
       j++;
@@ -1520,6 +1384,7 @@
     }
   }
 
+
   /**
    * Monkey Patching
    * ----------------
@@ -1540,6 +1405,7 @@
       return targetFunction.apply(this, Array.prototype.slice.call(arguments));
     };
   }
+
 
   /**
    * Exportation
@@ -1576,12 +1442,510 @@
     isScalar: isScalar,
     jquerify: jquerify,
     noop: noop,
-    parallel: parallel,
-    parseHeaders: parseHeaders,
-    parseQueryString: parseQueryString,
-    parseUrlParameters: parseUrlParameters,
-    toCSVString: toCSVString,
-    toYAMLString: toYAMLString
+    parallel: parallel
+  };
+}).call(this);
+
+;(function(undefined) {
+  'use strict';
+
+  /**
+   * artoo parsers
+   * ==============
+   *
+   * Compilation of small parsers aim at understanding some popular web
+   * string formats such as querystrings, headers etc.
+   */
+
+  function parseQueryString(s) {
+    var data = {};
+
+    s.split('&').forEach(function(item) {
+      var pair = item.split('=');
+      data[decodeURIComponent(pair[0])] =
+        pair[1] ? decodeURIComponent(pair[1]) : true;
+    });
+
+    return data;
+  }
+
+  function parseUrl(url) {
+    var data = {href: url};
+
+    // Searching for a protocol
+    var ps = url.split('://');
+
+    if (ps.length > 1)
+      data.protocol = ps[0];
+
+    url = ps[ps.length > 1 ? 1 : 0];
+
+    // Searching for an authentification
+    var a = url.split('@');
+    if (a.length > 1) {
+      var as = a[0].split(':');
+      if (as.length > 1) {
+        data.auth = {
+          user: as[0],
+          password: as[1]
+        };
+      }
+      else {
+        data.auth = {
+          user: as[0]
+        };
+      }
+
+      url = a[1];
+    }
+
+    // Searching for origin
+    var m = url.match(/([^\/:]+)(.*)/);
+    data.host = m[1];
+    data.hostname = m[1];
+
+    if (m[2]) {
+      var f = m[2].trim();
+
+      // Port
+      if (f.charAt(0) === ':') {
+        data.port = +f.match(/\d+/)[0];
+        data.host += ':' + data.port;
+      }
+
+      // Path
+      data.path = '/' + f.split('/').slice(1).join('/');
+
+      data.pathname = data.path.split('?')[0].split('#')[0];
+    }
+
+    // Tld
+    if (~data.hostname.search('.')) {
+      var ds = data.hostname.split('.');
+
+      // Check for IP
+      if (!(ds.length === 4 &&
+          ds.every(function(i) { return !isNaN(+i); }))) {
+
+        // Checking TLD-less urls
+        if (ds.length > 1) {
+
+          // TLD
+          data.tld = ds[ds.length - 1];
+
+          // Domain
+          data.domain = ds[ds.length - 2];
+
+          // Subdomains
+          if (ds.length > 2) {
+            data.subdomains = [];
+            for (var i = 0, l = ds.length - 2; i < l; i++)
+              data.subdomains.unshift(ds[i]);
+          }
+        }
+        else {
+
+          // TLD-less url
+          data.domain = ds[0];
+        }
+      }
+      else {
+
+        // This is an IP
+        data.domain = data.hostname;
+      }
+    }
+
+    // Hash
+    var hs = url.split('#');
+
+    if (hs.length > 1) {
+      data.hash = '#' + hs[1];
+    }
+
+    // Querystring
+    var qs = url.split('?');
+
+    if (qs.length > 1) {
+      data.search = '?' + qs[1];
+      data.query = parseQueryString(qs[1]);
+    }
+
+    // Extension
+    var ss = data.pathname.split('/'),
+        es = ss[ss.length - 1].split('.');
+
+    if (es.length > 1)
+      data.extension = es[es.length - 1];
+
+    return data;
+  }
+
+  function parseHeaders(headers) {
+    var data = {};
+
+    headers.split('\n').filter(function(item) {
+      return item.trim();
+    }).forEach(function(item) {
+      if (item) {
+        var pair = item.split(': ');
+        data[pair[0]] = pair[1];
+      }
+    });
+
+    return data;
+  }
+
+  function parseCookie(s) {
+    var cookie = {
+      httpOnly: false,
+      secure: false
+    };
+
+    if (!s.trim())
+      return;
+
+    s.split('; ').forEach(function(item) {
+
+      // Path
+      if (~item.search(/path=/i)) {
+        cookie.path = item.split('=')[1];
+      }
+      else if (~item.search(/expires=/i)) {
+        cookie.expires = item.split('=')[1];
+      }
+      else if (~item.search(/httponly/i) && !~item.search('=')) {
+        cookie.httpOnly = true;
+      }
+      else if (~item.search(/secure/i) && !~item.search('=')) {
+        cookie.secure = true;
+      }
+      else {
+        var is = item.split('=');
+        cookie.key = is[0];
+        cookie.value = decodeURIComponent(is[1]);
+      }
+    });
+
+    return cookie;
+  }
+
+  function parseCookies(s) {
+    var cookies = {};
+
+    if (!s.trim())
+      return cookies;
+
+    s.split('; ').forEach(function(item) {
+      var pair = item.split('=');
+      cookies[pair[0]] = decodeURIComponent(pair[1]);
+    });
+
+    return cookies;
+  }
+
+  /**
+   * Exporting
+   */
+  artoo.parsers = {
+    cookie: parseCookie,
+    cookies: parseCookies,
+    headers: parseHeaders,
+    queryString: parseQueryString,
+    url: parseUrl
+  };
+}).call(this);
+
+;(function(undefined) {
+  'use strict';
+
+  /**
+   * artoo writers
+   * ==============
+   *
+   * Compilation of writers for popular formats such as CSV or YAML.
+   */
+
+  // Dependencies
+  var isPlainObject = artoo.helpers.isPlainObject,
+      isArray = artoo.helpers.isArray,
+      isScalar = artoo.helpers.isScalar,
+      isNonScalar = artoo.helpers.isNonScalar,
+      isRealNaN = artoo.helpers.isRealNaN;
+
+
+  /**
+   * CSV
+   * ---
+   *
+   * Converts an array of array or array of objects into a correct
+   * CSV string for exports purposes.
+   *
+   * Exposes some handful options such as choice of delimiters or order
+   * of keys to handle.
+   */
+
+  // Convert an object into an array of its properties
+  function objectToArray(o, order) {
+    order = order || Object.keys(o);
+
+    return order.map(function(k) {
+      return o[k];
+    });
+  }
+
+  // Retrieve an index of keys present in an array of objects
+  function keysIndex(a) {
+    var keys = [],
+        l,
+        k,
+        i;
+
+    for (i = 0, l = a.length; i < l; i++)
+      for (k in a[i])
+        if (!~keys.indexOf(k))
+          keys.push(k);
+
+    return keys;
+  }
+
+  // Escape a string for a RegEx
+  function rescape(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
+  // Converting an array of arrays into a CSV string
+  function toCSVString(data, params) {
+    params = params || {};
+
+    var header = params.headers || [],
+        plainObject = isPlainObject(data[0]),
+        keys = plainObject && (params.order || keysIndex(data)),
+        oData,
+        i;
+
+    // Defaults
+    var escape = params.escape || '"',
+        delimiter = params.delimiter || ',';
+
+    // Dealing with headers polymorphism
+    if (!header.length)
+      if (plainObject && params.headers !== false)
+        header = keys;
+
+    // Should we append headers
+    oData = (header.length ? [header] : []).concat(
+      plainObject ?
+        data.map(function(e) { return objectToArray(e, keys); }) :
+        data
+    );
+
+    // Converting to string
+    return oData.map(function(row) {
+      return row.map(function(item) {
+
+        // Wrapping escaping characters
+        var i = ('' + (typeof item === 'undefined' ? '' : item)).replace(
+          new RegExp(rescape(escape), 'g'),
+          escape + escape
+        );
+
+        // Escaping if needed
+        return ~i.indexOf(delimiter) || ~i.indexOf(escape) || ~i.indexOf('\n') ?
+          escape + i + escape :
+          i;
+      }).join(delimiter);
+    }).join('\n');
+  }
+
+
+
+  /**
+   * YAML
+   * ----
+   *
+   * Converts JavaScript data into a YAML string for export purposes.
+   */
+
+  // Characters to escape in YAML
+  var ymlEscape = /[:#,\-\[\]\{\}&%]|!{1,2}/;
+
+  // Creating repeating sequences
+  function repeatString(string, nb) {
+    var s = string,
+        l,
+        i;
+
+    if (nb <= 0)
+      return '';
+
+    for (i = 1, l = nb | 0; i < l; i++)
+      s += string;
+    return s;
+  }
+
+  // YAML conversion
+  var yml = {
+    string: function(string) {
+      return (~string.search(ymlEscape)) ?
+        '\'' + string.replace(/'/g, '\'\'') + '\'' :
+        string;
+    },
+    number: function(nb) {
+      return '' + nb;
+    },
+    array: function(a, lvl) {
+      lvl = lvl || 0;
+
+      if (!a.length)
+        return '[]';
+
+      var string = '',
+          l,
+          i;
+
+      for (i = 0, l = a.length; i < l; i++) {
+        string += repeatString('  ', lvl);
+
+        if (isScalar(a[i])) {
+          string += '- ' + processYAMLVariable(a[i]) + '\n';
+        }
+        else {
+          if (isPlainObject(a[i]))
+            string += '-' + processYAMLVariable(a[i], lvl + 1, true);
+          else
+            string += processYAMLVariable(a[i], lvl + 1);
+        }
+      }
+
+      return string;
+    },
+    object: function(o, lvl, indent) {
+      lvl = lvl || 0;
+
+      if (!Object.keys(o).length)
+        return (lvl ? '- ' : '') + '{}';
+
+      var string = '',
+          key,
+          c = 0,
+          i;
+
+      for (i in o) {
+        key = yml.string(i);
+        string += repeatString('  ', lvl);
+        if (indent && !c)
+          string = string.slice(0, -1);
+        string += key + ': ' + (isNonScalar(o[i]) ? '\n' : '') +
+          processYAMLVariable(o[i], lvl + 1) + '\n';
+
+        c++;
+      }
+
+      return string;
+    },
+    fn: function(fn) {
+      return yml.string(fn.toString());
+    },
+    boolean: function(v) {
+      return '' + v;
+    },
+    nullValue: function(v) {
+      return '~';
+    }
+  };
+
+  // Get the correct handler corresponding to variable type
+  function processYAMLVariable(v, lvl, indent) {
+
+    // Scalars
+    if (typeof v === 'string')
+      return yml.string(v);
+    else if (typeof v === 'number')
+      return yml.number(v);
+    else if (typeof v === 'boolean')
+      return yml.boolean(v);
+    else if (typeof v === 'undefined' || v === null || isRealNaN(v))
+      return yml.nullValue(v);
+
+    // Nonscalars
+    else if (isPlainObject(v))
+      return yml.object(v, lvl, indent);
+    else if (isArray(v))
+      return yml.array(v, lvl);
+    else if (typeof v === 'function')
+      return yml.fn(v);
+
+    // Error
+    else
+      throw TypeError('artoo.writers.processYAMLVariable: wrong type.');
+  }
+
+  // Converting JavaScript variables to a YAML string
+  function toYAMLString(data) {
+    return '---\n' + processYAMLVariable(data);
+  }
+
+
+  /**
+   * Web Formats
+   * ------------
+   *
+   * Converts JavaScript data into standard web formats such as querystrings.
+   */
+
+  function toQueryString(o, fn) {
+    if (!isPlainObject(o))
+      throw Error('artoo.writers.queryString: wrong arguments.');
+
+    var s = '',
+        k;
+
+    for (k in o) {
+      s +=
+        (s ? '&' : '') +
+        k + '=' +
+        encodeURIComponent(typeof fn === 'function' ? fn(o[k]) : o[k]);
+    }
+
+    return s;
+  }
+
+  function toCookie(key, value, params) {
+    params = params || {};
+
+    var cookie = key + '=' + encodeURIComponent(value);
+
+    if (params.days) {
+      var date = new Date();
+      date.setTime(date.getTime() + (params.days * 24 * 60 * 60 * 1000));
+      cookie += '; expires=' + date.toGMTString();
+    }
+
+    if (params.path)
+      cookie += '; path=' + params.path;
+
+    if (params.domain)
+      cookie += '; domain=' + params.domain;
+
+    if (params.httpOnly)
+      cookie += '; HttpOnly';
+
+    if (params.secure)
+      cookie += '; Secure';
+
+    return cookie;
+  }
+
+
+  /**
+   * Exporting
+   */
+  artoo.writers = {
+    cookie: toCookie,
+    csv: toCSVString,
+    queryString: toQueryString,
+    yaml: toYAMLString
   };
 }).call(this);
 
@@ -1859,7 +2223,7 @@
     }
 
     // Checking the existence of jQuery or of another library.
-    var exists = typeof jQuery !== 'undefined' || artoo.$.fn,
+    var exists = (typeof jQuery !== 'undefined' && jQuery.fn) || artoo.$.fn,
         other = !exists && typeof $ !== 'undefined',
         currentVersion = exists && jQuery.fn.jquery ? jQuery.fn.jquery : '0';
 
@@ -2007,7 +2371,7 @@
           xhr._spy = {
             method: method,
             url: url,
-            params: artoo.helpers.parseUrlParameters(url)
+            params: artoo.parsers.url(url).query
           };
         }
       );
@@ -2019,8 +2383,10 @@
           var xhr = this;
 
           // Overloading the xhr object
-          xhr._spy.querystring = data;
-          xhr._spy.data = artoo.helpers.parseQueryString(data);
+          if (data) {
+            xhr._spy.querystring = data;
+            xhr._spy.data = artoo.parsers.queryString(data);
+          }
 
           // Triggering listeners
           self.listeners.forEach(function(listener) {
@@ -2100,7 +2466,7 @@
 
             callback.call(xhr, xhr._spy, {
               data: data,
-              headers: artoo.helpers.parseHeaders(xhr.getAllResponseHeaders())
+              headers: artoo.parsers.headers(xhr.getAllResponseHeaders())
             });
           }
 
@@ -2376,88 +2742,56 @@
 }).call(this);
 
 ;(function(undefined) {
-
+  'use strict';
 
   /**
-   * artoo instructions
-   * ===================
+   * artoo cookies methods
+   * ======================
    *
-   * This utility is meant to record user console inputs in order to be able
-   * to save them for later use.
+   * artoo's abstraction to handle the page's cookies.
    */
-  var _root = this,
-      _call = Function.prototype.call,
-      _instructions = [],
-      blackList = [
-        'saveInstructions(',
-        '.instructions'
-      ];
+  var _root = this;
 
-  // We override function calling to sniff user input
-  function overrideFunctionCall() {
-    Function.prototype.call = function() {
-      if (arguments.length > 1 &&
-          this.name === 'evaluate' &&
-          arguments[0].constructor.name === 'InjectedScriptHost') {
-
-        var input = arguments[1].split('\n').slice(1, -1).join('\n'),
-            lastIndex = _instructions.length - 1;
-
-        if (input !== 'this' &&
-            !blackList.some(function(e) {
-              return ~input.indexOf(e);
-            }) &&
-            input !== 'artoo') {
-          if (~input.indexOf(_instructions[lastIndex]))
-            _instructions[lastIndex] = input;
-          else
-            _instructions.push(input);
-        }
-      }
-
-      return _call.apply(this, arguments);
-    };
-  }
-
-  function restoreOriginalFunctionCall() {
-    Function.prototype.call = _call;
-  }
-
-  // artoo's methods
-  artoo.instructions = function() {
-    return artoo.instructions.get();
+  artoo.cookies = function(key) {
+    return artoo.cookies.get(key);
   };
 
-  artoo.instructions.get = function() {
-    if (!artoo.browser.chrome)
-      artoo.log.warning('You are not in chrome. artoo is therefore unable ' +
-                        'to record console\'s instructions.');
-
-    // Filtering the array
-    _instructions = _instructions.filter(function(e, i) {
-      return (e !== _instructions[i - 1]);
-    });
-
-    return _instructions;
+  artoo.cookies.get = function(key) {
+    var cookies = artoo.parsers.cookies(document.cookie);
+    return (key ? cookies[key] : cookies);
   };
 
-  artoo.instructions.getScript = function() {
-    return '// ' + window.location + '\n' +
-           '// ' + new Date() + '\n' +
-           artoo.instructions.get().join('\n\n') + '\n';
+  artoo.cookies.getAll = function() {
+    return artoo.cookies.get();
   };
 
-  artoo.instructions.startRecording = function() {
-    if (!artoo.browser.chrome)
-      return;
-    overrideFunctionCall();
+  artoo.cookies.set = function(key, value, params) {
+    document.cookie = artoo.writers.cookie(key, value, params);
   };
 
-  artoo.instructions.stopRecording = function() {
-    if (!artoo.browser.chrome)
-      return;
-    restoreOriginalFunctionCall();
+  artoo.cookies.remove = function(key, params) {
+    var p = artoo.helpers.extend(params);
+
+    // Ensuring no days were passed
+    delete p.days;
+
+    var cookie = artoo.writers.cookie(key, '*', p);
+
+    // Passed expiration
+    cookie += ' ;expires=Thu, 01 Jan 1970 00:00:01 GMT';
+
+    document.cookie = cookie;
   };
+
+  artoo.cookies.removeAll = function() {
+    var cookies = artoo.cookies.getAll(),
+        k;
+
+    for (k in cookies)
+      artoo.cookies.remove(k);
+  };
+
+  artoo.cookies.clear = artoo.cookies.removeAll;
 }).call(this);
 
 ;(function(undefined) {
@@ -2614,7 +2948,7 @@
   artoo.saveYaml = function(data, params) {
     params = filenamePolymorphism(params);
     artoo.save(
-      helpers.toYAMLString(data),
+      artoo.writers.yaml(data),
       helpers.extend(params, {filename: 'data.yml', mime: 'yaml'})
     );
   };
@@ -2623,7 +2957,7 @@
     params = filenamePolymorphism(params);
 
     data = (typeof data !== 'string') ?
-      helpers.toCSVString(data, params) :
+      artoo.writers.csv(data, params) :
       data;
 
     artoo.save(
@@ -2716,16 +3050,6 @@
     artoo.savePrettyJson(
       artoo.store.get(params.key),
       helpers.extend(params, {filename: 'store.json'})
-    );
-  };
-
-  artoo.saveInstructions = function(params) {
-    artoo.save(
-      artoo.instructions.getScript(),
-      helpers.extend(filenamePolymorphism(params), {
-        mime: 'text/javascript',
-        filename: 'artoo_script.js'
-      })
     );
   };
 
@@ -3265,16 +3589,12 @@
     // Should we greet the user with a joyful beep?
     var beeping = artoo.settings.log.beeping;
     if (beeping)
-      artoo.beep(typeof beeping === 'boolean' ? 'original' : null);
+      artoo.beep.greet();
 
     // Indicating we are injecting artoo from the chrome extension
     if (artoo.browser.chromeExtension)
       artoo.log.verbose('artoo has automatically been injected ' +
                         'by the chrome extension.');
-
-    // Starting instructions recording
-    if (artoo.settings.instructions.autoRecord)
-      artoo.instructions.startRecording();
 
     // Injecting dependencies
     function injectJquery(cb) {
@@ -3370,6 +3690,16 @@
   // Requesting jquery
   artoo.phantom.requestJQuery = function() {
     artoo.phantom.send('jquery');
+  };
+
+  // Killing phantom from the page for testing purposes
+  artoo.phantom.exit = function(code) {
+    artoo.phantom.send('exit', code);
+  };
+
+  // Streaming data to phantom
+  artoo.phantom.stream = function(data) {
+    artoo.phantom.send('stream', data);
   };
 
   // Telling phantom the scraping is over
