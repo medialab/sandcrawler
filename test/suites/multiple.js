@@ -291,6 +291,42 @@ describe('When running multi-url scrapers', function() {
     });
   });
 
+  describe('Discards', function() {
+
+    it('should be possible to discard some jobs before they are executed.', function(done) {
+      var count = 0,
+          discardedCount = 0;
+
+      var scraper = new sandcrawler.Scraper()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .beforeScraping(function(req, next) {
+          if (req.index > 1)
+            return next(new Error('too-far'));
+          next(null);
+        })
+        .on('job:discard', function(err, job) {
+          assert.strictEqual(err.message, 'too-far');
+          discardedCount++;
+        })
+        .result(function(err, req, res) {
+          count++;
+        });
+
+      phantom.run(scraper, function(err, remains) {
+        assert.strictEqual(remains.length, 0);
+        assert.strictEqual(count, 2);
+        assert.strictEqual(discardedCount, 2);
+        done();
+      });
+    });
+  });
+
   describe('Retries', function() {
 
     it('should be possible to retry some jobs.', function(done) {

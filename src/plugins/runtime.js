@@ -47,7 +47,10 @@ module.exports = function(callback) {
         this._middlewares.beforeScraping,
         job.req,
         function(err) {
-          // TODO: handle error
+
+          // If an error is dispatched, we need to discard the job
+          if (err)
+            return self._discardJob(job, err);
 
           // If the scraper is paused, we delay the job
           if (self.state.paused)

@@ -31,6 +31,7 @@ function Scraper(name) {
 
   // Properties
   this.index = 0;
+  this.jobCounter = 0;
   this.engine = null;
   this.settings = defaults.scraper;
   this.state = {
@@ -83,8 +84,11 @@ Scraper.prototype._wrapJob = function(mixed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: mixed,
-    state: {},
+    state: {
+      discarded: false
+    },
     req: {
+      index: this.jobCounter++,
       retries: 0,
       data: {},
       params: {}
@@ -169,6 +173,26 @@ Scraper.prototype._findJob = function(id) {
   return _.find(this._stack, function(j) {
     return id === j.id;
   });
+};
+
+// Discard a job
+Scraper.prototype._discardJob = function(job, reason) {
+
+  // State
+  job.state.discarded = true;
+
+  // Dropping from stack
+  var idx = _.findIndex(this._stack, function(e) {
+    return e.id === job.id;
+  });
+
+  this._stack.splice(idx, 1);
+
+  // Emitting
+  this.emit('job:discard', reason, job);
+
+  // Next job
+  this._nextJob(job);
 };
 
 // Retry a job
