@@ -35,21 +35,19 @@ function wrapFunction(fn) {
 
 // Produce a phantom script from a path
 function fromFile(location, e) {
-  var str = wrapString(fs.readFileSync(location, 'utf-8'));
+  var str = fs.readFileSync(location, 'utf-8');
   check(str, e);
-  return str;
+  return wrapString(str);
 }
 
 function fromString(s, e) {
-  var str = wrapString(s);
-  check(str, e);
-  return str;
+  check(s, e);
+  return wrapString(str);
 }
 
 function fromFunction(fn, e) {
-  var str = wrapFunction(fn);
-  check(str, e);
-  return str;
+  check(fn.toString(), e);
+  return wrapFunction(fn);
 }
 
 // Exporting
