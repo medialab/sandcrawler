@@ -8,7 +8,7 @@
 var Scraper = require('./abstract.js'),
     util = require('util'),
     phscript = require('../phantom_script.js'),
-    pageLog = require('../plugins/page.js'),
+    page = require('../plugins/page.js'),
     helpers = require('../helpers.js');
 
 /**
@@ -28,7 +28,7 @@ function DynamicScraper(name) {
   this.type = 'dynamic';
 
   // Plugins
-  this.use(pageLog());
+  this.use(page());
 
   // Hidden properties
   this._script = null;
@@ -42,7 +42,7 @@ function DynamicScraper(name) {
     }
   };
 
-  // Hooking on phantom exit for safety
+  // Hooking on phantom crash for safety
   this.once('scraper:before', function() {
 
     this.engine.once('phantom:crash', this._listeners.crash);
@@ -51,11 +51,7 @@ function DynamicScraper(name) {
   // Listening
   this.once('scraper:cleanup', function() {
 
-
-    // this._calls.forEach(function(call) {
-    //   this.engine.messenger.cancel(call);
-    // }, this);
-
+    // Clearing properties
     this._script = null;
     this._calls = [];
 
