@@ -7,7 +7,7 @@
  */
 var fs = require('fs');
 
-var prerequisites = /done\(/g;
+var prerequisites = /done/g;
 
 function check(str, enabled) {
   if (enabled !== false && !~str.search(prerequisites))
