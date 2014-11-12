@@ -11,6 +11,7 @@ var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     helpers = require('../helpers.js'),
     defaults = require('../../defaults.json'),
+    state = require('../plugins/state.js'),
     validate = require('../plugins/validate.js'),
     runtime = require('../plugins/runtime.js'),
     _ = require('lodash');
@@ -51,70 +52,8 @@ function Scraper(name) {
     afterScraping: []
   };
 
-  /**
-   * Predominant listeners
-   */
-
-  // Locking events
-  this.on('scraper:lock', function() {
-    if (this.state.locked)
-      return;
-
-    this.state.paused = true;
-    this.state.locked = true;
-  });
-
-  this.on('scraper:unlock', function() {
-    if (!this.state.locked)
-      return;
-
-    this.state.locked = false;
-    this.emit('scraper:resume');
-  });
-
-  // Pausing events
-  this.on('scraper:pause', function() {
-    if (this.state.paused)
-      return;
-
-    this.state.paused = true;
-  });
-
-  this.on('scraper:resume', function() {
-    if (!this.state.paused || this.state.locked)
-      return;
-
-    this.state.paused = false;
-  });
-
-  // Emitting the scraper:end event
-  this.once('scraper:success', function() {
-    if (this.settings.autoExit !== false)
-      this.emit('scraper:end', 'success', this._remains);
-  });
-
-  this.once('scraper:fail', function() {
-    if (this.settings.autoExit !== false)
-      this.emit('scraper:end', 'fail', this._remains);
-  });
-
-  // When the scraper is over, we update its state
-  this.once('scraper:end', function() {
-    this.state.done = true;
-    this.state.running = false;
-  });
-
-  // When a job fail, we update its state
-  this.on('job:fail', function(err, job) {
-    job.state.failing = true;
-
-    // If autoRetry is on, we retry
-    if (this.settings.autoRetry)
-      if (this.settings.autoRetry === 'now')
-        job.req.retryNow();
-      else
-        job.req.retryLater();
-  });
+  // State listeners
+  this.use(state());
 }
 
 // Inheriting
