@@ -49,11 +49,11 @@ module.exports = function() {
       this.emit('scraper:done', 'success', this._remains);
     });
 
-    scraper.once('scraper:fail', function() {
+    scraper.once('scraper:fail', function(err) {
 
       // Pushing every undone job in the remains
       this._jobs.forEach(function(job) {
-        this._remains.push(job.original);
+        this._remains.push(this._wrapRemain(job, err));
       }, this);
 
       this.emit('scraper:done', 'fail', this._remains);

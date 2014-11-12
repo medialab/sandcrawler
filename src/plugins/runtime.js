@@ -91,7 +91,7 @@ module.exports = function(callback) {
         return this._nextJob();
 
       // Adding to remains
-      this._remains.push(job.original);
+      this._remains.push(this._wrapRemain(job, err));
 
       this.emit('job:done', job);
     });

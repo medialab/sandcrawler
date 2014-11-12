@@ -233,6 +233,14 @@ Scraper.prototype._retryJob = function(job, when) {
   this.emit('job:retry', job);
 };
 
+// Wrapping a remain
+Scraper.prototype._wrapRemain = function(job, err) {
+  return {
+    job: job.original,
+    error: helpers.extend(err, {message: err.message})
+  };
+};
+
 // Cleaning internals
 Scraper.prototype._cleanup = function() {
 

@@ -95,7 +95,8 @@ describe('When running multi-url scrapers', function() {
       phantom.run(scraper, function(err, remains) {
         assert(remains.length === 1);
         assert(count === 3);
-        assert.strictEqual(remains[0].id, 3);
+        assert.strictEqual(remains[0].job.id, 3);
+        assert.strictEqual(remains[0].error.message, 'status-404');
         done();
       });
     });
@@ -416,7 +417,8 @@ describe('When running multi-url scrapers', function() {
         assert.strictEqual(err.message, 'exited');
         assert(count === 1);
         assert(remains.length === 2);
-        assert.strictEqual(remains[0].id, 1);
+        assert.strictEqual(remains[0].job.id, 1);
+        assert.strictEqual(remains[0].error.message, 'exited');
         done();
       });
     });
