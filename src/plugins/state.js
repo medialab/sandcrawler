@@ -79,7 +79,12 @@ module.exports = function() {
 
     // When a job completes, we increment index
     scraper.on('job:done', function(job) {
+
+      // Incremeting internal index
       this.index++;
+
+      // State
+      job.state.done = true;
 
       // Removing page from stack
       var idx = _.findIndex(this._stack, function(e) {

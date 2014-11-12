@@ -85,7 +85,10 @@ Scraper.prototype._wrapJob = function(mixed) {
     id: 'Job[' + uuid.v4() + ']',
     original: mixed,
     state: {
-      discarded: false
+      discarded: false,
+      done: false,
+      failing: false,
+      retrying: false
     },
     req: {
       index: this.jobCounter++,
@@ -95,9 +98,6 @@ Scraper.prototype._wrapJob = function(mixed) {
     },
     res: {}
   };
-
-  // Setting state
-  this._setJobState(job);
 
   // Binding methods
   job.req.retry = this._retryJob.bind(this, job);
@@ -126,7 +126,7 @@ Scraper.prototype._wrapJob = function(mixed) {
 };
 
 // Set or reset a job's state
-Scraper.prototype._setJobState = function(job) {
+Scraper.prototype._resetJobState = function(job) {
   job.state.retrying = false;
   job.state.failing = false;
   return this;
@@ -161,7 +161,7 @@ Scraper.prototype._nextJob = function(lastJob) {
     this._stack.unshift(this._jobs.shift());
 
     // Reinitializing state
-    this._setJobState(this._stack[0]);
+    this._resetJobState(this._stack[0]);
     this.emit('job:before', this._stack[0]);
   }
 
