@@ -46,13 +46,17 @@ module.exports = function() {
 
     // Emitting the scraper:done event
     scraper.once('scraper:success', function() {
-      if (this.settings.autoExit !== false)
-        this.emit('scraper:done', 'success', this._remains);
+      this.emit('scraper:done', 'success', this._remains);
     });
 
     scraper.once('scraper:fail', function() {
-      if (this.settings.autoExit !== false)
-        this.emit('scraper:done', 'fail', this._remains);
+
+      // Pushing every undone job in the remains
+      this._jobs.forEach(function(job) {
+        this._remains.push(job.original);
+      }, this);
+
+      this.emit('scraper:done', 'fail', this._remains);
     });
 
     // When the scraper is over, we update its state

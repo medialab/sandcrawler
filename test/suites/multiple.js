@@ -363,7 +363,11 @@ describe('When running multi-url scrapers', function() {
       var count = 0;
 
       var scraper = new sandcrawler.Scraper()
-        .url('http://localhost:7337/resources/basic.html')
+        .url([
+          {url: 'http://localhost:7337/resources/basic.html', id: 0},
+          {url: 'http://localhost:7337/resources/basic.html', id: 1},
+          {url: 'http://localhost:7337/resources/basic.html', id: 2}
+        ])
         .jawascript(function(done) {
           done(true);
         })
@@ -372,9 +376,11 @@ describe('When running multi-url scrapers', function() {
           this.exit();
         });
 
-      phantom.run(scraper, function(err) {
+      phantom.run(scraper, function(err, remains) {
         assert.strictEqual(err.message, 'exited');
         assert(count === 1);
+        assert(remains.length === 2);
+        assert.strictEqual(remains[0].id, 1);
         done();
       });
     });
