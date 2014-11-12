@@ -5,6 +5,7 @@
  * Compilation of events registered at instantiation and dealing mostly with
  * scraper and job states.
  */
+var _ = require('lodash');
 
 module.exports = function() {
 
@@ -43,19 +44,19 @@ module.exports = function() {
       this.state.paused = false;
     });
 
-    // Emitting the scraper:end event
+    // Emitting the scraper:done event
     scraper.once('scraper:success', function() {
       if (this.settings.autoExit !== false)
-        this.emit('scraper:end', 'success', this._remains);
+        this.emit('scraper:done', 'success', this._remains);
     });
 
     scraper.once('scraper:fail', function() {
       if (this.settings.autoExit !== false)
-        this.emit('scraper:end', 'fail', this._remains);
+        this.emit('scraper:done', 'fail', this._remains);
     });
 
     // When the scraper is over, we update its state
-    scraper.once('scraper:end', function() {
+    scraper.once('scraper:done', function() {
       this.state.done = true;
       this.state.running = false;
     });
@@ -70,6 +71,19 @@ module.exports = function() {
           job.req.retryNow();
         else
           job.req.retryLater();
+    });
+
+    // When a job completes, we increment index
+    scraper.on('job:done', function(job) {
+      this.index++;
+
+      // Removing page from stack
+      var idx = _.findIndex(this._stack, function(e) {
+        return e.id === job.id;
+      });
+
+      this._stack.splice(idx, 1);
+      this._nextJob(job);
     });
   };
 };

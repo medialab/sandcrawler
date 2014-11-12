@@ -53,7 +53,7 @@ module.exports = function(opts) {
     });
 
     // Unbinding messenger listener on end
-    scraper.on('scraper:end', function() {
+    scraper.on('scraper:done', function() {
 
       for (var k in listeners)
         this.engine.messenger.removeListener('page:' + k, listeners[k]);

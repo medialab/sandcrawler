@@ -81,35 +81,20 @@ module.exports = function(callback) {
     // Emitting job:end event
     // NOTE: those emitters must be registered last because job:end alters
     // the stack itself
-    this.on('job:fail', function(err, job) {
-      this.emit('job:end', job);
-    });
-
-    this.on('job:success', function(job) {
-      this.emit('job:end', job);
-    });
-
-    // On job end, we advance
-    scraper.on('job:end', function(job) {
+    scraper.on('job:fail', function(err, job) {
 
       // If retrying, we skip to the next job
       if (job.state.retrying)
         return this._nextJob();
 
-      // A job has been done, we increment the count
-      this.index++;
+      // Adding to remains
+      this._remains.push(job.original);
 
-      // Removing page from stack
-      var idx = _.findIndex(this._stack, function(e) {
-        return e.id === job.id;
-      });
+      this.emit('job:done', job);
+    });
 
-      // If the job is failing, we add it to the remains
-      if (job.state.failing)
-        this._remains.push(job.original);
-
-      this._stack.splice(idx, 1);
-      this._nextJob(job);
+    scraper.on('job:success', function(job) {
+      this.emit('job:done', job);
     });
 
     // Listening to scraper ending
