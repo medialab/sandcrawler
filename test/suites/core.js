@@ -47,5 +47,3 @@ describe('When using sandcrawler API', function() {
     });
   });
 });
-
-// TODO: multiple scraper running at once

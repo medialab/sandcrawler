@@ -42,7 +42,7 @@ function fromFile(location, e) {
 
 function fromString(s, e) {
   check(s, e);
-  return wrapString(str);
+  return wrapString(s);
 }
 
 function fromFunction(fn, e) {
