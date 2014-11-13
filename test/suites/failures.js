@@ -24,7 +24,7 @@ describe('When dealing with failures', function() {
         ])
         .script(__dirname + '/../resources/scrapers/exit.js', false);
 
-      sandcrawler.spawn(function(err, ghost) {
+      sandcrawler.spawn({autoRestart: false}, function(err, ghost) {
         ghost.run(scraper, function(err, remains) {
           assert.strictEqual(err.message, 'phantom-crash');
           done();
