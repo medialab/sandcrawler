@@ -31,12 +31,12 @@ function StaticScraper(name) {
   this.on('job:scrape', function(job) {
     request(job.req.url, function(err, response, body) {
 
+      // Dispatching error if any
+      if (err) return self.emit('job:fail', err, job);
+
       // Overloading job's response
       job.res.body = body;
       job.res.status = response.statusCode;
-
-      // Dispatching error if any
-      if (err) return self.emit('job:fail', err, job);
 
       // Status error
       if (response.statusCode >= 400) {
