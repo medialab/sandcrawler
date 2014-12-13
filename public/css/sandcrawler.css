@@ -2,7 +2,11 @@
 h1 {
   text-align: center;
   margin-top: 0px;
-  color: #AC5E06;
+  color: #663501;
+}
+
+a {
+  font-weight: 500;
 }
 
 .artoo-logo {
@@ -27,12 +31,12 @@ h1 {
 .theme-base-artoo .sidebar,
 .theme-base-artoo .sidebar-toggle:active,
 .theme-base-artoo #sidebar-checkbox:checked ~ .sidebar-toggle {
-  background-color: #AC5E06;
+  background-color: #663501;
 }
 .theme-base-artoo .container a,
 .theme-base-artoo .sidebar-toggle,
 .theme-base-artoo .related-posts li a:hover {
-  color: #AC5E06;
+  color: #663501;
 }
 
 .artoo-bookmark-highlight {
@@ -40,7 +44,7 @@ h1 {
 }
 
 .artoo-bookmark-highlight a {
-  background-color: #AC5E06;
+  background-color: #663501;
   color: white;
   padding: 0 10px;
   padding-bottom: 3px;

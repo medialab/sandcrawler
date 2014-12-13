@@ -22,16 +22,23 @@ sidebar:
   - url: 'quick_start'
     title: 'Quick Start'
   - sep
-  # - url: 'methods'
-  #   title: 'Methods'
-  #   children:
-  #     - url: 'expand'
-  #       title: 'Autoexpand'
-  #     - url: 'helpers'
-  #       title: 'Helpers'
+  - url: 'scraper'
+    title: 'Scraper'
+  - url: 'static_scraper'
+    title: 'Static Scraper'
+  - url: 'spawns'
+    title: 'Custom Phantom'
+  - url: 'lifecycle'
+    title: 'Lifecycle'
+  - url: 'plugins'
+    title: 'Plugins'
+  - sep
 
 github:
   repo:           https://github.com/medialab/sandcrawler
 
 medialab:
   url:            'http://www.medialab.sciences-po.fr/'
+
+links:
+  artoo:          http://medialab.github.io/artoo/
