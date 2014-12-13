@@ -1,7 +1,7 @@
 {
   "name": "sandcrawler",
   "version": "0.0.1",
-  "description": "Scrape front-end, automatize back-end.",
+  "description": "The server-side scraping companion.",
   "main": "index.js",
   "scripts": {
     "test": "gulp test"
