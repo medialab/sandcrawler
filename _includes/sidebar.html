@@ -1,0 +1,39 @@
+<!-- Target for toggling the sidebar `.sidebar-checkbox` is for regular
+     styles, `#sidebar-checkbox` for behavior. -->
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+<!-- Toggleable sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p align="center">
+      <a href='{{ site.baseurl }}/'>
+        <img alt="artoo" width="148" height="148" src="{{ site.baseurl }}/public/img/sandcrawler-icon.svg" />
+      </a>
+    </p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item{% if page.id == 'home' %} active{% endif %}" href="{{ site.baseurl }}/">Home</a>
+    {% for node in site.sidebar %}
+      {% if node != 'sep' %}
+        <a class="sidebar-nav-item{% if page.id == node.url %} active{% endif %}" href="{{ site.baseurl }}/{{ node.url }}">{{ node.title }}</a>
+        {% if node.children %}
+          {% for child in node.children%}
+            <a class="sidebar-nav-item{% if page.id == child.url %} active{% endif %}" href="{{ site.baseurl }}/{{ child.url }}">&nbsp;&nbsp;• &nbsp; {{ child.title }}</a>
+          {% endfor%}
+        {% endif %}
+      {% else %}
+        <p class="sidebar-separator"></p>
+      {% endif %}
+    {% endfor %}
+    <a class="sidebar-nav-item" href="{{ site.medialab.url }}" target="_blank"> SciencesPo - médialab</a>
+    <a class="sidebar-nav-item" href="{{ site.github.repo }}" target="_blank">GitHub</a>
+    <span class="sidebar-nav-item">Currently v{{ site.version }}</span>
+  </nav>
+
+<!--   <div class="sidebar-item">
+    <p>
+      &copy; {{ site.time | date: '%Y' }}. All rights reserved.
+    </p>
+  </div> -->
+</div>

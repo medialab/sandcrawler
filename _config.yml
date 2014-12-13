@@ -1,0 +1,37 @@
+# Dependencies
+markdown:         redcarpet
+highlighter:      pygments
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            sandcrawler.js
+tagline:          'The server-side scraping companion.'
+description:      'The server-side scraping companion.'
+baseurl:          '/sandcrawler'
+
+author:
+  name:           'Yomguithereal'
+  url:            https://github.com/Yomguithereal
+
+# Custom vars
+version:          0.0.1
+
+sidebar:
+  - url: 'quick_start'
+    title: 'Quick Start'
+  - sep
+  # - url: 'methods'
+  #   title: 'Methods'
+  #   children:
+  #     - url: 'expand'
+  #       title: 'Autoexpand'
+  #     - url: 'helpers'
+  #       title: 'Helpers'
+
+github:
+  repo:           https://github.com/medialab/sandcrawler
+
+medialab:
+  url:            'http://www.medialab.sciences-po.fr/'

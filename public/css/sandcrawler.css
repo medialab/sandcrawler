@@ -1,0 +1,94 @@
+/* Artoo Doc Stylesheet */
+h1 {
+  text-align: center;
+  margin-top: 0px;
+  color: #AC5E06;
+}
+
+.artoo-logo {
+  margin-bottom: 0;
+  display: inline;
+  width: 35px;
+  height: 35px;
+}
+
+.index-bookmarklet:hover {
+  -moz-box-shadow: 1px 1px 10px 2px #656565;
+  -webkit-box-shadow: 1px 1px 10px 2px #656565;
+  box-shadow: 1px 1px 10px 2px #656565;
+  -moz-border-radius: 150px;
+  -webkit-border-radius: 150px;
+  border-radius: 150px;
+  -moz-transition: -moz-box-shadow 0.4s;
+  -webkit-transition: -webkit-box-shadow 0.4s;
+  transition: box-shadow 0.4s;
+}
+
+.theme-base-artoo .sidebar,
+.theme-base-artoo .sidebar-toggle:active,
+.theme-base-artoo #sidebar-checkbox:checked ~ .sidebar-toggle {
+  background-color: #AC5E06;
+}
+.theme-base-artoo .container a,
+.theme-base-artoo .sidebar-toggle,
+.theme-base-artoo .related-posts li a:hover {
+  color: #AC5E06;
+}
+
+.artoo-bookmark-highlight {
+  text-align: center;
+}
+
+.artoo-bookmark-highlight a {
+  background-color: #AC5E06;
+  color: white;
+  padding: 0 10px;
+  padding-bottom: 3px;
+  border-radius: 5px;
+}
+
+.artoo-bookmark-highlight a:hover {
+  text-decoration: none;
+}
+
+.sidebar-nav, .sidebar-nav-item {
+  border: none;
+}
+
+.wrap {
+  padding-right: 14rem;
+}
+
+.container {
+  margin: 0 auto;
+}
+
+.sidebar-toggle {
+  display: none;
+}
+
+.inline-img {
+  display: inline;
+}
+
+textarea.code-container {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.code-div {
+  min-height: 150px;
+}
+
+.dialog {
+  margin-left: 10px;
+  font-size: 0.8em;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
