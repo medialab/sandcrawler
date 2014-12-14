@@ -29,7 +29,7 @@ You can install the latest version of **sandcrawler.js** with npm (note that it 
 npm install sandcrawler
 ```
 
-You can also install the lastest development version thusly:
+You can also install the latest development version thusly:
 
 ```bash
 npm install git+https://github.com/medialab/sandcrawler.git
