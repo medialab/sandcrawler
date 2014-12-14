@@ -49,6 +49,7 @@ function Scraper(name) {
 
   this._middlewares = {
     before: [],
+    after: [],
     beforeScraping: [],
     afterScraping: []
   };
@@ -261,6 +262,7 @@ Scraper.prototype._cleanup = function() {
 
   // Cleaning hidden properties
   this._middlewares = {
+    after: [],
     before: [],
     beforeScraping: [],
     afterScraping: []

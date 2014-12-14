@@ -9,7 +9,13 @@ var Scraper = require('./abstract.js'),
     util = require('util'),
     request = require('request'),
     artoo = require('artoo-js'),
-    cheerio = require('artoo-js/node_modules/cheerio');
+    cheerio = require('cheerio');
+
+// Plug into cheerio
+artoo.bootstrap(cheerio);
+artoo.helpers.isSelector = function(v) {
+  return v instanceof cheerio;
+};
 
 /**
  * Main Class
