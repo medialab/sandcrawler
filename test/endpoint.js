@@ -4,13 +4,10 @@
  *
  * File requiring tests setup and suites.
  */
-
-var tests = {
-  setup: require('./setup.js'),
-  core: require('./suites/core.js'),
-  simple: require('./suites/simple.js'),
-  multiple: require('./suites/multiple.js'),
-  complex: require('./suites/complex.js'),
-  failures: require('./suites/failures.js'),
-  static: require('./suites/static.js')
-};
+// require('./setup.js'),
+// require('./suites/core.js'),
+// require('./suites/simple.js'),
+// require('./suites/multiple.js'),
+// require('./suites/complex.js'),
+// require('./suites/failures.js'),
+// require('./suites/static.js')
