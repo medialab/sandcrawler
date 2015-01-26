@@ -11,7 +11,8 @@ var path = require('path'),
     Spawn = require('./spawn.js'),
     Scraper = require('./scraper.js'),
     bothan = require('bothan'),
-    _ = require('highland');
+    types = require('./typology.js'),
+    extend = require('./helpers.js').extend;
 
 /**
  * Main interface
@@ -27,7 +28,7 @@ sandcrawler.config = function(o) {
 // Running a task in a default phantom
 sandcrawler.run = function(scraper, callback) {
 
-  if (!(scraper instanceof Scraper))
+  if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.run: given argument is not a valid scraper.');
 
   if (scraper.state.fulfilled)
@@ -63,13 +64,13 @@ sandcrawler.spawn = function(p, callback) {
   }
 
   // Merging defaults
-  var params = _.extend(p, defaults.spawn);
+  var params = extend(p, defaults.spawn);
 
   // Registering phantom bindings
   params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
 
   // Registering phantom required parameters
-  params.data = _.extend(
+  params.data = extend(
     {
       paths: {
         artoo: artoo.paths.phantom,

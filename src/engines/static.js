@@ -59,6 +59,8 @@ function StaticEngine(scraper) {
       throw Error('sandcrawler.engines.static.parse: given argument is not a function.');
 
     parser = fn;
+
+    return this;
   };
 }
 

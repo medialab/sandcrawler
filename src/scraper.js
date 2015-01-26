@@ -10,6 +10,7 @@
 var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     util = require('util'),
+    uuid = require('uuid'),
     _ = require('highland');
 
 /**
@@ -30,7 +31,7 @@ function Scraper(name, engine) {
   this.type = engine.type;
 
   // Properties
-  this.engine = engine;
+  this.engine = engine(this);
   this.state = {
     fulfilled: false,
     locked: false,
@@ -75,21 +76,21 @@ function createJob(feed, idx) {
   };
 
   // Handling polymorphism
-  if (types.get(mixed) === 'string') {
-    job.req.url = mixed;
+  if (types.get(feed) === 'string') {
+    job.req.url = feed;
   }
   else {
 
     // Safeguard
-    if (!mixed.url)
+    if (!feed.url)
       throw Error('sandcrawler.scraper.url(s)/addUrl(s): no url provided.');
 
-    job.req.url = mixed.url;
-    job.req.data = mixed.data || {};
-    job.req.params = mixed.params || {};
+    job.req.url = feed.url;
+    job.req.data = feed.data || {};
+    job.req.params = feed.params || {};
 
-    if (mixed.timeout)
-      job.req.timeout = mixed.timeout;
+    if (feed.timeout)
+      job.req.timeout = feed.timeout;
   }
 
   return job;
@@ -242,6 +243,23 @@ Scraper.prototype.iterate = function(fn) {
   // Concat streams at start
 };
 
+// Computing results of a job
+Scraper.prototype.result = function(fn) {
+
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.result: given argument is not a function.');
+
+  this.on('job:fail', function(err, job) {
+    fn.call(this, err, job.req, job.res);
+  });
+
+  this.on('job:success', function(job) {
+    fn.call(this, null, job.req, job.res);
+  });
+
+  return this;
+};
+
 // Registering middlewares
 function middlewareRegister(prototype, type) {
   prototype[type] = function(fn) {
@@ -257,7 +275,7 @@ function middlewareRegister(prototype, type) {
 middlewareRegister('before');
 middlewareRegister('after');
 middlewareRegister('beforeScraping');
-middlewares('afterScraping');
+middlewareRegister('afterScraping');
 
 /**
  * Exporting

@@ -6,7 +6,7 @@
  */
 var bothan = require('bothan'),
     uuid = require('uuid'),
-    types = require('typology');
+    types = require('./typology.js');
 
 /**
  * Main
