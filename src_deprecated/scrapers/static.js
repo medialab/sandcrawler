@@ -12,6 +12,7 @@ var Scraper = require('./abstract.js'),
     cheerio = require('cheerio');
 
 // Plug into cheerio
+// TODO
 artoo.bootstrap(cheerio);
 artoo.helpers.isSelector = function(v) {
   return v instanceof cheerio;

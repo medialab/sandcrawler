@@ -9,7 +9,7 @@ var bothan = require('bothan'),
     types = require('typology');
 
 /**
- * Main
+ * Main Class
  */
 function Spawn(params, anonym) {
 
@@ -71,7 +71,7 @@ Spawn.prototype.run = function(scraper, callback) {
   if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
 
-  if (scraper.state.fulfilled)
+  if (scraper.state.done)
     throw Error('sandcrawler.spawn.run: given scraper has already been fulfilled.');
 
   if (scraper.state.running)

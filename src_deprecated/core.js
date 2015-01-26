@@ -8,29 +8,41 @@
 var path = require('path'),
     artoo = require('artoo-js'),
     defaults = require('../defaults.json'),
+    helpers = require('./helpers.js'),
     Spawn = require('./spawn.js'),
-    Scraper = require('./scraper.js'),
-    bothan = require('bothan'),
-    _ = require('highland');
+    scrapers = require('./scrapers'),
+    types = require('typology'),
+    bothan = require('bothan');
+
+// Registering a scraper type
+types.add('scraper', function(v) {
+
+  return Object.keys(scrapers).some(function(k) {
+    return v instanceof scrapers[k];
+  });
+});
 
 /**
- * Main interface
+ * Main Class
  */
-var sandcrawler = {};
+function Sandcrawler() {}
 
-// Configuration
-sandcrawler.config = function(o) {
+/**
+ * Prototype
+ */
+
+Sandcrawler.prototype.config = function(o) {
   bothan.config(o);
-  return sandcrawler;
+  return this;
 };
 
 // Running a task in a default phantom
-sandcrawler.run = function(scraper, callback) {
+Sandcrawler.prototype.run = function(scraper, callback) {
 
-  if (!(scraper instanceof Scraper))
+  if (!types.check(scraper, 'scraper'))
     throw Error('sandcrawler.run: given argument is not a valid scraper.');
 
-  if (scraper.state.fulfilled)
+  if (scraper.state.done)
     throw Error('sandcrawler.run: given scraper has already been fulfilled.');
 
   if (scraper.state.running)
@@ -44,7 +56,7 @@ sandcrawler.run = function(scraper, callback) {
   }
 
   // We need to spawn a default phantom for this scraper
-  sandcrawler.spawn(function(err, spawn) {
+  this.spawn(function(err, spawn) {
     if (err)
       return callback(err);
 
@@ -54,7 +66,7 @@ sandcrawler.run = function(scraper, callback) {
 };
 
 // Spawning a custom phantom
-sandcrawler.spawn = function(p, callback) {
+Sandcrawler.prototype.spawn = function(p, callback) {
 
   // Handling polymorphism
   if (typeof p === 'function') {
@@ -63,13 +75,13 @@ sandcrawler.spawn = function(p, callback) {
   }
 
   // Merging defaults
-  var params = _.extend(p, defaults.spawn);
+  var params = helpers.extend(p, defaults.spawn);
 
   // Registering phantom bindings
   params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
 
   // Registering phantom required parameters
-  params.data = _.extend(
+  params.data = helpers.extend(
     {
       paths: {
         artoo: artoo.paths.phantom,
@@ -94,4 +106,4 @@ sandcrawler.spawn = function(p, callback) {
 /**
  * Exporting
  */
-module.exports = sandcrawler;
+module.exports = new Sandcrawler();

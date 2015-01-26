@@ -1,6 +1,6 @@
 {
   "name": "sandcrawler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The server-side scraping companion.",
   "main": "index.js",
   "scripts": {
@@ -25,20 +25,20 @@
   "homepage": "https://github.com/medialab/sandcrawler",
   "dependencies": {
     "artoo-js": "^0.3.0",
-    "async": "~0.9.0",
     "bothan": "git+https://github.com/medialab/bothan.git",
     "cheerio": "^0.18.0",
+    "highland": "^2.3.0",
     "jquery": "~2.1.1",
-    "lodash": "^2.4.1",
     "request": "^2.51.0",
-    "typology": "^0.2.1",
+    "typology": "^0.3.1",
     "uuid": "~2.0.1"
   },
   "devDependencies": {
-    "express": "~4.10.2",
+    "async": "~0.9.0",
+    "express": "^4.11.1",
     "gulp": "^3.8.9",
     "gulp-jshint": "^1.8.5",
     "gulp-mocha": "^2.0.0",
-    "mocha": "~2.0.1"
+    "mocha": "^2.1.0"
   }
 }

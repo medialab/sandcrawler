@@ -15,7 +15,7 @@ describe('When running a static scraper', function() {
     it('should work correctly.', function(done) {
 
       // Creating the scraper
-      var scraper = new sandcrawler.StaticScraper()
+      var scraper = sandcrawler.staticScraper()
         .url('http://localhost:7337/resources/basic.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');
@@ -33,7 +33,7 @@ describe('When running a static scraper', function() {
 
     it('should handle status 404.', function(done) {
 
-      var scraper = new sandcrawler.StaticScraper()
+      var scraper = sandcrawler.staticScraper()
         .url('http://localhost:7337/resources/404.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');
