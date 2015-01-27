@@ -38,8 +38,8 @@ sandcrawler.run = function(scraper, callback) {
     throw Error('sandcrawler.run: given scraper is already running.');
 
   // Running without engine
-  if (scraper.type === 'static') {
-    scraper._run(callback);
+  if (scraper.engine.type === 'static') {
+    scraper.run(callback);
 
     return;
   }

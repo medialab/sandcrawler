@@ -28,10 +28,9 @@ function Scraper(name, engine) {
   // Assigning a unique identifer
   this.id = 'Scraper[' + uuid.v4() + ']';
   this.name = name || this.id.substr(0, 16) + ']';
-  this.type = engine.type;
 
   // Properties
-  this.engine = engine(this);
+  this.engine = new engine(this);
   this.state = {
     fulfilled: false,
     locked: false,
@@ -97,37 +96,26 @@ function createJob(feed, idx) {
 }
 
 // Before scraping
-// TODO: this can probably be written in a nicer way...
-function beforeScraping(job) {
-  var self = this;
-
-  return _(function(push) {
-
-    // Applying middlewares
-    _(self.middlewares.beforeScraping)
-      .nfcall([job])
-      .series()
-      .apply(function() {
-        push(null, job);
-      })
-      .errors(function(err) {
-        push(err);
-      });
+function beforeScraping(scraper) {
+  return _.wrapCallback(function(job, callback) {
+    _(scraper.middlewares.beforeScraping)
+        .nfcall([job])
+        .series()
+        .stopOnError(function(err) {
+          callback(err);
+        })
+        .apply(function() {
+          callback(null, job);
+        });
   });
 }
-
 
 // Scraping
-function scraping(job) {
-  var self = this;
-
-  return _(function(push) {
-
-    // Calling upon the engine
-    self.fetch(job, push);
+function scraping(scraper) {
+  return _.wrapCallback(function(job, callback) {
+    scraper.engine.fetch(job, callback);
   });
 }
-
 
 /**
  * Prototype
@@ -140,29 +128,42 @@ Scraper.prototype.run = function(callback) {
   // Emitting
   this.emit('scraper:start');
 
+  this.jobStream.each(_.log);
+
+  return;
+
   // Resolving starting middlewares
   _(this.middlewares.before)
-    .nfcall([])
+    .nfcall()
     .series()
-    .apply(function() {
-
-      // Passed the middlewares
-      this.jobStream
-        .map(beforeScraping.bind(self))
-        .map(scraping.bind(self))
-
-        // TODO: change value here for parallelism
-        .parallel(1)
-        .errors(function(err) {
-
-          // Should fail the job here
-        });
-    })
-    .errors(function(err) {
+    .stopOnError(function(err) {
 
       // Error occurred
       self.fail(err);
       callback(err);
+    })
+    .apply(function() {
+
+      // Passed the middlewares
+      self.jobStream
+        // TODO: change value here for parallelism
+        .parallel(1)
+        // .map(beforeScraping(self))
+        .map(function(job) {
+          job.tada = 'test';
+          return job;
+        })
+        // .map(scraping(self))
+        .errors(function(err) {
+
+          // Should fail the job here
+        })
+        .apply(function() {
+
+          // Exiting the scraper
+          self.succeed();
+          callback(null);
+        });
     });
 };
 
@@ -211,7 +212,7 @@ Scraper.prototype.url = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream.write(createJob(item));
+    this.jobStream.append(createJob(item));
   }, this);
 
   return this;
@@ -225,7 +226,7 @@ Scraper.prototype.addUrl = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream.write(createJob(item));
+    this.jobStream.append(createJob(item));
   }, this);
 
   this.emit('job:added');
