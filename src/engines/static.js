@@ -15,6 +15,9 @@ artoo.helpers.isSelector = function(v) {
          !!(v._root && v.options && 'normalizeWhitespace' in v.options);
 };
 
+// Bootstrapping cheerio
+artoo.bootstrap(cheerio);
+
 /**
  * Main
  */

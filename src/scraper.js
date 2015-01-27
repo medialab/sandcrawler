@@ -17,6 +17,7 @@ var EventEmitter = require('events').EventEmitter,
  * Main
  */
 function Scraper(name, engine) {
+  var self = this;
 
   // Safeguard
   if (!(this instanceof Scraper))
@@ -39,7 +40,12 @@ function Scraper(name, engine) {
   };
 
   // Plumbing
-  this.jobStream = _();
+  this.jobStream = _([]);
+  this.pipeline = function(stream) {
+    return stream
+      .flatMap(beforeScraping(self))
+      .flatMap(scraping(self));
+  };
 
   // Middlewares
   this.middlewares = {
@@ -128,10 +134,6 @@ Scraper.prototype.run = function(callback) {
   // Emitting
   this.emit('scraper:start');
 
-  this.jobStream.each(_.log);
-
-  return;
-
   // Resolving starting middlewares
   _(this.middlewares.before)
     .nfcall()
@@ -144,22 +146,14 @@ Scraper.prototype.run = function(callback) {
     })
     .apply(function() {
 
-      // Passed the middlewares
+      // TODO: Parallel
+      // TODO: Errors
+
+      // Passing jobs through the pipeline
       self.jobStream
-        // TODO: change value here for parallelism
-        .parallel(1)
-        // .map(beforeScraping(self))
-        .map(function(job) {
-          job.tada = 'test';
-          return job;
-        })
-        // .map(scraping(self))
-        .errors(function(err) {
-
-          // Should fail the job here
-        })
-        .apply(function() {
-
+        .through(self.pipeline)
+        .toArray(function() {
+// console.log(arguments[0])
           // Exiting the scraper
           self.succeed();
           callback(null);
@@ -212,7 +206,7 @@ Scraper.prototype.url = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream.append(createJob(item));
+    this.jobStream = this.jobStream.append(createJob(item));
   }, this);
 
   return this;
@@ -226,7 +220,7 @@ Scraper.prototype.addUrl = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream.append(createJob(item));
+    this.jobStream = this.jobStream.append(createJob(item));
   }, this);
 
   this.emit('job:added');
