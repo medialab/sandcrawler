@@ -19,8 +19,14 @@ Object.defineProperty(sandcrawler, 'version', {
 
 // Public declarations
 sandcrawler.staticScraper = function(name) {
-  return new Scraper(name, StaticEngine);
+  var scraper = new Scraper(name);
+  scraper.engine = new StaticEngine(scraper);
+  return scraper;
 };
+
+// sandcrawler.scraper = function(name) {
+//   return new Scraper(name, PhantomEngine);
+// };
 
 // Exporting
 module.exports = sandcrawler;

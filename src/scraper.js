@@ -17,12 +17,12 @@ var EventEmitter = require('events').EventEmitter,
 /**
  * Main
  */
-function Scraper(name, engine) {
+function Scraper(name) {
   var self = this;
 
   // Safeguard
   if (!(this instanceof Scraper))
-    return new Scraper(name, engine);
+    return new Scraper(name);
 
   // Events
   EventEmitter.call(this);
@@ -33,7 +33,6 @@ function Scraper(name, engine) {
 
   // Properties
   this.options = defaults;
-  this.engine = new engine(this);
   this.state = {
     fulfilled: false,
     locked: false,
