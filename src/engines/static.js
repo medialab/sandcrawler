@@ -51,7 +51,7 @@ function StaticEngine(scraper) {
         job.res.data = parser.call(scraper, $, artoo);
       }
 
-      return callback(null);
+      return callback(null, job);
     });
   };
 

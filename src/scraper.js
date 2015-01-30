@@ -43,8 +43,10 @@ function Scraper(name, engine) {
   this.jobStream = _([]);
   this.pipeline = function(stream) {
     return stream
-      .flatMap(beforeScraping(self))
-      .flatMap(scraping(self));
+      .map(beforeScraping(self))
+      .parallel(1)
+      .map(scraping(self))
+      .parallel(1);
   };
 
   // Middlewares
@@ -146,17 +148,23 @@ Scraper.prototype.run = function(callback) {
     })
     .apply(function() {
 
-      // TODO: Parallel
-      // TODO: Errors
-
       // Passing jobs through the pipeline
-      self.jobStream
+      var endStream = self.jobStream
         .through(self.pipeline)
-        .toArray(function() {
-// console.log(arguments[0])
+        .errors(function(err) {
+
+          // Failing the job
+          console.log(err);
+        })
+        .on('end', function() {
+
           // Exiting the scraper
           self.succeed();
           callback(null);
+        })
+        .each(function(job) {
+
+          // Succeeding the job
         });
     });
 };
