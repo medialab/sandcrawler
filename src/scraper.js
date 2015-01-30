@@ -11,6 +11,7 @@ var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     util = require('util'),
     uuid = require('uuid'),
+    defaults = require('../defaults.json').scraper,
     _ = require('highland');
 
 /**
@@ -31,6 +32,7 @@ function Scraper(name, engine) {
   this.name = name || this.id.substr(0, 16) + ']';
 
   // Properties
+  this.options = defaults;
   this.engine = new engine(this);
   this.state = {
     fulfilled: false,
@@ -40,14 +42,10 @@ function Scraper(name, engine) {
   };
 
   // Plumbing
-  this.jobStream = _([]);
-  this.pipeline = function(stream) {
-    return stream
-      .map(beforeScraping(self))
-      .parallel(1)
-      .map(scraping(self))
-      .parallel(1);
-  };
+  this.jobStream = _('job', this)
+    .map(beforeScraping(self))
+    .parallel(self.options.maxConcurrency || 1)
+    .flatMap(scraping(self));
 
   // Middlewares
   this.middlewares = {
@@ -149,14 +147,13 @@ Scraper.prototype.run = function(callback) {
     .apply(function() {
 
       // Passing jobs through the pipeline
-      var endStream = self.jobStream
-        .through(self.pipeline)
+      self.jobStream
         .errors(function(err) {
 
           // Failing the job
           console.log(err);
         })
-        .on('end', function() {
+        .on('drain', function() {
 
           // Exiting the scraper
           self.succeed();
@@ -214,7 +211,7 @@ Scraper.prototype.url = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream = this.jobStream.append(createJob(item));
+    this.emit('job', createJob(item));
   }, this);
 
   return this;
@@ -228,7 +225,7 @@ Scraper.prototype.addUrl = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.jobStream = this.jobStream.append(createJob(item));
+    this.emit('job', createJob(item));
   }, this);
 
   this.emit('job:added');
