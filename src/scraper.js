@@ -47,8 +47,24 @@ function Scraper(name, engine) {
     // Processing one job through the pipe
     return async.applyEachSeries([
       beforeScraping.bind(self),
-      scrape.bind(self)
-    ], job, callback);
+      scrape.bind(self),
+      afterScraping.bind(self)
+    ], job, function(err) {
+
+      if (err) {
+        job.res.error = err;
+
+        // Failing the job
+        self.emit('job:fail', err, job);
+      }
+      else {
+
+        // Calling it a success
+        self.emit('job:success', job);
+      }
+
+      return callback(err, job);
+    });
 
   }, this.options.maxConcurrency || 1);
 
@@ -120,6 +136,15 @@ function beforeScraping(job, callback) {
 // Using the engine to scrape
 function scrape(job, callback) {
   return this.engine.fetch(job, callback);
+}
+
+// Applying afterScraping middlewares
+function afterScraping(job, callback) {
+  return async.applyEachSeries(
+    this.middlewares.afterScraping,
+    job,
+    callback
+  );
 }
 
 /**
