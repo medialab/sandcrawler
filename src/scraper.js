@@ -11,8 +11,8 @@ var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
     util = require('util'),
     uuid = require('uuid'),
-    defaults = require('../defaults.json').scraper,
-    _ = require('highland');
+    async = require('async'),
+    defaults = require('../defaults.json').scraper;
 
 /**
  * Main
@@ -41,11 +41,19 @@ function Scraper(name, engine) {
     running: false
   };
 
-  // Plumbing
-  this.jobStream = _('job', this)
-    .map(beforeScraping(self))
-    .parallel(self.options.maxConcurrency || 1)
-    .flatMap(scraping(self));
+  // Queue
+  this.queue = async.queue(function(job, callback) {
+
+    // Processing one job through the pipe
+    return async.applyEachSeries([
+      beforeScraping.bind(self),
+      scrape.bind(self)
+    ], job, callback);
+
+  }, this.options.maxConcurrency || 1);
+
+  // Pausing so that the queue starts processing only when we want it
+  this.queue.pause();
 
   // Middlewares
   this.middlewares = {
@@ -64,7 +72,7 @@ util.inherits(Scraper, EventEmitter);
  */
 
 // Creating a job object from a feed
-function createJob(feed, idx) {
+function createJob(feed) {
 
   // Job skeleton
   var job = {
@@ -72,7 +80,6 @@ function createJob(feed, idx) {
     original: feed,
     state: {},
     req: {
-      index: idx,
       retries: 0,
       data: {},
       params: {}
@@ -101,26 +108,18 @@ function createJob(feed, idx) {
   return job;
 }
 
-// Before scraping
-function beforeScraping(scraper) {
-  return _.wrapCallback(function(job, callback) {
-    _(scraper.middlewares.beforeScraping)
-        .nfcall([job])
-        .series()
-        .stopOnError(function(err) {
-          callback(err);
-        })
-        .apply(function() {
-          callback(null, job);
-        });
-  });
+// Applying beforeScraping middlewares
+function beforeScraping(job, callback) {
+  return async.applyEachSeries(
+    this.middlewares.beforeScraping,
+    job,
+    callback
+  );
 }
 
-// Scraping
-function scraping(scraper) {
-  return _.wrapCallback(function(job, callback) {
-    scraper.engine.fetch(job, callback);
-  });
+// Using the engine to scrape
+function scrape(job, callback) {
+  return this.engine.fetch(job, callback);
 }
 
 /**
@@ -135,35 +134,27 @@ Scraper.prototype.run = function(callback) {
   this.emit('scraper:start');
 
   // Resolving starting middlewares
-  _(this.middlewares.before)
-    .nfcall()
-    .series()
-    .stopOnError(function(err) {
+  async.series(
+    this.middlewares.before,
+    function(err) {
 
-      // Error occurred
-      self.fail(err);
-      callback(err);
-    })
-    .apply(function() {
+      // Failing the scraper if error occurred
+      if (err) {
+        callback(err);
+        return self.fail(err);
+      }
 
-      // Passing jobs through the pipeline
-      self.jobStream
-        .errors(function(err) {
+      // Else, we simply resume the queue and wait for it to drain
+      self.queue.drain = function() {
 
-          // Failing the job
-          console.log(err);
-        })
-        .on('drain', function() {
+        // All processes finished, we call it a success
+        callback(null);
+        return self.succeed();
+      };
 
-          // Exiting the scraper
-          self.succeed();
-          callback(null);
-        })
-        .each(function(job) {
-
-          // Succeeding the job
-        });
-    });
+      self.queue.resume();
+    }
+  );
 };
 
 // Failing the scraper
@@ -197,7 +188,7 @@ Scraper.prototype.exit = function(status) {
 Scraper.prototype.teardown = function() {
 
   // Ending jobStream
-  this.jobStream.destroy();
+  this.queue.kill();
 
   // Listeners
   this.removeAllListeners();
@@ -211,7 +202,7 @@ Scraper.prototype.url = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.emit('job', createJob(item));
+    this.queue.push(createJob(item));
   }, this);
 
   return this;
@@ -225,7 +216,7 @@ Scraper.prototype.addUrl = function(feed) {
     throw Error('sandcrawler.scraper.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.emit('job', createJob(item));
+    this.queue.push(createJob(item));
   }, this);
 
   this.emit('job:added');
@@ -240,7 +231,7 @@ Scraper.prototype.addUrls = Scraper.prototype.addUrl;
 // Iterating through a generator
 Scraper.prototype.iterate = function(fn) {
 
-  // Concat streams at start
+  // TODO: possibility of multiple generators
 };
 
 // Computing results of a job
