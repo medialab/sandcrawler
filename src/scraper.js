@@ -13,6 +13,7 @@ var EventEmitter = require('events').EventEmitter,
     uuid = require('uuid'),
     async = require('async'),
     phscript = require('./phantom_script.js'),
+    extend = require('./helpers.js').extend,
     defaults = require('../defaults.json').scraper;
 
 /**
@@ -218,6 +219,9 @@ Scraper.prototype.exit = function(status) {
 // Teardown
 Scraper.prototype.teardown = function() {
 
+  // Emitting
+  this.emit('scraper:teardown');
+
   // Ending jobStream
   this.queue.kill();
 
@@ -314,6 +318,16 @@ Scraper.prototype.result = function(fn) {
     fn.call(this, null, job.req, job.res);
   });
 
+  return this;
+};
+
+// Altering configuration
+Scraper.prototype.config = function(o) {
+
+  if (!types.check(o, 'object'))
+    throw Error('sandcrawler.scraper.config: wrong argument.');
+
+  this.options = extend(o, this.options);
   return this;
 };
 

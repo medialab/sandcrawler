@@ -5,6 +5,7 @@
  * Using a phantomjs child to scrape the given pages.
  */
 var extend = require('../helpers.js').extend,
+    phscript = require('../phantom_script.js'),
     _ = require('lodash');
 
 /**
@@ -16,7 +17,62 @@ function PhantomEngine(scraper, phantom) {
   // Properties
   this.type = 'phantom';
   this.phantom = phantom;
-  this.calls = [];
+  this.requests = [];
+
+  // Helpers
+  function getJob(msg) {
+    if (msg.from !== self.phantom.name)
+        return;
+
+    var request = _.find(self.requests, function(req) {
+      return msg.body.callId === req.call.id;
+    });
+
+    return request ? request.job : undefined;
+  }
+
+  // Listeners
+  this.listeners = {
+    crash: function() {
+
+      self.requests.forEach(function(req) {
+        req.call.cancel();
+      });
+
+      scraper.fail(new Error('phantom-crash'));
+    },
+    log: function(msg) {
+      var job = getJob(msg);
+
+      if (job)
+        scraper.emit('page:log', msg.body.data, job.req, job.res);
+    },
+    error: function(msg) {
+      var job = getJob(msg);
+
+      if (job)
+        scraper.emit('page:error', msg.body.data, job.req, job.res);
+    },
+    alert: function(msg) {
+      var job = getJob(msg);
+
+      if (job)
+        scraper.emit('page:alert', msg.body.data, job.req, job.res);
+    }
+  };
+
+  // Listening
+  this.phantom.once('crash', this.listeners.crash);
+  this.phantom.on('page:log', this.listeners.log);
+  this.phantom.on('page:error', this.listeners.error);
+  this.phantom.on('page:alert', this.listeners.alert);
+
+  scraper.once('scraper:teardown', function() {
+    self.phantom.removeListener('crash', self.listeners.crash);
+    self.phantom.removeListener('page:log', self.listeners.log);
+    self.phantom.removeListener('page:error', self.listeners.error);
+    self.phantom.removeListener('page:alert', self.listeners.alert);
+  });
 
   // Fetching method
   this.fetch = function(job, callback) {
@@ -42,11 +98,14 @@ function PhantomEngine(scraper, phantom) {
 
       // Callback
       function(err, msg) {
+
         var response = (msg || {}).body || {},
             betterError;
 
         // Resolving call
-        _.pullAt(self.calls, self.calls.indexOf(call));
+        self.requests = _.remove(self.requests, function(req) {
+          return req.call === call;
+        })
 
         // Populating response
         job.res = response;
@@ -73,7 +132,10 @@ function PhantomEngine(scraper, phantom) {
       }
     );
 
-    this.calls.push(call);
+    this.requests.push({
+      call: call,
+      job: job
+    });
   };
 }
 

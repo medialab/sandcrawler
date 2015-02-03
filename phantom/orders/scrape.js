@@ -96,7 +96,7 @@ module.exports = function(parent, params) {
     function wrapData(o) {
       return {
         data: o,
-        jobId: callId
+        callId: callId
       };
     }
 
@@ -204,42 +204,6 @@ module.exports = function(parent, params) {
       parent.send('page:alert', wrapData({
         message: message
       }));
-    };
-
-    // On page change
-    var initial = true;
-    page.onNavigationRequested = function(url, type, willNavigate, main) {
-
-      // Avoiding first time
-      if (initial) {
-        initial = false;
-        return;
-      }
-
-      // Switching url
-      order.url = url;
-      page.isOpened = false;
-
-      // Requesting response from parent
-      parent.request(
-        'page:navigation',
-        wrapData({
-          url: url,
-          type: type,
-          willNavigate: willNavigate,
-          main: main
-        }),
-        {
-          timeout: 2000
-        },
-        function(err, response) {
-          if (err)
-            return;
-
-          // Switching to new script
-          order.script = response.body;
-        }
-      );
     };
 
     page.onLoadFinished = function(status) {

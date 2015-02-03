@@ -2,8 +2,7 @@
  * Sandcrawler Core
  * =================
  *
- * Main methods enabling to run scrapers and to spawn phantoms. Should also
- * hold a register of running phantoms to permit auto-shutdown.
+ * Main methods enabling to run scrapers and to spawn phantoms.
  */
 var path = require('path'),
     artoo = require('artoo-js'),

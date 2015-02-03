@@ -50,14 +50,15 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Event subscription', function() {
+  describe('Event subscription', function() {
 
     it('should be possible to subscribe to page log.', function(done) {
 
       var scraper = sandcrawler.scraper()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
-        .on('page:log', function(data) {
+        .on('page:log', function(data, req, res) {
+          assert.strictEqual(req.url, 'http://localhost:7337/resources/basic.html');
           assert.strictEqual(data.message, 'Hello world!');
         });
 
@@ -68,7 +69,7 @@ describe('When running fairly simple scrapers', function() {
 
       var scraper = sandcrawler.scraper()
         .url('http://localhost:7337/resources/basic.html')
-        .config({timeout: 500})
+        .config({timeout: 300})
         .script(__dirname + '/../resources/scrapers/error.js', false)
         .on('page:error', function(data) {
           assert.strictEqual(data.message, 'Error: random-error');
@@ -84,22 +85,6 @@ describe('When running fairly simple scrapers', function() {
         .script(__dirname + '/../resources/scrapers/alert.js')
         .on('page:alert', function(data) {
           assert.strictEqual(data.message, 'Hello world!');
-        });
-
-      phantom.run(scraper, done);
-    });
-
-    it('should be possible to react to page navigation.', function(done) {
-      var scraper = sandcrawler.scraper()
-        .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/changer.js', false)
-        .on('page:navigation', function(nav, req, res) {
-          nav.replyWithJawascript(function(done) {
-            done($('title').scrapeOne());
-          });
-        })
-        .result(function(err, req, res) {
-          assert.strictEqual(res.data, 'Basic 2');
         });
 
       phantom.run(scraper, done);
