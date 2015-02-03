@@ -5,7 +5,7 @@
  * Scraping job handler function.
  */
 var webpage = require('webpage'),
-    helpers = require('../../src/helpers.js');
+    _ = require('lodash');
 
 module.exports = function(parent, params) {
 
@@ -19,10 +19,10 @@ module.exports = function(parent, params) {
     var page = webpage.create();
 
     // Applying precise page settings
-    page.settings = helpers.extend(order.params.page || {}, page.settings);
+    page.settings = _.merge(page.settings, order.params.page || {});
 
     // Applying precise page headers
-    page.customHeaders = helpers.extend(order.params.headers || {}, page.customHeaders);
+    page.customHeaders = _.merge(page.customHeaders, order.params.headers || {});
 
     /**
      * Enhancing webpage

@@ -29,6 +29,7 @@
     "bothan": "git+https://github.com/medialab/bothan.git",
     "cheerio": "^0.18.0",
     "jquery": "~2.1.1",
+    "lodash": "^3.1.0",
     "request": "^2.51.0",
     "typology": "^0.3.1",
     "uuid": "~2.0.1"

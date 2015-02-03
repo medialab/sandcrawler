@@ -12,7 +12,7 @@ var path = require('path'),
     Scraper = require('./scraper.js'),
     bothan = require('bothan'),
     types = require('./typology.js'),
-    extend = require('./helpers.js').extend;
+    _ = require('lodash');
 
 /**
  * Main interface
@@ -64,20 +64,20 @@ sandcrawler.spawn = function(p, callback) {
   }
 
   // Merging defaults
-  var params = extend(p, defaults.spawn);
+  var params = _.merge(defaults.spawn, p);
 
   // Registering phantom bindings
   params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
 
   // Registering phantom required parameters
-  params.data = extend(
+  params.data = _.merge(
+    params.data,
     {
       paths: {
         artoo: artoo.paths.phantom,
         jquery: require.resolve('jquery')
       }
-    },
-    params.data
+    }
   );
 
   // Creating spawn
