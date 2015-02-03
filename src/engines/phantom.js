@@ -4,8 +4,8 @@
  *
  * Using a phantomjs child to scrape the given pages.
  */
-var _ = require('lodash'),
-    phscript = require('../phantom_script.js');
+var extend = require('../helpers.js').extend,
+    _ = require('lodash');
 
 /**
  * Main
@@ -32,8 +32,9 @@ function PhantomEngine(scraper, phantom) {
       // Sent data
       {
         url: job.req.url,
-        script: scraper.script,
-        params: _.merge(scraper.options.params, job.req.params)
+        script: scraper.scriptStack,
+        params: extend(scraper.options.params, job.req.params),
+        timeout: timeout
       },
 
       // Request timeout

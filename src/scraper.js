@@ -12,6 +12,7 @@ var EventEmitter = require('events').EventEmitter,
     util = require('util'),
     uuid = require('uuid'),
     async = require('async'),
+    phscript = require('./phantom_script.js'),
     defaults = require('../defaults.json').scraper;
 
 /**
@@ -33,6 +34,8 @@ function Scraper(name) {
 
   // Properties
   this.options = defaults;
+  this.engine = null;
+  this.type = null;
   this.state = {
     fulfilled: false,
     locked: false,
@@ -41,7 +44,7 @@ function Scraper(name) {
   };
 
   // Additional properties
-  this.script = null;
+  this.scriptStack = null;
   this.parser = Function.prototype;
 
   // Queue
@@ -264,22 +267,22 @@ Scraper.prototype.iterate = function(fn) {
 
 // Loading the scraping script
 Scraper.prototype.script = function(path, check) {
-  if (this.script)
+  if (this.scriptStack)
     throw Error('sandcrawler.scraper.script: script already registered.');
 
-  this.script = phscript.fromFile(path, check);
+  this.scriptStack = phscript.fromFile(path, check);
   return this;
 };
 
 // Loading some jawascript
 Scraper.prototype.jawascript = function(fn, check) {
-  if (this.script)
+  if (this.scriptStack)
     throw Error('sandcrawler.scraper.jawascript: script already registered.');
 
   if (typeof fn === 'function')
-    this.script = phscript.fromFunction(fn, check);
+    this.scriptStack = phscript.fromFunction(fn, check);
   else if (typeof fn === 'string')
-    this.script = phscript.fromString(fn, check);
+    this.scriptStack = phscript.fromString(fn, check);
   else
     throw Error('sandcrawler.scraper.jawascript: wrong argument.');
 

@@ -85,12 +85,14 @@ Spawn.prototype.run = function(scraper, callback) {
   // Loading engine
   scraper.engine = new PhantomEngine(scraper, this.spy);
 
+  // Running given scraper
   scraper.run(function(err, remains) {
 
     // Removing scrapers from list
     _.pullAt(self.scrapers, self.scrapers.indexOf(scraper.id));
 
     // Autoclosing the spawn?
+    // console.log(self.params, self.scrapers)
     if (self.params.autoClose && !self.scrapers.length)
       self.close();
 

@@ -6,7 +6,7 @@
  */
 require('./setup.js');
 // require('./suites/core.js');
-// require('./suites/simple.js');
+require('./suites/simple.js');
 // require('./suites/multiple.js');
 // require('./suites/complex.js');
 // require('./suites/failures.js');

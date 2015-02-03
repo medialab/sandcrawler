@@ -12,7 +12,7 @@ var path = require('path'),
     Scraper = require('./scraper.js'),
     bothan = require('bothan'),
     types = require('./typology.js'),
-    _ = require('lodash');
+    extend = require('./helpers.js').extend;
 
 /**
  * Main interface
@@ -38,7 +38,7 @@ sandcrawler.run = function(scraper, callback) {
     throw Error('sandcrawler.run: given scraper is already running.');
 
   // Running without engine
-  if (scraper.engine.type === 'static') {
+  if (scraper.type === 'static') {
     scraper.run(callback);
 
     return;
@@ -64,20 +64,20 @@ sandcrawler.spawn = function(p, callback) {
   }
 
   // Merging defaults
-  var params = _.merge(defaults.spawn, p);
+  var params = extend(p, defaults.spawn);
 
   // Registering phantom bindings
   params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
 
   // Registering phantom required parameters
-  params.data = _.merge(
-    params.data,
+  params.data = extend(
     {
       paths: {
         artoo: artoo.paths.phantom,
         jquery: require.resolve('jquery')
       }
-    }
+    },
+    params.data
   );
 
   // Creating spawn

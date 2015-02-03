@@ -21,11 +21,14 @@ Object.defineProperty(sandcrawler, 'version', {
 sandcrawler.staticScraper = function(name) {
   var scraper = new Scraper(name);
   scraper.engine = new StaticEngine(scraper);
+  scraper.type = 'static';
   return scraper;
 };
 
 sandcrawler.scraper = function(name) {
-  return new Scraper(name);
+  var scraper = new Scraper(name);
+  scraper.type = 'phantom';
+  return scraper;
 };
 
 // Exporting

@@ -5,24 +5,25 @@
  * Scraping job handler function.
  */
 var webpage = require('webpage'),
-    _ = require('lodash');
+    extend = require('../../src/helpers.js').extend;
 
 module.exports = function(parent, params) {
 
-  return function(msg, reply) {
-    var order = msg.body;
+  return function(msg) {
+    var order = msg.body,
+        callId = msg.id;
 
     // Order's lifespan
-    var lifespan = msg.timeout || 5000;
+    var lifespan = order.timeout || 5000;
 
     // Creating webpage
     var page = webpage.create();
 
     // Applying precise page settings
-    page.settings = _.merge(page.settings, order.params.page || {});
+    page.settings = extend(order.params.page, page.settings);
 
     // Applying precise page headers
-    page.customHeaders = _.merge(page.customHeaders, order.params.headers || {});
+    page.customHeaders = extend(order.params.headers, page.customHeaders);
 
     /**
      * Enhancing webpage
@@ -95,7 +96,7 @@ module.exports = function(parent, params) {
     function wrapData(o) {
       return {
         data: o,
-        jobId: order.id
+        jobId: callId
       };
     }
 
@@ -158,7 +159,7 @@ module.exports = function(parent, params) {
       if (msg.head === 'done') {
 
         // On retrieve data, we send back to parent
-        reply(wrapSuccess(msg.body));
+        parent.replyTo(callId, wrapSuccess(msg.body));
 
         // Closing
         return cleanup();
@@ -248,13 +249,13 @@ module.exports = function(parent, params) {
 
       // Failing
       if (status !== 'success') {
-        reply(wrapFailure('fail'));
+        parent.replyTo(callId, wrapFailure('fail'));
         return cleanup();
       }
 
       // Wrong status code
       if (!page.response.status || page.response.status >= 400) {
-        reply(wrapFailure('status'));
+        parent.replyTo(callId, wrapFailure('status'));
         return cleanup();
       }
 
