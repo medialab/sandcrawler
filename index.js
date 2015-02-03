@@ -24,9 +24,9 @@ sandcrawler.staticScraper = function(name) {
   return scraper;
 };
 
-// sandcrawler.scraper = function(name) {
-//   return new Scraper(name, PhantomEngine);
-// };
+sandcrawler.scraper = function(name) {
+  return new Scraper(name);
+};
 
 // Exporting
 module.exports = sandcrawler;

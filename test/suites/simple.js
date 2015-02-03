@@ -24,6 +24,12 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
+  after(function() {
+
+    // Now closing the phantom
+    phantom.close();
+  });
+
   describe('Minimal use case', function() {
 
     it('should work correctly.', function(done) {
@@ -43,6 +49,8 @@ describe('When running fairly simple scrapers', function() {
       });
     });
   });
+
+  return;
 
   describe('Event subscription', function() {
 
@@ -344,11 +352,5 @@ describe('When running fairly simple scrapers', function() {
 
       phantom.run(scraper, done);
     });
-  });
-
-  after(function() {
-
-    // Now closing the phantom
-    phantom.close();
   });
 });

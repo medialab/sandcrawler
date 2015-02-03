@@ -6,7 +6,9 @@
  */
 var bothan = require('bothan'),
     uuid = require('uuid'),
-    types = require('./typology.js');
+    types = require('./typology.js'),
+    PhantomEngine = require('./engines/phantom.js'),
+    _ = require('lodash');
 
 /**
  * Main
@@ -20,7 +22,7 @@ function Spawn(params, anonym) {
   this.closed = false;
 
   // Hidden properties
-  this._runningScrapers = [];
+  this.scrapers = [];
 }
 
 /**
@@ -41,10 +43,10 @@ Spawn.prototype.start = function(callback) {
     self.on = self.spy.on.bind(self.spy);
 
     // DEBUG: remove this asap
-    self.on('phantom:error', function() {
+    self.on('error', function() {
       console.log('SANDCRAWLER:PHANTOM:DEBUG:ERROR', arguments);
     });
-    self.on('phantom:log', function() {
+    self.on('log', function() {
       console.log('SANDCRAWLER:PHANTOM:DEBUG:LOG', arguments[0]);
     });
 
@@ -77,15 +79,19 @@ Spawn.prototype.run = function(scraper, callback) {
   if (scraper.state.running)
     throw Error('sandcrawler.spawn.run: given scraper has already running.');
 
-  // Starting
-  this._runningScrapers.push(scraper.id);
-  scraper._run(this.spy, function(err, remains) {
+  // Registering
+  this.scrapers.push(scraper.id);
+
+  // Loading engine
+  scraper.engine = new PhantomEngine(scraper, this.spy);
+
+  scraper.run(function(err, remains) {
+
+    // Removing scrapers from list
+    _.pullAt(self.scrapers, self.scrapers.indexOf(scraper.id));
 
     // Autoclosing the spawn?
-    var idx = self._runningScrapers.indexOf(scraper.id);
-    self._runningScrapers.splice(idx, 1);
-
-    if (self.params.autoClose && !self._runningScrapers.length)
+    if (self.params.autoClose && !self.scrapers.length)
       self.close();
 
     if (typeof callback !== 'function')

@@ -24,7 +24,6 @@ artoo.bootstrap(cheerio);
 function StaticEngine(scraper) {
 
   this.type = 'static';
-  var parser = Function.prototype;
 
   // Fetching method
   this.fetch = function(job, callback) {
@@ -46,24 +45,13 @@ function StaticEngine(scraper) {
       }
 
       // Parsing
-      if (parser) {
+      if (scraper.parser) {
         var $ = cheerio.load(job.res.body);
-        job.res.data = parser.call(scraper, $, artoo);
+        job.res.data = scraper.parser.call(scraper, $, artoo);
       }
 
       return callback(null, job);
     });
-  };
-
-  // Extending the scraper instance
-  scraper.parse = function(fn) {
-
-    if (typeof fn !== 'function')
-      throw Error('sandcrawler.engines.static.parse: given argument is not a function.');
-
-    parser = fn;
-
-    return this;
   };
 }
 

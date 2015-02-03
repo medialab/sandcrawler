@@ -4,11 +4,14 @@
  *
  * Using a phantomjs child to scrape the given pages.
  */
+var _ = require('lodash'),
+    phscript = require('../phantom_script.js');
 
 /**
  * Main
  */
 function PhantomEngine(scraper, phantom) {
+  var self = this;
 
   // Properties
   this.type = 'phantom';
@@ -30,67 +33,47 @@ function PhantomEngine(scraper, phantom) {
       {
         url: job.req.url,
         script: scraper.script,
-        params:
-      }
-    );
-  };
-
-
-    this.on('job:scrape', function(job) {
-    var timeout = job.req.timeout || this.settings.timeout;
-
-    // Sending message to phantom
-    var call = this.engine.messenger.request(
-
-      // We want to scrape
-      'scrape',
-
-      // Sent data
-      {
-        id: job.id,
-        url: job.req.url,
-        script: this._script,
-        params: helpers.extend(job.req.params, this.settings.params)
+        params: _.merge(scraper.options.params, job.req.params)
       },
 
-      // Request parameters
+      // Request timeout
       {timeout: timeout},
 
       // Callback
       function(err, msg) {
         var response = (msg || {}).body || {},
-            error;
+            betterError;
 
         // Resolving call
-        self._calls.splice(self._calls.indexOf(call), 1);
+        _.pullAt(self.calls, self.calls.indexOf(call));
 
         // Populating response
         job.res = response;
 
         if (err)
-          return self.emit('job:fail', err, job);
+          return callback(err, job);
 
         // Phantom failure
         if (response.fail && response.reason === 'fail') {
-          error = new Error('phantom-fail');
-          error.code = response.error.errorCode;
-          error.reason = response.error.errorString;
-          return self.emit('job:fail', error, job);
+          betterError = new Error('phantom-fail');
+          betterError.code = response.error.errorCode;
+          betterError.reason = response.error.errorString;
+          return callback(betterError, job);
         }
 
         // Wrong status code
         if (response.fail && response.reason === 'status') {
-          error = new Error('status-' + (response.status || 'unknown'));
-          error.status = response.status;
-          return self.emit('job:fail', error, job);
+          betterError = new Error('status-' + (response.status || 'unknown'));
+          betterError.status = response.status;
+          return callback(betterError, job);
         }
 
-        self.emit('job:after', job);
+        return callback(null, job);
       }
     );
 
-    this._calls.push(call);
-  });
+    this.calls.push(call);
+  };
 }
 
 /**

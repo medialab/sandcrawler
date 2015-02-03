@@ -40,6 +40,10 @@ function Scraper(name) {
     running: false
   };
 
+  // Additional properties
+  this.script = null;
+  this.parser = Function.prototype;
+
   // Queue
   this.queue = async.queue(function(job, callback) {
 
@@ -256,6 +260,41 @@ Scraper.prototype.addUrls = Scraper.prototype.addUrl;
 Scraper.prototype.iterate = function(fn) {
 
   // TODO: possibility of multiple generators
+};
+
+// Loading the scraping script
+Scraper.prototype.script = function(path, check) {
+  if (this.script)
+    throw Error('sandcrawler.scraper.script: script already registered.');
+
+  this.script = phscript.fromFile(path, check);
+  return this;
+};
+
+// Loading some jawascript
+Scraper.prototype.jawascript = function(fn, check) {
+  if (this.script)
+    throw Error('sandcrawler.scraper.jawascript: script already registered.');
+
+  if (typeof fn === 'function')
+    this.script = phscript.fromFunction(fn, check);
+  else if (typeof fn === 'string')
+    this.script = phscript.fromString(fn, check);
+  else
+    throw Error('sandcrawler.scraper.jawascript: wrong argument.');
+
+  return this;
+};
+
+// Parser used by static scenarios
+Scraper.prototype.parse = function(fn) {
+
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.scraper.parse: given argument is not a function.');
+
+  this.parser = fn;
+
+  return this;
 };
 
 // Computing results of a job
