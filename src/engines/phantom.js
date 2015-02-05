@@ -105,7 +105,7 @@ function PhantomEngine(scraper, phantom) {
         // Resolving call
         self.requests = _.remove(self.requests, function(req) {
           return req.call === call;
-        })
+        });
 
         // Populating response
         job.res = response;

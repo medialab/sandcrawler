@@ -331,6 +331,17 @@ Scraper.prototype.config = function(o) {
   return this;
 };
 
+// Updating timeout
+Scraper.prototype.timeout = function(t) {
+
+  if (!types.check(t, 'number'))
+    throw Error('sandcrawler.scraper.timeout: wrong argument');
+
+  this.options.timeout = t;
+
+  return this;
+};
+
 // Registering middlewares
 function middlewareRegister(prototype, type) {
   prototype[type] = function(fn) {

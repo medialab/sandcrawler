@@ -91,7 +91,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Error handling', function() {
+  describe('Error handling', function() {
     var globalScraper = sandcrawler.scraper()
         .url('http://localhost:7337/resources/basic.html')
         .timeout(200)
