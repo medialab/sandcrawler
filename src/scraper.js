@@ -12,6 +12,7 @@ var EventEmitter = require('events').EventEmitter,
     util = require('util'),
     uuid = require('uuid'),
     async = require('async'),
+    validate = require('./plugins/validate.js'),
     phscript = require('./phantom_script.js'),
     extend = require('./helpers.js').extend,
     defaults = require('../defaults.json').scraper;
@@ -135,7 +136,7 @@ function createJob(feed) {
 function beforeScraping(job, callback) {
   return async.applyEachSeries(
     this.middlewares.beforeScraping,
-    job,
+    job.req,
     callback
   );
 }
@@ -149,7 +150,7 @@ function scrape(job, callback) {
 function afterScraping(job, callback) {
   return async.applyEachSeries(
     this.middlewares.afterScraping,
-    job,
+    job.req, job.res,
     callback
   );
 }
@@ -342,15 +343,31 @@ Scraper.prototype.timeout = function(t) {
   return this;
 };
 
+// Using a plugin
+Scraper.prototype.use = function(plugin) {
+
+  if (typeof plugin !== 'function')
+    throw Error('sandcrawler.scraper.use: plugin must be a function.');
+
+  plugin.call(this, this);
+  return this;
+};
+
+// Shortcut for the built-in validate plugin
+Scraper.prototype.validate = function(definition) {
+  return this.use(validate(definition));
+};
+
 // Registering middlewares
-function middlewareRegister(prototype, type) {
-  prototype[type] = function(fn) {
+function middlewareRegister(type) {
+  Scraper.prototype[type] = function(fn) {
 
     // Guard
     if (typeof fn !== 'function')
       throw Error('sandcrawler.scraper.' + type + ': given argument is not a function');
 
     this.middlewares[type].push(fn);
+    return this;
   };
 }
 

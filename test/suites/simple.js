@@ -137,7 +137,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Jawascript', function() {
+  describe('Jawascript', function() {
 
     it('should be possible to run some jawascript from a function.', function(done) {
 
@@ -181,7 +181,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('jQuery', function() {
+  describe('jQuery', function() {
 
     it('should be possible to inject jQuery without breaking the page.', function(done) {
       var scraper = sandcrawler.scraper()
@@ -204,7 +204,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Plugins', function() {
+  describe('Plugins', function() {
 
     it('should be possible to use a plugin.', function(done) {
 
@@ -221,7 +221,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Feed', function() {
+  describe('Feed', function() {
 
     it('should be possible to set arbitrary data to jobs.', function(done) {
       var scraper = sandcrawler.scraper()
@@ -246,7 +246,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Data validation', function() {
+  describe('Data validation', function() {
 
     it('should be possible to validate data with a function.', function(done) {
 
@@ -292,7 +292,7 @@ describe('When running fairly simple scrapers', function() {
     });
   });
 
-  Function.prototype('Page customization', function(done) {
+  describe('Page customization', function(done) {
 
     it('should be possible to set your own user agent.', function(done) {
 
