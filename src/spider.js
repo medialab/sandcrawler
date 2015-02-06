@@ -34,6 +34,7 @@ function Spider(name) {
   this.options = defaults;
   this.engine = null;
   this.type = null;
+  this.remains = {};
   this.state = {
     fulfilled: false,
     locked: false,
@@ -58,6 +59,17 @@ function Spider(name) {
       if (err) {
         job.res.error = err;
 
+        // Retry?
+        job.req.retry = retryJob.bind(self, job);
+        job.req.retryLater = job.req.retry;
+        job.req.retryNow = retryJob.bind(self, job, 'later');
+
+        // Updating remains
+        self.remains[job.id] = {
+          error: err,
+          job: job
+        };
+
         // Failing the job
         self.emit('job:fail', err, job);
       }
@@ -70,7 +82,7 @@ function Spider(name) {
       return callback(err, job);
     });
 
-  }, this.options.maxConcurrency || 1);
+  }, this.options.concurrency || 1);
 
   // Pausing so that the queue starts processing only when we want it
   this.queue.pause();
@@ -98,7 +110,6 @@ function createJob(feed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: feed,
-    state: {},
     req: {
       retries: 0,
       data: {},
@@ -128,6 +139,20 @@ function createJob(feed) {
   return job;
 }
 
+// Retrying a job
+function retryJob(job, when) {
+  when = when || 'later';
+
+  // Dropping from remains
+  delete this.remains[job.id];
+
+  // Request
+  job.req.retries++;
+
+  // Adding to the queue again
+  this.queue[when === 'now' ? 'unshift' : 'push'](job);
+}
+
 // Applying beforeScraping middlewares
 function beforeScraping(job, callback) {
   return async.applyEachSeries(
@@ -151,6 +176,13 @@ function afterScraping(job, callback) {
   );
 }
 
+// Flattening remains
+function flattenRemains() {
+  return Object.keys(this.remains).map(function(k) {
+    return this.remains[k];
+  }, this);
+}
+
 /**
  * Prototype
  */
@@ -169,7 +201,6 @@ Spider.prototype.run = function(callback) {
 
       // Failing the spider if error occurred
       if (err) {
-        callback(err);
         return self.fail(err);
       }
 
@@ -177,8 +208,9 @@ Spider.prototype.run = function(callback) {
       self.queue.drain = function() {
 
         // All processes finished, we call it a success
-        callback(null);
-        return self.succeed();
+        var remains = flattenRemains.call(self);
+        callback(null, remains);
+        return self.succeed(remains);
       };
 
       self.queue.resume();
@@ -187,22 +219,22 @@ Spider.prototype.run = function(callback) {
 };
 
 // Failing the spider
-Spider.prototype.fail = function(err) {
+Spider.prototype.fail = function(err, remains) {
   this.emit('spider:fail', err);
-  this.exit('fail');
+  this.exit('fail', remains);
 };
 
 // Succeeding the spider
-Spider.prototype.succeed = function() {
+Spider.prototype.succeed = function(remains) {
   this.emit('spider:success');
-  this.exit('success');
+  this.exit('success', remains);
 };
 
 // Exiting the spider
-Spider.prototype.exit = function(status) {
+Spider.prototype.exit = function(status, remains) {
 
   // Emitting
-  this.emit('spider:end', status);
+  this.emit('spider:end', status, remains || []);
 
   // TODO: Resolving ending middlewares
 
@@ -325,6 +357,9 @@ Spider.prototype.config = function(o) {
     throw Error('sandcrawler.spider.config: wrong argument.');
 
   this.options = extend(o, this.options);
+
+  // Updating queue's concurrency
+  this.queue.concurrency = this.options.concurrency;
   return this;
 };
 

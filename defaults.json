@@ -4,7 +4,7 @@
     "autoRetry": false,
     "globalTimeout": false,
     "limit": false,
-    "maxConcurrency": 1,
+    "concurrency": 1,
     "maxRetries": 3,
     "params": {
       "artoo": {

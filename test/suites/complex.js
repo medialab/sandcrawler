@@ -15,7 +15,7 @@ var phantom;
 function createMinimalSpider() {
   return new sandcrawler.spider()
     .url('http://localhost:7337/resources/basic.html')
-    .script(__dirname + '/../resources/spiders/basic.js')
+    .script(__dirname + '/../resources/scrapers/basic.js')
     .result(function(err, req, res) {
       assert.deepEqual(res.data, samples.basic);
     });
@@ -66,7 +66,7 @@ describe('When running fairly complex spiders', function() {
 
   //     var spider = new sandcrawler.Spider()
   //       .config({autoExit: false})
-  //       .script(__dirname + '/../resources/spiders/basic.js')
+  //       .script(__dirname + '/../resources/scrapers/basic.js')
   //       .result(function(err, req, res) {
   //         count++;
   //         assert.deepEqual(res.data, samples.basic);
