@@ -21,7 +21,7 @@ artoo.bootstrap(cheerio);
 /**
  * Main
  */
-function StaticEngine(scraper) {
+function StaticEngine(spider) {
 
   this.type = 'static';
 
@@ -45,9 +45,9 @@ function StaticEngine(scraper) {
       }
 
       // Parsing
-      if (scraper.parser) {
+      if (spider.parser) {
         var $ = cheerio.load(job.res.body);
-        job.res.data = scraper.parser.call(scraper, $, artoo);
+        job.res.data = spider.parser.call(spider, $, artoo);
       }
 
       return callback(null, job);

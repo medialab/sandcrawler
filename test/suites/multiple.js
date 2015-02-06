@@ -1,8 +1,8 @@
 /**
- * Sandcrawler Multiple Scrapers Tests
+ * Sandcrawler Multiple Spiders Tests
  * ====================================
  *
- * Testing some scrapers fetching a discrete series of urls.
+ * Testing some spiders fetching a discrete series of urls.
  */
 var assert = require('assert'),
     sandcrawler = require('../../index.js'),
@@ -10,7 +10,7 @@ var assert = require('assert'),
 
 var phantom;
 
-describe('When running multi-url scrapers', function() {
+describe('When running multi-url spiders', function() {
 
   before(function(done) {
 
@@ -28,12 +28,12 @@ describe('When running multi-url scrapers', function() {
     it('should work correctly.' , function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           count++;
 
@@ -41,7 +41,7 @@ describe('When running multi-url scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, function(err) {
+      phantom.run(spider, function(err) {
         assert(count === 2);
         done();
       });
@@ -51,14 +51,14 @@ describe('When running multi-url scrapers', function() {
       var count = 0,
           check = false;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .urls([
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
           {url: 'http://localhost:7337/resources/basic.html', id: 2},
           {url: 'http://localhost:7337/resources/basic.html', id: 3}
         ])
         .config({maxConcurrency: 2})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           count++;
 
@@ -66,33 +66,33 @@ describe('When running multi-url scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, function(err) {
+      phantom.run(spider, function(err) {
         assert(count === 3);
         done();
       });
     });
 
-    it('should be possible to get the remains back after the scraper has been fulfilled.', function(done) {
+    it('should be possible to get the remains back after the spider has been fulfilled.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .urls([
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
           {url: 'http://localhost:7337/resources/basic.html', id: 2},
           {url: 'http://localhost:7337/resources/404.html', id: 3}
         ])
         .config({maxConcurrency: 3, timeout: 300})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           count++;
         })
-        .on('scraper:end', function(status, remains) {
+        .on('spider:end', function(status, remains) {
           assert.strictEqual(status, 'success');
           assert.strictEqual(remains[0].id, 3);
           assert(remains.length === 1);
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert(remains.length === 1);
         assert(count === 3);
         assert.strictEqual(remains[0].job.id, 3);
@@ -107,7 +107,7 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to use a function as iterator.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .iterate(function(i, req, res) {
           if (i === 3)
             return false;
@@ -123,7 +123,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -132,7 +132,7 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to set a limit to the iterator.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
@@ -144,7 +144,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -153,7 +153,7 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to use the limit shorthand.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
@@ -165,7 +165,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -174,7 +174,7 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to start from a single url.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url('http://localhost:7337/resources/basic.html')
         .iterate(function(i, req, res) {
           if (i === 3)
@@ -189,7 +189,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -198,7 +198,7 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to start from a list of urls.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
@@ -216,7 +216,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 5);
         done();
       });
@@ -225,15 +225,15 @@ describe('When running multi-url scrapers', function() {
 
   describe('Pausing', function() {
 
-    it('should be possible to pause the scraper.', function(done) {
+    it('should be possible to pause the spider.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .config({limit: 3})
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           var self = this;
 
@@ -250,7 +250,7 @@ describe('When running multi-url scrapers', function() {
           }
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert(count === 3);
         done();
       });
@@ -264,9 +264,9 @@ describe('When running multi-url scrapers', function() {
           count = 0,
           eventCount = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           count++;
 
@@ -284,7 +284,7 @@ describe('When running multi-url scrapers', function() {
           assert.strictEqual(job.req.url, 'http://localhost:7337/resources/basic.html');
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert(count === 3);
         assert(eventCount === 2);
         done();
@@ -298,14 +298,14 @@ describe('When running multi-url scrapers', function() {
       var count = 0,
           discardedCount = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .beforeScraping(function(req, next) {
           if (req.index > 1)
             return next(new Error('too-far'));
@@ -319,7 +319,7 @@ describe('When running multi-url scrapers', function() {
           count++;
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert.strictEqual(remains.length, 0);
         assert.strictEqual(count, 2);
         assert.strictEqual(discardedCount, 2);
@@ -334,9 +334,9 @@ describe('When running multi-url scrapers', function() {
       var eventCount = 0,
           resultCount = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url('http://localhost:7337/retries')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req, res) {
           assert(typeof req.retry === 'function');
           assert(typeof req.retryLater === 'function');
@@ -351,7 +351,7 @@ describe('When running multi-url scrapers', function() {
           assert.strictEqual(job.req.url, 'http://localhost:7337/retries');
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert(resultCount === 2);
         assert(eventCount === 1);
         done();
@@ -361,16 +361,16 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to set a max retries parameter.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req) {
           count++;
           return req.retry();
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -379,15 +379,15 @@ describe('When running multi-url scrapers', function() {
     it('should be possible to use the autoRetry setting.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2, autoRetry: true})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .script(__dirname + '/../resources/spiders/basic.js')
         .result(function(err, req) {
           count++;
         });
 
-      phantom.run(scraper, function() {
+      phantom.run(spider, function() {
         assert(count === 3);
         done();
       });
@@ -396,10 +396,10 @@ describe('When running multi-url scrapers', function() {
 
   describe('Exiting', function() {
 
-    it('should be possible to exit the scraper.', function(done) {
+    it('should be possible to exit the spider.', function(done) {
       var count = 0;
 
-      var scraper = new sandcrawler.Scraper()
+      var spider = new sandcrawler.Spider()
         .url([
           {url: 'http://localhost:7337/resources/basic.html', id: 0},
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
@@ -413,7 +413,7 @@ describe('When running multi-url scrapers', function() {
           this.exit();
         });
 
-      phantom.run(scraper, function(err, remains) {
+      phantom.run(spider, function(err, remains) {
         assert.strictEqual(err.message, 'exited');
         assert(count === 1);
         assert(remains.length === 2);

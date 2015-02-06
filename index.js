@@ -7,7 +7,7 @@
 
 // Main object
 var core = require('./src/core.js'),
-    Scraper = require('./src/scraper.js'),
+    Spider = require('./src/spider.js'),
     StaticEngine = require('./src/engines/static.js');
 
 var sandcrawler = core;
@@ -18,17 +18,17 @@ Object.defineProperty(sandcrawler, 'version', {
 });
 
 // Public declarations
-sandcrawler.staticScraper = function(name) {
-  var scraper = new Scraper(name);
-  scraper.engine = new StaticEngine(scraper);
-  scraper.type = 'static';
-  return scraper;
+sandcrawler.staticSpider = function(name) {
+  var spider = new Spider(name);
+  spider.engine = new StaticEngine(spider);
+  spider.type = 'static';
+  return spider;
 };
 
-sandcrawler.scraper = function(name) {
-  var scraper = new Scraper(name);
-  scraper.type = 'phantom';
-  return scraper;
+sandcrawler.spider = function(name) {
+  var spider = new Spider(name);
+  spider.type = 'phantom';
+  return spider;
 };
 
 // Exporting

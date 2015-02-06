@@ -16,16 +16,16 @@ describe('When dealing with failures', function() {
 
     it('should be possible to catch phantomjs crashes.', function(done) {
 
-      var scraper = new sandcrawler.scraper()
+      var spider = new sandcrawler.spider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/scrapers/exit.js', false);
+        .script(__dirname + '/../resources/spiders/exit.js', false);
 
       sandcrawler.spawn({autoRestart: false}, function(err, ghost) {
-        ghost.run(scraper, function(err, remains) {
+        ghost.run(spider, function(err, remains) {
           assert.strictEqual(err.message, 'phantom-crash');
           done();
         });

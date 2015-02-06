@@ -1,8 +1,8 @@
 /**
- * Sandcrawler Simple Scrapers Tests
+ * Sandcrawler Simple Spiders Tests
  * ==================================
  *
- * Testing some simple scrapers use cases.
+ * Testing some simple spiders use cases.
  */
 var assert = require('assert'),
     sandcrawler = require('../../index.js'),
@@ -11,7 +11,7 @@ var assert = require('assert'),
 
 var phantom;
 
-describe('When running fairly simple scrapers', function() {
+describe('When running fairly simple spiders', function() {
 
   before(function(done) {
 
@@ -34,16 +34,16 @@ describe('When running fairly simple scrapers', function() {
 
     it('should work correctly.', function(done) {
 
-      // Creating the scraper
-      var scraper = sandcrawler.scraper()
+      // Creating the spider
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      // Running the scraper
-      sandcrawler.run(scraper, function(err) {
+      // Running the spider
+      sandcrawler.run(spider, function(err) {
         assert(err === null);
         done();
       });
@@ -54,7 +54,7 @@ describe('When running fairly simple scrapers', function() {
 
     it('should be possible to subscribe to page log.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .on('page:log', function(data, req, res) {
@@ -62,12 +62,12 @@ describe('When running fairly simple scrapers', function() {
           assert.strictEqual(data.message, 'Hello world!');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to subscribe to page errors.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .config({timeout: 300})
         .script(__dirname + '/../resources/scrapers/error.js', false)
@@ -75,24 +75,24 @@ describe('When running fairly simple scrapers', function() {
           assert.strictEqual(data.message, 'Error: random-error');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to subscribe to page alerts.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/alert.js')
         .on('page:alert', function(data) {
           assert.strictEqual(data.message, 'Hello world!');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
   describe('Error handling', function() {
-    var globalScraper = sandcrawler.scraper()
+    var globalSpider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .timeout(200)
         .result(function(err) {
@@ -100,40 +100,40 @@ describe('When running fairly simple scrapers', function() {
         });
 
     it('should timeout correctly.', function(done) {
-      phantom.run(globalScraper, done);
+      phantom.run(globalSpider, done);
     });
 
-    it('should throw an error when running a fulfilled scraper.', function() {
+    it('should throw an error when running a fulfilled spider.', function() {
 
       assert.throws(function() {
-        sandcrawler.run(globalScraper);
+        sandcrawler.run(globalSpider);
       }, /fulfilled/);
 
       assert.throws(function() {
-        phantom.run(globalScraper);
+        phantom.run(globalSpider);
       }, /fulfilled/);
     });
 
     it('should dispatch an error when phantom failed to grasp the page.', function(done) {
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('inexistantpage.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'phantom-fail');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should dispatch an error when the page status is not correct.', function(done) {
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/404.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'status-404');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
@@ -141,7 +141,7 @@ describe('When running fairly simple scrapers', function() {
 
     it('should be possible to run some jawascript from a function.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript(function(done) {
           artoo.done(artoo.scrape('.url-list a', 'href'));
@@ -150,24 +150,24 @@ describe('When running fairly simple scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to run some jawascript from a string.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to notify phantom with done.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript(function(done) {
           var data = artoo.scrape('.url-list a', 'href');
@@ -177,14 +177,14 @@ describe('When running fairly simple scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
   describe('jQuery', function() {
 
     it('should be possible to inject jQuery without breaking the page.', function(done) {
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/jquery.html')
         .jawascript(function(done) {
           var data = {
@@ -200,7 +200,7 @@ describe('When running fairly simple scrapers', function() {
           });
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
@@ -208,7 +208,7 @@ describe('When running fairly simple scrapers', function() {
 
     it('should be possible to use a plugin.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .use(validate('array'))
@@ -217,14 +217,14 @@ describe('When running fairly simple scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
   describe('Feed', function() {
 
     it('should be possible to set arbitrary data to jobs.', function(done) {
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url({
           url: 'http://localhost:7337/resources/basic.html',
           data: {
@@ -242,7 +242,7 @@ describe('When running fairly simple scrapers', function() {
           next();
         });
 
-        phantom.run(scraper, done);
+        phantom.run(spider, done);
     });
   });
 
@@ -250,7 +250,7 @@ describe('When running fairly simple scrapers', function() {
 
     it('should be possible to validate data with a function.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate(function(data) {
@@ -261,12 +261,12 @@ describe('When running fairly simple scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to validate data with a type.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate('array')
@@ -275,12 +275,12 @@ describe('When running fairly simple scrapers', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should fail the job whenever validation fails.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate('?string')
@@ -288,7 +288,7 @@ describe('When running fairly simple scrapers', function() {
           assert.strictEqual(err.message, 'invalid-data');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 
@@ -296,7 +296,7 @@ describe('When running fairly simple scrapers', function() {
 
     it('should be possible to set your own user agent.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/useragent')
         .config({
           params: {
@@ -312,12 +312,12 @@ describe('When running fairly simple scrapers', function() {
           assert.strictEqual(res.data, 'Yay!');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
 
     it('should be possible to set your own headers.', function(done) {
 
-      var scraper = sandcrawler.scraper()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/headers')
         .config({
           params: {
@@ -333,7 +333,7 @@ describe('When running fairly simple scrapers', function() {
           assert.strictEqual(res.data, 'Yay!');
         });
 
-      phantom.run(scraper, done);
+      phantom.run(spider, done);
     });
   });
 });

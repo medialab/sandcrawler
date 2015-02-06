@@ -11,7 +11,7 @@ var extend = require('../helpers.js').extend,
 /**
  * Main
  */
-function PhantomEngine(scraper, phantom) {
+function PhantomEngine(spider, phantom) {
   var self = this;
 
   // Properties
@@ -39,25 +39,25 @@ function PhantomEngine(scraper, phantom) {
         req.call.cancel();
       });
 
-      scraper.fail(new Error('phantom-crash'));
+      spider.fail(new Error('phantom-crash'));
     },
     log: function(msg) {
       var job = getJob(msg);
 
       if (job)
-        scraper.emit('page:log', msg.body.data, job.req, job.res);
+        spider.emit('page:log', msg.body.data, job.req, job.res);
     },
     error: function(msg) {
       var job = getJob(msg);
 
       if (job)
-        scraper.emit('page:error', msg.body.data, job.req, job.res);
+        spider.emit('page:error', msg.body.data, job.req, job.res);
     },
     alert: function(msg) {
       var job = getJob(msg);
 
       if (job)
-        scraper.emit('page:alert', msg.body.data, job.req, job.res);
+        spider.emit('page:alert', msg.body.data, job.req, job.res);
     }
   };
 
@@ -67,7 +67,7 @@ function PhantomEngine(scraper, phantom) {
   this.phantom.on('page:error', this.listeners.error);
   this.phantom.on('page:alert', this.listeners.alert);
 
-  scraper.once('scraper:teardown', function() {
+  spider.once('spider:teardown', function() {
     self.phantom.removeListener('crash', self.listeners.crash);
     self.phantom.removeListener('page:log', self.listeners.log);
     self.phantom.removeListener('page:error', self.listeners.error);
@@ -78,7 +78,7 @@ function PhantomEngine(scraper, phantom) {
   this.fetch = function(job, callback) {
 
     // Figuring timeout
-    var timeout = job.req.timeout || scraper.options.timeout;
+    var timeout = job.req.timeout || spider.options.timeout;
 
     var call = this.phantom.request(
 
@@ -88,8 +88,8 @@ function PhantomEngine(scraper, phantom) {
       // Sent data
       {
         url: job.req.url,
-        script: scraper.scriptStack,
-        params: extend(scraper.options.params, job.req.params),
+        script: spider.scriptStack,
+        params: extend(spider.options.params, job.req.params),
         timeout: timeout
       },
 

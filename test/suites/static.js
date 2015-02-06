@@ -1,21 +1,21 @@
 /**
- * Sandcrawler Static Scrapers Tests
+ * Sandcrawler Static Spiders Tests
  * ==================================
  *
- * Testing a scrapers using static requests.
+ * Testing a spiders using static requests.
  */
 var assert = require('assert'),
     sandcrawler = require('../../index.js'),
     samples = require('../samples.js');
 
-describe('When running a static scraper', function() {
+describe('When running a static spider', function() {
 
   describe('Simple use cases', function() {
 
     it('should work correctly.', function(done) {
 
-      // Creating the scraper
-      var scraper = sandcrawler.staticScraper()
+      // Creating the spider
+      var spider = sandcrawler.staticSpider()
         .url('http://localhost:7337/resources/basic.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');
@@ -25,7 +25,7 @@ describe('When running a static scraper', function() {
           assert.deepEqual(res.data, samples.basic);
         });
 
-      sandcrawler.run(scraper, done);
+      sandcrawler.run(spider, done);
     });
   });
 
@@ -33,7 +33,7 @@ describe('When running a static scraper', function() {
 
     it('should handle status 404.', function(done) {
 
-      var scraper = sandcrawler.staticScraper()
+      var spider = sandcrawler.staticSpider()
         .url('http://localhost:7337/resources/404.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');
@@ -43,7 +43,7 @@ describe('When running a static scraper', function() {
           assert.strictEqual(err.status, 404);
         });
 
-      sandcrawler.run(scraper, done);
+      sandcrawler.run(spider, done);
     });
   });
 });

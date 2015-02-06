@@ -8,11 +8,11 @@ var types = require('typology');
 
 module.exports = function(definition) {
 
-  // The function applied by and to the scraper
-  return function(scraper) {
+  // The function applied by and to the spider
+  return function(spider) {
 
     // Adding a middleware to the afterScraping stack
-    scraper.afterScraping(function(req, res, next) {
+    spider.afterScraping(function(req, res, next) {
       var valid = true;
 
       if (typeof definition === 'function')

@@ -22,7 +22,7 @@ function Spawn(params, anonym) {
   this.closed = false;
 
   // Hidden properties
-  this.scrapers = [];
+  this.spiders = [];
 }
 
 /**
@@ -66,34 +66,34 @@ Spawn.prototype.close = function() {
   return this;
 };
 
-// Running the given scraper
-Spawn.prototype.run = function(scraper, callback) {
+// Running the given spider
+Spawn.prototype.run = function(spider, callback) {
   var self = this;
 
-  if (!types.check(scraper, 'scraper'))
-    throw Error('sandcrawler.spawn.run: given argument is not a valid scraper.');
+  if (!types.check(spider, 'spider'))
+    throw Error('sandcrawler.spawn.run: given argument is not a valid spider.');
 
-  if (scraper.state.fulfilled)
-    throw Error('sandcrawler.spawn.run: given scraper has already been fulfilled.');
+  if (spider.state.fulfilled)
+    throw Error('sandcrawler.spawn.run: given spider has already been fulfilled.');
 
-  if (scraper.state.running)
-    throw Error('sandcrawler.spawn.run: given scraper has already running.');
+  if (spider.state.running)
+    throw Error('sandcrawler.spawn.run: given spider has already running.');
 
   // Registering
-  this.scrapers.push(scraper.id);
+  this.spiders.push(spider.id);
 
   // Loading engine
-  scraper.engine = new PhantomEngine(scraper, this.spy);
+  spider.engine = new PhantomEngine(spider, this.spy);
 
-  // Running given scraper
-  scraper.run(function(err, remains) {
+  // Running given spider
+  spider.run(function(err, remains) {
 
-    // Removing scrapers from list
-    _.pullAt(self.scrapers, self.scrapers.indexOf(scraper.id));
+    // Removing spiders from list
+    _.pullAt(self.spiders, self.spiders.indexOf(spider.id));
 
     // Autoclosing the spawn?
-    // console.log(self.params, self.scrapers)
-    if (self.params.autoClose && !self.scrapers.length)
+    // console.log(self.params, self.spiders)
+    if (self.params.autoClose && !self.spiders.length)
       self.close();
 
     if (typeof callback !== 'function')

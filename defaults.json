@@ -1,5 +1,5 @@
 {
-  "scraper": {
+  "spider": {
     "autoExit": true,
     "autoRetry": false,
     "globalTimeout": false,

@@ -1,11 +1,11 @@
 /**
- * Sandcrawler Scraper Abstraction
+ * Sandcrawler Spider Abstraction
  * ================================
  *
- * Abstract scraper definition on which one should should mount an precise
+ * Abstract spider definition on which one should should mount an precise
  * engine to actually work.
  *
- * The intention here is to clearly separate the scraper's logic from its means.
+ * The intention here is to clearly separate the spider's logic from its means.
  */
 var EventEmitter = require('events').EventEmitter,
     types = require('typology'),
@@ -15,23 +15,19 @@ var EventEmitter = require('events').EventEmitter,
     validate = require('./plugins/validate.js'),
     phscript = require('./phantom_script.js'),
     extend = require('./helpers.js').extend,
-    defaults = require('../defaults.json').scraper;
+    defaults = require('../defaults.json').spider;
 
 /**
  * Main
  */
-function Scraper(name) {
+function Spider(name) {
   var self = this;
-
-  // Safeguard
-  if (!(this instanceof Scraper))
-    return new Scraper(name);
 
   // Events
   EventEmitter.call(this);
 
   // Assigning a unique identifer
-  this.id = 'Scraper[' + uuid.v4() + ']';
+  this.id = 'Spider[' + uuid.v4() + ']';
   this.name = name || this.id.substr(0, 16) + ']';
 
   // Properties
@@ -89,7 +85,7 @@ function Scraper(name) {
 }
 
 // Inheriting
-util.inherits(Scraper, EventEmitter);
+util.inherits(Spider, EventEmitter);
 
 /**
  * Helpers
@@ -119,7 +115,7 @@ function createJob(feed) {
 
     // Safeguard
     if (!feed.url)
-      throw Error('sandcrawler.scraper.url(s)/addUrl(s): no url provided.');
+      throw Error('sandcrawler.spider.url(s)/addUrl(s): no url provided.');
 
     job.req.url = feed.url;
     job.req.data = feed.data || {};
@@ -159,19 +155,19 @@ function afterScraping(job, callback) {
  * Prototype
  */
 
-// Starting the scraper
-Scraper.prototype.run = function(callback) {
+// Starting the spider
+Spider.prototype.run = function(callback) {
   var self = this;
 
   // Emitting
-  this.emit('scraper:start');
+  this.emit('spider:start');
 
   // Resolving starting middlewares
   async.series(
     this.middlewares.before,
     function(err) {
 
-      // Failing the scraper if error occurred
+      // Failing the spider if error occurred
       if (err) {
         callback(err);
         return self.fail(err);
@@ -190,23 +186,23 @@ Scraper.prototype.run = function(callback) {
   );
 };
 
-// Failing the scraper
-Scraper.prototype.fail = function(err) {
-  this.emit('scraper:fail', err);
+// Failing the spider
+Spider.prototype.fail = function(err) {
+  this.emit('spider:fail', err);
   this.exit('fail');
 };
 
-// Succeeding the scraper
-Scraper.prototype.succeed = function() {
-  this.emit('scraper:success');
+// Succeeding the spider
+Spider.prototype.succeed = function() {
+  this.emit('spider:success');
   this.exit('success');
 };
 
-// Exiting the scraper
-Scraper.prototype.exit = function(status) {
+// Exiting the spider
+Spider.prototype.exit = function(status) {
 
   // Emitting
-  this.emit('scraper:end', status);
+  this.emit('spider:end', status);
 
   // TODO: Resolving ending middlewares
 
@@ -218,10 +214,10 @@ Scraper.prototype.exit = function(status) {
 };
 
 // Teardown
-Scraper.prototype.teardown = function() {
+Spider.prototype.teardown = function() {
 
   // Emitting
-  this.emit('scraper:teardown');
+  this.emit('spider:teardown');
 
   // Ending jobStream
   this.queue.kill();
@@ -231,11 +227,11 @@ Scraper.prototype.teardown = function() {
 };
 
 // Assigning a single url
-Scraper.prototype.url = function(feed) {
+Spider.prototype.url = function(feed) {
 
   // TODO: more precise type checking
   if (!types.check(feed, 'string|array|object'))
-    throw Error('sandcrawler.scraper.url(s): wrong argument.');
+    throw Error('sandcrawler.spider.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
     this.queue.push(createJob(item));
@@ -245,11 +241,11 @@ Scraper.prototype.url = function(feed) {
 };
 
 // Adding a new url during runtime
-Scraper.prototype.addUrl = function(feed) {
+Spider.prototype.addUrl = function(feed) {
 
   // TODO: more precise type checking
   if (!types.check(feed, 'string|array|object'))
-    throw Error('sandcrawler.scraper.url(s): wrong argument.');
+    throw Error('sandcrawler.spider.url(s): wrong argument.');
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
     this.queue.push(createJob(item));
@@ -261,44 +257,44 @@ Scraper.prototype.addUrl = function(feed) {
 };
 
 // Aliases
-Scraper.prototype.urls = Scraper.prototype.url;
-Scraper.prototype.addUrls = Scraper.prototype.addUrl;
+Spider.prototype.urls = Spider.prototype.url;
+Spider.prototype.addUrls = Spider.prototype.addUrl;
 
 // Iterating through a generator
-Scraper.prototype.iterate = function(fn) {
+Spider.prototype.iterate = function(fn) {
 
   // TODO: possibility of multiple generators
 };
 
 // Loading the scraping script
-Scraper.prototype.script = function(path, check) {
+Spider.prototype.script = function(path, check) {
   if (this.scriptStack)
-    throw Error('sandcrawler.scraper.script: script already registered.');
+    throw Error('sandcrawler.spider.script: script already registered.');
 
   this.scriptStack = phscript.fromFile(path, check);
   return this;
 };
 
 // Loading some jawascript
-Scraper.prototype.jawascript = function(fn, check) {
+Spider.prototype.jawascript = function(fn, check) {
   if (this.scriptStack)
-    throw Error('sandcrawler.scraper.jawascript: script already registered.');
+    throw Error('sandcrawler.spider.jawascript: script already registered.');
 
   if (typeof fn === 'function')
     this.scriptStack = phscript.fromFunction(fn, check);
   else if (typeof fn === 'string')
     this.scriptStack = phscript.fromString(fn, check);
   else
-    throw Error('sandcrawler.scraper.jawascript: wrong argument.');
+    throw Error('sandcrawler.spider.jawascript: wrong argument.');
 
   return this;
 };
 
 // Parser used by static scenarios
-Scraper.prototype.parse = function(fn) {
+Spider.prototype.parse = function(fn) {
 
   if (typeof fn !== 'function')
-    throw Error('sandcrawler.scraper.parse: given argument is not a function.');
+    throw Error('sandcrawler.spider.parse: given argument is not a function.');
 
   this.parser = fn;
 
@@ -306,10 +302,10 @@ Scraper.prototype.parse = function(fn) {
 };
 
 // Computing results of a job
-Scraper.prototype.result = function(fn) {
+Spider.prototype.result = function(fn) {
 
   if (typeof fn !== 'function')
-    throw Error('sandcrawler.scraper.result: given argument is not a function.');
+    throw Error('sandcrawler.spider.result: given argument is not a function.');
 
   this.on('job:fail', function(err, job) {
     fn.call(this, err, job.req, job.res);
@@ -323,20 +319,20 @@ Scraper.prototype.result = function(fn) {
 };
 
 // Altering configuration
-Scraper.prototype.config = function(o) {
+Spider.prototype.config = function(o) {
 
   if (!types.check(o, 'object'))
-    throw Error('sandcrawler.scraper.config: wrong argument.');
+    throw Error('sandcrawler.spider.config: wrong argument.');
 
   this.options = extend(o, this.options);
   return this;
 };
 
 // Updating timeout
-Scraper.prototype.timeout = function(t) {
+Spider.prototype.timeout = function(t) {
 
   if (!types.check(t, 'number'))
-    throw Error('sandcrawler.scraper.timeout: wrong argument');
+    throw Error('sandcrawler.spider.timeout: wrong argument');
 
   this.options.timeout = t;
 
@@ -344,27 +340,27 @@ Scraper.prototype.timeout = function(t) {
 };
 
 // Using a plugin
-Scraper.prototype.use = function(plugin) {
+Spider.prototype.use = function(plugin) {
 
   if (typeof plugin !== 'function')
-    throw Error('sandcrawler.scraper.use: plugin must be a function.');
+    throw Error('sandcrawler.spider.use: plugin must be a function.');
 
   plugin.call(this, this);
   return this;
 };
 
 // Shortcut for the built-in validate plugin
-Scraper.prototype.validate = function(definition) {
+Spider.prototype.validate = function(definition) {
   return this.use(validate(definition));
 };
 
 // Registering middlewares
 function middlewareRegister(type) {
-  Scraper.prototype[type] = function(fn) {
+  Spider.prototype[type] = function(fn) {
 
     // Guard
     if (typeof fn !== 'function')
-      throw Error('sandcrawler.scraper.' + type + ': given argument is not a function');
+      throw Error('sandcrawler.spider.' + type + ': given argument is not a function');
 
     this.middlewares[type].push(fn);
     return this;
@@ -379,4 +375,4 @@ middlewareRegister('afterScraping');
 /**
  * Exporting
  */
-module.exports = Scraper;
+module.exports = Spider;

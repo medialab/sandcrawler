@@ -10,7 +10,7 @@ var assert = require('assert'),
 describe('When using sandcrawler API', function() {
 
   describe('Core level', function() {
-    it('should throw an error when trying to run an invalid scraper.', function() {
+    it('should throw an error when trying to run an invalid spider.', function() {
 
       assert.throws(function() {
         sandcrawler.run('tada');
@@ -18,11 +18,11 @@ describe('When using sandcrawler API', function() {
     });
   });
 
-  describe('Scraper level', function() {
+  describe('Spider level', function() {
     it('should warn the user when his/her script is probably not returning control.', function() {
 
       assert.throws(function() {
-        var scraper = new sandcrawler.Scraper()
+        var spider = new sandcrawler.Spider()
           .jawascript(function() {
             console.log('hello');
           });
@@ -32,16 +32,16 @@ describe('When using sandcrawler API', function() {
     it('should throw an error when trying to register a script twice.', function() {
 
       assert.throws(function() {
-        var scraper = new sandcrawler.Scraper()
-          .script(__dirname + '/../resources/scrapers/basic.js')
-          .script(__dirname + '/../resources/scrapers/basic.js');
+        var spider = new sandcrawler.Spider()
+          .script(__dirname + '/../resources/spiders/basic.js')
+          .script(__dirname + '/../resources/spiders/basic.js');
       }, /script already registered/);
     });
 
     it('should throw an error when trying to add a feed without an url.', function() {
 
       assert.throws(function() {
-        var scraper = new sandcrawler.Scraper()
+        var spider = new sandcrawler.Spider()
           .url({data: 'hello'});
       }, /_wrapJob/);
     });

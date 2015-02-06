@@ -1,8 +1,8 @@
 /**
- * Sandcrawler Complex Scrapers Tests
+ * Sandcrawler Complex Spiders Tests
  * ===================================
  *
- * Testing some fairly complex use cases such as parallel scrapers etc.
+ * Testing some fairly complex use cases such as parallel spiders etc.
  */
 var assert = require('assert'),
     async = require('async'),
@@ -12,16 +12,16 @@ var assert = require('assert'),
 var phantom;
 
 // Helpers
-function createMinimalScraper() {
-  return new sandcrawler.scraper()
+function createMinimalSpider() {
+  return new sandcrawler.spider()
     .url('http://localhost:7337/resources/basic.html')
-    .script(__dirname + '/../resources/scrapers/basic.js')
+    .script(__dirname + '/../resources/spiders/basic.js')
     .result(function(err, req, res) {
       assert.deepEqual(res.data, samples.basic);
     });
 }
 
-describe('When running fairly complex scrapers', function() {
+describe('When running fairly complex spiders', function() {
 
   before(function(done) {
 
@@ -34,49 +34,49 @@ describe('When running fairly complex scrapers', function() {
     });
   });
 
-  describe('Parallel scrapers', function() {
+  describe('Parallel spiders', function() {
 
-    it('should be possible to run two scrapers using two different phantoms in the same time.', function(done) {
+    it('should be possible to run two spiders using two different phantoms in the same time.', function(done) {
       async.parallel([
         function(next) {
-          sandcrawler.run(createMinimalScraper(), next);
+          sandcrawler.run(createMinimalSpider(), next);
         },
         function(next) {
-          sandcrawler.run(createMinimalScraper(), next);
+          sandcrawler.run(createMinimalSpider(), next);
         }
       ], done);
     });
 
-    it('should be possible to run two scrapers using the same phantom in the same time.', function(done) {
+    it('should be possible to run two spiders using the same phantom in the same time.', function(done) {
       async.parallel([
         function(next) {
-          phantom.run(createMinimalScraper(), next);
+          phantom.run(createMinimalSpider(), next);
         },
         function(next) {
-          phantom.run(createMinimalScraper(), next);
+          phantom.run(createMinimalSpider(), next);
         }
       ], done);
     });
   });
 
-  // describe('Scraper as a service', function() {
+  // describe('Spider as a service', function() {
 
   //   it('should be possible to disable autoExit in a crawler.', function(done) {
   //     var count = 0;
 
-  //     var scraper = new sandcrawler.Scraper()
+  //     var spider = new sandcrawler.Spider()
   //       .config({autoExit: false})
-  //       .script(__dirname + '/../resources/scrapers/basic.js')
+  //       .script(__dirname + '/../resources/spiders/basic.js')
   //       .result(function(err, req, res) {
   //         count++;
   //         assert.deepEqual(res.data, samples.basic);
   //       })
-  //       .on('scraper:end', function(err) {
+  //       .on('spider:end', function(err) {
   //         assert.strictEqual(err.message, 'exited');
   //         done();
   //       });
 
-  //     phantom.run(scraper);
+  //     phantom.run(spider);
 
   //     var i = 0;
 
@@ -86,7 +86,7 @@ describe('When running fairly complex scrapers', function() {
   //       },
   //       function(next) {
   //         i++;
-  //         scraper.addUrl('http://localhost:7337/resources/basic.html');
+  //         spider.addUrl('http://localhost:7337/resources/basic.html');
   //         setTimeout(next, 100);
   //       },
   //       function() {

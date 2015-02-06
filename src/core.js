@@ -2,13 +2,13 @@
  * Sandcrawler Core
  * =================
  *
- * Main methods enabling to run scrapers and to spawn phantoms.
+ * Main methods enabling to run spiders and to spawn phantoms.
  */
 var path = require('path'),
     artoo = require('artoo-js'),
     defaults = require('../defaults.json'),
     Spawn = require('./spawn.js'),
-    Scraper = require('./scraper.js'),
+    Spider = require('./spider.js'),
     bothan = require('bothan'),
     types = require('./typology.js'),
     extend = require('./helpers.js').extend;
@@ -25,31 +25,31 @@ sandcrawler.config = function(o) {
 };
 
 // Running a task in a default phantom
-sandcrawler.run = function(scraper, callback) {
+sandcrawler.run = function(spider, callback) {
 
-  if (!types.check(scraper, 'scraper'))
-    throw Error('sandcrawler.run: given argument is not a valid scraper.');
+  if (!types.check(spider, 'spider'))
+    throw Error('sandcrawler.run: given argument is not a valid spider.');
 
-  if (scraper.state.fulfilled)
-    throw Error('sandcrawler.run: given scraper has already been fulfilled.');
+  if (spider.state.fulfilled)
+    throw Error('sandcrawler.run: given spider has already been fulfilled.');
 
-  if (scraper.state.running)
-    throw Error('sandcrawler.run: given scraper is already running.');
+  if (spider.state.running)
+    throw Error('sandcrawler.run: given spider is already running.');
 
   // Running without engine
-  if (scraper.type === 'static') {
-    scraper.run(callback);
+  if (spider.type === 'static') {
+    spider.run(callback);
 
     return;
   }
 
-  // We need to spawn a default phantom for this scraper
+  // We need to spawn a default phantom for this spider
   sandcrawler.spawn(function(err, spawn) {
     if (err)
       return callback(err);
 
-    // Running the scraper in this newly created spawn
-    spawn.run(scraper, callback);
+    // Running the spider in this newly created spawn
+    spawn.run(spider, callback);
   });
 };
 
