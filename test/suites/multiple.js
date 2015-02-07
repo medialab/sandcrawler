@@ -100,7 +100,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Iterator', function() {
+  describe('Iterator', function() {
 
     it('should be possible to use a function as iterator.', function(done) {
       var count = 0;

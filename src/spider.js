@@ -31,10 +31,12 @@ function Spider(name) {
   this.name = name || this.id.substr(0, 16) + ']';
 
   // Properties
-  this.options = defaults;
+  this.options = extend(defaults);
   this.engine = null;
   this.type = null;
   this.remains = {};
+  this.index = 0;
+  this.lastJob = null;
   this.state = {
     fulfilled: false,
     locked: false,
@@ -43,11 +45,13 @@ function Spider(name) {
   };
 
   // Additional properties
+  this.iterator = null;
   this.scriptStack = null;
   this.parser = Function.prototype;
 
   // Queue
   this.queue = async.queue(function(job, callback) {
+    self.index++;
 
     // Processing one job through the pipe
     return async.applyEachSeries([
@@ -78,6 +82,14 @@ function Spider(name) {
         // Calling it a success
         self.emit('job:success', job);
       }
+
+      // Keeping last job
+      self.lastJob = job;
+
+      // Need to iterate
+      var limit = self.options.limit || Infinity;
+      if (!self.queue.length() && self.iterator && self.index < limit)
+        iterate.call(self);
 
       return callback(err, job);
     });
@@ -183,6 +195,15 @@ function flattenRemains() {
   }, this);
 }
 
+// Perform an iteration
+function iterate() {
+  var lastJob = this.lastJob || {},
+      feed = this.iterator.call(this, this.index, lastJob.req, lastJob.res);
+
+  if (feed)
+    this.addUrl(feed);
+}
+
 /**
  * Prototype
  */
@@ -213,6 +234,12 @@ Spider.prototype.run = function(callback) {
         return self.succeed(remains);
       };
 
+      // Starting iterator?
+      var limit = self.options.limit || Infinity;
+      if (!self.queue.length() && self.iterator && self.index < limit)
+        iterate.call(self);
+
+      // Resuming queue to start the jobs
       self.queue.resume();
     }
   );
@@ -265,6 +292,10 @@ Spider.prototype.url = function(feed) {
   if (!types.check(feed, 'string|array|object'))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
+  // Don't add if already at limit
+  if(this.options.limit && this.index >= this.options.limit)
+    return this;
+
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
     this.queue.push(createJob(item));
   }, this);
@@ -278,6 +309,10 @@ Spider.prototype.addUrl = function(feed) {
   // TODO: more precise type checking
   if (!types.check(feed, 'string|array|object'))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
+
+  // Don't add if already at limit
+  if(this.options.limit && this.index >= this.options.limit)
+    return this;
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
     this.queue.push(createJob(item));
@@ -295,7 +330,11 @@ Spider.prototype.addUrls = Spider.prototype.addUrl;
 // Iterating through a generator
 Spider.prototype.iterate = function(fn) {
 
-  // TODO: possibility of multiple generators
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.spider.iterate: iterator must be a function.');
+
+  this.iterator = fn;
+  return this;
 };
 
 // Loading the scraping script
@@ -370,6 +409,17 @@ Spider.prototype.timeout = function(t) {
     throw Error('sandcrawler.spider.timeout: wrong argument');
 
   this.options.timeout = t;
+
+  return this;
+};
+
+// Updating limit
+Spider.prototype.limit = function(l) {
+
+  if (!types.check(l, 'number'))
+    throw Error('sandcrawler.spider.limit: wrong argument');
+
+  this.options.limit = l;
 
   return this;
 };
