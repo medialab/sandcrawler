@@ -221,7 +221,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Pausing', function() {
+  describe('Pausing', function() {
 
     it('should be possible to pause the spider.', function(done) {
       var count = 0;
@@ -255,7 +255,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Expansion', function() {
+  describe('Expansion', function() {
 
     it('should be possible to add new jobs to the stack.', function(done) {
       var i = 0,
@@ -290,7 +290,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Discards', function() {
+  describe('Discards', function() {
 
     it('should be possible to discard some jobs before they are executed.', function(done) {
       var count = 0,
@@ -305,11 +305,11 @@ describe('When running multi-url spiders', function() {
         ])
         .script(__dirname + '/../resources/scrapers/basic.js')
         .beforeScraping(function(req, next) {
-          if (req.index > 1)
+          if (this.index > 1)
             return next(new Error('too-far'));
           next(null);
         })
-        .on('job:discard', function(err, job) {
+        .on('job:discarded', function(err, job) {
           assert.strictEqual(err.message, 'too-far');
           discardedCount++;
         })

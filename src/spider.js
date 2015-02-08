@@ -51,47 +51,57 @@ function Spider(name) {
 
   // Queue
   this.queue = async.queue(function(job, callback) {
-    self.index++;
 
-    // Processing one job through the pipe
-    return async.applyEachSeries([
-      beforeScraping.bind(self),
-      scrape.bind(self),
-      afterScraping.bind(self)
-    ], job, function(err) {
-
+    // Apply before middlewares so we can tell if the job needs discarding
+    beforeScraping.call(self, job, function(err) {
       if (err) {
-        job.res.error = err;
 
-        // Retry?
-        job.req.retry = retryJob.bind(self, job);
-        job.req.retryLater = job.req.retry;
-        job.req.retryNow = retryJob.bind(self, job, 'later');
-
-        // Updating remains
-        self.remains[job.id] = {
-          error: err,
-          job: job
-        };
-
-        // Failing the job
-        self.emit('job:fail', err, job);
-      }
-      else {
-
-        // Calling it a success
-        self.emit('job:success', job);
+        // Discarding...
+        self.emit('job:discarded', err, job);
+        return callback(err);
       }
 
-      // Keeping last job
-      self.lastJob = job;
+      // Processing one job through the pipe
+      self.index++;
+      return async.applyEachSeries([
+        scrape.bind(self),
+        afterScraping.bind(self)
+      ], job, function(err, results) {
 
-      // Need to iterate
-      var limit = self.options.limit || Infinity;
-      if (!self.queue.length() && self.iterator && self.index < limit)
-        iterate.call(self);
+        if (err) {
+          job.res.error = err;
 
-      return callback(err, job);
+          // Retry?
+          job.req.retry = retryJob.bind(self, job);
+          job.req.retryLater = job.req.retry;
+          job.req.retryNow = retryJob.bind(self, job, 'later');
+
+          // Updating remains
+          self.remains[job.id] = {
+            error: err,
+            job: job
+          };
+
+          // Failing the job
+          self.emit('job:fail', err, job);
+        }
+        else {
+
+          // Calling it a success
+          self.emit('job:success', job);
+        }
+
+        // Keeping last job
+        self.lastJob = job;
+
+        // Need to iterate
+        var limit = self.options.limit || Infinity;
+
+        if (!self.queue.length() && self.iterator && self.index < limit)
+          iterate.call(self);
+
+        return callback(err, job);
+      });
     });
 
   }, this.options.concurrency || 1);
@@ -315,10 +325,11 @@ Spider.prototype.addUrl = function(feed) {
     return this;
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.queue.push(createJob(item));
-  }, this);
+    var job = createJob(item);
 
-  this.emit('job:added');
+    this.queue.push(job);
+    this.emit('job:added', job);
+  }, this);
 
   return this;
 };
@@ -439,6 +450,18 @@ Spider.prototype.validate = function(definition) {
   return this.use(validate(definition));
 };
 
+// Pausing the spider
+Spider.prototype.pause = function() {
+  this.queue.pause();
+  return this;
+};
+
+// Resuming the spider
+Spider.prototype.resume = function() {
+  this.queue.resume();
+  return this;
+};
+
 // Registering middlewares
 function middlewareRegister(type) {
   Spider.prototype[type] = function(fn) {
@@ -447,7 +470,7 @@ function middlewareRegister(type) {
     if (typeof fn !== 'function')
       throw Error('sandcrawler.spider.' + type + ': given argument is not a function');
 
-    this.middlewares[type].push(fn);
+    this.middlewares[type].push(fn.bind(this));
     return this;
   };
 }
