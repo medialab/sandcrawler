@@ -57,7 +57,7 @@ function Spider(name) {
       if (err) {
 
         // Discarding...
-        self.emit('job:discarded', err, job);
+        self.emit('job:discard', err, job);
         return callback(err);
       }
 
@@ -72,9 +72,16 @@ function Spider(name) {
           job.res.error = err;
 
           // Retry?
-          job.req.retry = retryJob.bind(self, job);
-          job.req.retryLater = job.req.retry;
-          job.req.retryNow = retryJob.bind(self, job, 'later');
+          if (self.options.autoRetry) {
+
+            // TODO: autoretry when polymorphism
+            retryJob.call(self, job);
+          }
+          else {
+            job.req.retry = retryJob.bind(self, job);
+            job.req.retryLater = job.req.retry;
+            job.req.retryNow = retryJob.bind(self, job, 'later');
+          }
 
           // Updating remains
           self.remains[job.id] = {
@@ -165,6 +172,10 @@ function createJob(feed) {
 function retryJob(job, when) {
   when = when || 'later';
 
+  // Reaching maxRetries?
+  if (job.req.retries >= this.options.maxRetries)
+    return;
+
   // Dropping from remains
   delete this.remains[job.id];
 
@@ -173,6 +184,8 @@ function retryJob(job, when) {
 
   // Adding to the queue again
   this.queue[when === 'now' ? 'unshift' : 'push'](job);
+
+  this.emit('job:retry', job, when);
 }
 
 // Applying beforeScraping middlewares
@@ -255,20 +268,22 @@ Spider.prototype.run = function(callback) {
   );
 };
 
+// TODO: those should be internal
+
 // Failing the spider
 Spider.prototype.fail = function(err, remains) {
   this.emit('spider:fail', err);
-  this.exit('fail', remains);
+  this.end('fail', remains);
 };
 
 // Succeeding the spider
 Spider.prototype.succeed = function(remains) {
   this.emit('spider:success');
-  this.exit('success', remains);
+  this.end('success', remains);
 };
 
-// Exiting the spider
-Spider.prototype.exit = function(status, remains) {
+// Ending the spider
+Spider.prototype.end = function(status, remains) {
 
   // Emitting
   this.emit('spider:end', status, remains || []);
@@ -328,7 +343,7 @@ Spider.prototype.addUrl = function(feed) {
     var job = createJob(item);
 
     this.queue.push(job);
-    this.emit('job:added', job);
+    this.emit('job:add', job);
   }, this);
 
   return this;

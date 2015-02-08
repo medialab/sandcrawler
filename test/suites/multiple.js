@@ -277,7 +277,7 @@ describe('When running multi-url spiders', function() {
 
           i++;
         })
-        .on('job:added', function(job) {
+        .on('job:add', function(job) {
           eventCount++;
           assert.strictEqual(job.req.url, 'http://localhost:7337/resources/basic.html');
         });
@@ -309,7 +309,7 @@ describe('When running multi-url spiders', function() {
             return next(new Error('too-far'));
           next(null);
         })
-        .on('job:discarded', function(err, job) {
+        .on('job:discard', function(err, job) {
           assert.strictEqual(err.message, 'too-far');
           discardedCount++;
         })
@@ -326,7 +326,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Retries', function() {
+  describe('Retries', function() {
 
     it('should be possible to retry some jobs.', function(done) {
       var eventCount = 0,

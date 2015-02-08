@@ -22,7 +22,7 @@ describe('When using sandcrawler API', function() {
     it('should warn the user when his/her script is probably not returning control.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.Spider()
+        var spider = new sandcrawler.spider()
           .jawascript(function() {
             console.log('hello');
           });
@@ -32,18 +32,18 @@ describe('When using sandcrawler API', function() {
     it('should throw an error when trying to register a script twice.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.Spider()
-          .script(__dirname + '/../resources/spiders/basic.js')
-          .script(__dirname + '/../resources/spiders/basic.js');
+        var spider = new sandcrawler.spider()
+          .script(__dirname + '/../resources/scrapers/basic.js')
+          .script(__dirname + '/../resources/scrapers/basic.js');
       }, /script already registered/);
     });
 
     it('should throw an error when trying to add a feed without an url.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.Spider()
+        var spider = new sandcrawler.spider()
           .url({data: 'hello'});
-      }, /_wrapJob/);
+      }, /url\(s\)/);
     });
   });
 });

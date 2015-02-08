@@ -22,7 +22,7 @@ describe('When dealing with failures', function() {
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/spiders/exit.js', false);
+        .script(__dirname + '/../resources/scrapers/exit.js', false);
 
       sandcrawler.spawn({autoRestart: false}, function(err, ghost) {
         ghost.run(spider, function(err, remains) {
