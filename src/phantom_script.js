@@ -16,8 +16,8 @@ function argNames(str) {
 }
 
 // Wrap in context to name several really important variables
-function wrap(str, doneName, dollarName) {
-  return '(function(done, $, undefined){' + str + '})(artoo.done, artoo.$);';
+function wrap(str, dollarName, doneName) {
+  return '(function(' + dollarName + ', ' + doneName + ', undefined){' + str + '})(artoo.$, artoo.done);';
 }
 
 // Wrap a string into a phantom IIFE
@@ -26,10 +26,10 @@ function wrapString(str) {
 }
 
 // Wrap a JavaScript function into a phantom IIFE
-function wrapFunctionString(str, doneName, dollarName) {
+function wrapFunctionString(str, dollarName, doneName) {
   str = str.replace(/function\s*[^(]*\([^)]*\)/, 'function ()');
 
-  return '(function(){' + wrap('(' + str + ')()', doneName, dollarName) + '})';
+  return '(function(){' + wrap('(' + str + ')()', dollarName, doneName) + '})';
 }
 
 function fromFunction(fn) {

@@ -13,8 +13,8 @@ require('./suites/complex.js');
 // require('./suites/failures.js');
 require('./suites/static.js');
 
-// TODO: tests function arg names
 // TODO: test scraper method
 // TODO: user generated error in both static and phantom
 // TODO: test erroneous cases of function arguments
 // TODO: test done calling
+// TODO: consolidate phscript regexes

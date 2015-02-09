@@ -154,6 +154,19 @@ describe('When running fairly simple spiders', function() {
       phantom.run(spider, done);
     });
 
+    it('should be possible to change the name of the given arguments.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraper(function(dollar, next) {
+          return next(null, dollar('.url-list a').scrape('href'));
+        })
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(spider, done);
+    });
+
     // it('should be possible to run some jawascript from a string.', function(done) {
 
     //   var spider = sandcrawler.phantomSpider()
