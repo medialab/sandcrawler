@@ -19,24 +19,15 @@ describe('When using sandcrawler API', function() {
   });
 
   describe('Spider level', function() {
-    it('should warn the user when his/her script is probably not returning control.', function() {
+    // it('should warn the user when his/her script is probably not returning control.', function() {
 
-      assert.throws(function() {
-        var spider = new sandcrawler.phantomSpider()
-          .jawascript(function() {
-            console.log('hello');
-          });
-      }, /returning control/);
-    });
-
-    it('should throw an error when trying to register a script twice.', function() {
-
-      assert.throws(function() {
-        var spider = new sandcrawler.phantomSpider()
-          .script(__dirname + '/../resources/scrapers/basic.js')
-          .script(__dirname + '/../resources/scrapers/basic.js');
-      }, /script already registered/);
-    });
+    //   assert.throws(function() {
+    //     var spider = new sandcrawler.phantomSpider()
+    //       .jawascript(function() {
+    //         console.log('hello');
+    //       });
+    //   }, /returning control/);
+    // });
 
     it('should throw an error when trying to add a feed without an url.', function() {
 

@@ -37,7 +37,7 @@ describe('When running fairly simple spiders', function() {
       // Creating the spider
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
         });
@@ -56,7 +56,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/logger.js')
+        .scraper(require('../resources/scrapers/logger.js'))
         .on('page:log', function(data, req, res) {
           assert.strictEqual(req.url, 'http://localhost:7337/resources/basic.html');
           assert.strictEqual(data.message, 'Hello world!');
@@ -70,7 +70,7 @@ describe('When running fairly simple spiders', function() {
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .config({timeout: 300})
-        .script(__dirname + '/../resources/scrapers/error.js', false)
+        .scraper(require('../resources/scrapers/error.js'))
         .on('page:error', function(data) {
           assert.strictEqual(data.message, 'Error: random-error');
         });
@@ -82,7 +82,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/alert.js')
+        .scraper(require('../resources/scrapers/alert.js'))
         .on('page:alert', function(data) {
           assert.strictEqual(data.message, 'Hello world!');
         });
@@ -95,6 +95,7 @@ describe('When running fairly simple spiders', function() {
     var globalSpider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .timeout(200)
+        .scraper(require('../resources/scrapers/waiter.js'))
         .result(function(err) {
           assert.strictEqual(err.message, 'timeout');
         });
@@ -117,7 +118,7 @@ describe('When running fairly simple spiders', function() {
     it('should dispatch an error when phantom failed to grasp the page.', function(done) {
       var spider = sandcrawler.phantomSpider()
         .url('inexistantpage.html')
-        .script(__dirname + '/../resources/scrapers/logger.js')
+        .scraper(require('../resources/scrapers/logger.js'))
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'phantom-fail');
         });
@@ -128,7 +129,7 @@ describe('When running fairly simple spiders', function() {
     it('should dispatch an error when the page status is not correct.', function(done) {
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/404.html')
-        .script(__dirname + '/../resources/scrapers/logger.js')
+        .scraper(require('../resources/scrapers/logger.js'))
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'status-404');
         });
@@ -143,8 +144,8 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .jawascript(function(done) {
-          artoo.done(artoo.scrape('.url-list a', 'href'));
+        .scraper(function($, done) {
+          artoo.done(null, artoo.scrape('.url-list a', 'href'));
         })
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
@@ -153,25 +154,25 @@ describe('When running fairly simple spiders', function() {
       phantom.run(spider, done);
     });
 
-    it('should be possible to run some jawascript from a string.', function(done) {
+    // it('should be possible to run some jawascript from a string.', function(done) {
 
-      var spider = sandcrawler.phantomSpider()
-        .url('http://localhost:7337/resources/basic.html')
-        .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
-        .result(function(err, req, res) {
-          assert.deepEqual(res.data, samples.basic);
-        });
+    //   var spider = sandcrawler.phantomSpider()
+    //     .url('http://localhost:7337/resources/basic.html')
+    //     .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
+    //     .result(function(err, req, res) {
+    //       assert.deepEqual(res.data, samples.basic);
+    //     });
 
-      phantom.run(spider, done);
-    });
+    //   phantom.run(spider, done);
+    // });
 
     it('should be possible to notify phantom with done.', function(done) {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .jawascript(function(done) {
+        .scraper(function($, done) {
           var data = artoo.scrape('.url-list a', 'href');
-          done(data);
+          done(null, data);
         })
         .result(function(err, req, res) {
           assert.deepEqual(res.data, samples.basic);
@@ -186,12 +187,12 @@ describe('When running fairly simple spiders', function() {
     it('should be possible to inject jQuery without breaking the page.', function(done) {
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/jquery.html')
-        .jawascript(function(done) {
+        .scraper(function($, done) {
           var data = {
             fromDollar: window.$,
             fromArtoo: $('p').scrapeOne()
           };
-          return done(data);
+          return done(null, data);
         })
         .result(function(err, req, res) {
           assert.deepEqual(res.data, {
@@ -210,7 +211,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .use(validate('array'))
         .result(function(err, req, res) {
           assert(err === null);
@@ -231,7 +232,7 @@ describe('When running fairly simple spiders', function() {
             ok: true
           }
         })
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .beforeScraping(function(req, next) {
           assert(req.data.ok);
           req.data.hello = 'world';
@@ -252,7 +253,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .validate(function(data) {
           return data instanceof Array;
         })
@@ -268,7 +269,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .validate('array')
         .result(function(err, req, res) {
           assert(err === null);
@@ -282,7 +283,7 @@ describe('When running fairly simple spiders', function() {
 
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .validate('?string')
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'invalid-data');
@@ -305,8 +306,8 @@ describe('When running fairly simple spiders', function() {
             }
           }
         })
-        .jawascript(function(done) {
-          done($('body').scrapeOne());
+        .scraper(function($, done) {
+          done(null, $('body').scrapeOne());
         })
         .result(function(err, req, res) {
           assert.strictEqual(res.data, 'Yay!');
@@ -326,8 +327,8 @@ describe('When running fairly simple spiders', function() {
             }
           }
         })
-        .jawascript(function(done) {
-          done($('body').scrapeOne());
+        .scraper(function($, done) {
+          done(null, $('body').scrapeOne());
         })
         .result(function(err, req, res) {
           assert.strictEqual(res.data, 'Yay!');

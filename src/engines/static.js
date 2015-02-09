@@ -8,13 +8,6 @@ var request = require('request'),
     artoo = require('artoo-js'),
     cheerio = require('cheerio');
 
-// TODO: shim, remove when artoo get released
-artoo.helpers.isSelector = function(v) {
-  return !!(v && v.prototype && v.prototype.cheerio &&
-            v.prototype.cheerio === '[cheerio object]') ||
-         !!(v._root && v.options && 'normalizeWhitespace' in v.options);
-};
-
 // Bootstrapping cheerio
 artoo.bootstrap(cheerio);
 

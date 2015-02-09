@@ -1,3 +1,3 @@
 module.exports = function($, done) {
-  artoo.phantom.exit(1);
+  // Waiting...
 };

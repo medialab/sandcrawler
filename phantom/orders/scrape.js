@@ -83,12 +83,13 @@ module.exports = function(parent, params) {
     }
 
     // Wrapping success helper
-    function wrapSuccess(data) {
+    function wrapSuccess(result) {
       return {
         url: page.url,
         headers: page.response.headers,
         status: page.response.status,
-        data: data
+        error: result.error,
+        data: result.data
       };
     }
 

@@ -33,7 +33,7 @@ describe('When running multi-url spiders', function() {
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           count++;
 
@@ -58,7 +58,7 @@ describe('When running multi-url spiders', function() {
           {url: 'http://localhost:7337/resources/basic.html', id: 3}
         ])
         .config({concurrency: 2})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           count++;
 
@@ -82,7 +82,7 @@ describe('When running multi-url spiders', function() {
           {url: 'http://localhost:7337/resources/404.html', id: 3}
         ])
         .config({concurrency: 3, timeout: 300})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           count++;
         })
@@ -114,8 +114,8 @@ describe('When running multi-url spiders', function() {
             'http://localhost:7337/resources/basic.html' :
             res.data.nextPage;
         })
-        .jawascript(function(done) {
-          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        .scraper(function($, done) {
+          done(null, {nextPage: 'http://localhost:7337/resources/basic.html'});
         })
         .result(function(err, req, res) {
           count++;
@@ -135,7 +135,7 @@ describe('When running multi-url spiders', function() {
           return 'http://localhost:7337/resources/basic.html';
         })
         .config({limit: 3})
-        .jawascript(function(done) {
+        .scraper(function($, done) {
           done();
         })
         .result(function() {
@@ -156,7 +156,7 @@ describe('When running multi-url spiders', function() {
           return 'http://localhost:7337/resources/basic.html';
         })
         .limit(3)
-        .jawascript(function(done) {
+        .scraper(function($, done) {
           done();
         })
         .result(function() {
@@ -180,8 +180,8 @@ describe('When running multi-url spiders', function() {
 
           return res.data.nextPage;
         })
-        .jawascript(function(done) {
-          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        .scraper(function($, done) {
+          done(null, {nextPage: 'http://localhost:7337/resources/basic.html'});
         })
         .result(function(err, req, res) {
           count++;
@@ -207,8 +207,8 @@ describe('When running multi-url spiders', function() {
 
           return res.data.nextPage;
         })
-        .jawascript(function(done) {
-          done({nextPage: 'http://localhost:7337/resources/basic.html'});
+        .scraper(function($, done) {
+          done(null, {nextPage: 'http://localhost:7337/resources/basic.html'});
         })
         .result(function(err, req, res) {
           count++;
@@ -230,7 +230,7 @@ describe('When running multi-url spiders', function() {
           'http://localhost:7337/resources/basic.html'
         ])
         .limit(3)
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function() {
           count++;
         });
@@ -252,7 +252,7 @@ describe('When running multi-url spiders', function() {
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           var self = this;
 
@@ -285,7 +285,7 @@ describe('When running multi-url spiders', function() {
 
       var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           count++;
 
@@ -324,7 +324,7 @@ describe('When running multi-url spiders', function() {
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .beforeScraping(function(req, next) {
           if (this.index > 1)
             return next(new Error('too-far'));
@@ -355,7 +355,7 @@ describe('When running multi-url spiders', function() {
 
       var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/retries')
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
           assert(typeof req.retry === 'function');
           assert(typeof req.retryLater === 'function');
@@ -383,7 +383,7 @@ describe('When running multi-url spiders', function() {
       var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req) {
           count++;
           return req.retry();
@@ -401,7 +401,7 @@ describe('When running multi-url spiders', function() {
       var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2, autoRetry: true})
-        .script(__dirname + '/../resources/scrapers/basic.js')
+        .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req) {
           count++;
         });
@@ -424,7 +424,7 @@ describe('When running multi-url spiders', function() {
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
           {url: 'http://localhost:7337/resources/basic.html', id: 2}
         ])
-        .jawascript(function(done) {
+        .scraper(function($, done) {
           done(true);
         })
         .result(function() {

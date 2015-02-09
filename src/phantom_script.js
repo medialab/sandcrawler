@@ -5,19 +5,18 @@
  * JawaScript abstraction useful to wrap pieces of code that will be run on
  * a phantom page context.
  */
-var fs = require('fs');
 
-var prerequisites = /done/g;
+// Retrieve the first two arguments of the given stringified function
+function argNames(str) {
 
-function check(str, enabled) {
-  if (enabled !== false && !~str.search(prerequisites))
-    throw Error('sandcrawler.phantom_script: cannot find any mention of ' +
-                '"done" in your script. You are probably never returning ' +
-                'control.');
+  // Matching
+  var matches = str.match(/^function\s*\(([^,]+),\s*([^,)]+)/);
+
+  return [matches[1], matches[2]];
 }
 
 // Wrap in context to name several really important variables
-function wrap(str) {
+function wrap(str, doneName, dollarName) {
   return '(function(done, $, undefined){' + str + '})(artoo.done, artoo.$);';
 }
 
@@ -27,32 +26,24 @@ function wrapString(str) {
 }
 
 // Wrap a JavaScript function into a phantom IIFE
-function wrapFunction(fn) {
-  var str = fn.toString().replace(/function[^(]*\([^)]*\)/, 'function ()');
+function wrapFunctionString(str, doneName, dollarName) {
+  str = str.replace(/function\s*[^(]*\([^)]*\)/, 'function ()');
 
-  return '(function(){' + wrap('(' + str + ')()') + '})';
+  return '(function(){' + wrap('(' + str + ')()', doneName, dollarName) + '})';
 }
 
-// Produce a phantom script from a path
-function fromFile(location, e) {
-  var str = fs.readFileSync(location, 'utf-8');
-  check(str, e);
-  return wrapString(str);
-}
+function fromFunction(fn) {
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.phantom_script.fromFunction: given argument is not a function.');
 
-function fromString(s, e) {
-  check(s, e);
-  return wrapString(s);
-}
+  var str = fn.toString(),
+      names = argNames(str);
 
-function fromFunction(fn, e) {
-  check(fn.toString(), e);
-  return wrapFunction(fn);
+  return wrapFunctionString(str, names[0], names[1]);
 }
 
 // Exporting
 module.exports = {
-  fromFile: fromFile,
-  fromFunction: fromFunction,
-  fromString: fromString
+  argNames: argNames,
+  fromFunction: fromFunction
 };

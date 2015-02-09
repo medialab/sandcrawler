@@ -1,2 +1,4 @@
-alert('Hello world!');
-artoo.done();
+module.exports = function($, done) {
+  alert('Hello world!');
+  artoo.done();
+};

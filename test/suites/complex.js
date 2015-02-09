@@ -15,7 +15,7 @@ var phantom;
 function createMinimalSpider() {
   return new sandcrawler.phantomSpider()
     .url('http://localhost:7337/resources/basic.html')
-    .script(__dirname + '/../resources/scrapers/basic.js')
+    .scraper(require('../resources/scrapers/basic.js'))
     .result(function(err, req, res) {
       assert.deepEqual(res.data, samples.basic);
     });

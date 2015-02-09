@@ -1,1 +1,3 @@
-throw Error('random-error');
+module.exports = function($, done) {
+  throw Error('random-error');
+};

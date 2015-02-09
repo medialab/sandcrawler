@@ -13,7 +13,6 @@ var EventEmitter = require('events').EventEmitter,
     uuid = require('uuid'),
     async = require('async'),
     validate = require('./plugins/validate.js'),
-    phscript = require('./phantom_script.js'),
     extend = require('./helpers.js').extend,
     defaults = require('../defaults.json').spider;
 
@@ -47,10 +46,6 @@ function Spider(name) {
   // Additional properties
   this.scraperScript = null;
   this.iterator = null;
-
-  // TODO: remove when done
-  this.scriptStack = null;
-  this.parser = Function.prototype;
 
   // Queue
   this.queue = async.queue(function(job, callback) {
@@ -374,41 +369,6 @@ Spider.prototype.scraper = function(fn) {
     throw Error('sandcrawler.spider.scraper: argument must be a function.');
 
   this.scraperScript = fn;
-  return this;
-};
-
-// Loading the scraping script
-Spider.prototype.script = function(path, check) {
-  if (this.scriptStack)
-    throw Error('sandcrawler.spider.script: script already registered.');
-
-  this.scriptStack = phscript.fromFile(path, check);
-  return this;
-};
-
-// Loading some jawascript
-Spider.prototype.jawascript = function(fn, check) {
-  if (this.scriptStack)
-    throw Error('sandcrawler.spider.jawascript: script already registered.');
-
-  if (typeof fn === 'function')
-    this.scriptStack = phscript.fromFunction(fn, check);
-  else if (typeof fn === 'string')
-    this.scriptStack = phscript.fromString(fn, check);
-  else
-    throw Error('sandcrawler.spider.jawascript: wrong argument.');
-
-  return this;
-};
-
-// Parser used by static scenarios
-Spider.prototype.parse = function(fn) {
-
-  if (typeof fn !== 'function')
-    throw Error('sandcrawler.spider.parse: given argument is not a function.');
-
-  this.parser = fn;
-
   return this;
 };
 

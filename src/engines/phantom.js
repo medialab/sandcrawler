@@ -67,6 +67,13 @@ function PhantomEngine(spider, phantom) {
   this.phantom.on('page:error', this.listeners.error);
   this.phantom.on('page:alert', this.listeners.alert);
 
+  // Compiling scraper at start
+  spider.once('spider:start', function() {
+
+    spider.scraperScript = phscript.fromFunction(spider.scraperScript);
+  });
+
+  // On teardown
   spider.once('spider:teardown', function() {
     self.phantom.removeListener('crash', self.listeners.crash);
     self.phantom.removeListener('page:log', self.listeners.log);
@@ -88,7 +95,7 @@ function PhantomEngine(spider, phantom) {
       // Sent data
       {
         url: job.req.url,
-        script: spider.scriptStack,
+        script: spider.scraperScript,
         params: extend(spider.options.params, job.req.params),
         timeout: timeout
       },
@@ -98,7 +105,6 @@ function PhantomEngine(spider, phantom) {
 
       // Callback
       function(err, msg) {
-
         var response = (msg || {}).body || {},
             betterError;
 
@@ -127,6 +133,10 @@ function PhantomEngine(spider, phantom) {
           betterError.status = response.status;
           return callback(betterError, job);
         }
+
+        // User-generated error
+        if (response.error)
+          return callback(response.error, job);
 
         return callback(null, job);
       }

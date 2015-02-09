@@ -1,3 +1,5 @@
-;(function(undefined) {
-  artoo.done(artoo.scrape('.url-list a', 'href'));
-})();
+module.exports = function($, done) {
+  ;(function(undefined) {
+    artoo.done(null, artoo.scrape('.url-list a', 'href'));
+  })();
+};
