@@ -18,6 +18,9 @@ function argNames(str) {
   // Matching
   var matches = str.match(regexes.argMatch);
 
+  if (!matches)
+    throw Error('sandcrawler.phantom_script.arguments: not enough arguments to compile a correct phantom scraper.');
+
   return [matches[1], matches[2]];
 }
 
@@ -28,7 +31,7 @@ function wrap(str, dollarName, doneName) {
 
 // Wrap a JavaScript function into a phantom IIFE
 function wrapFunctionString(str, dollarName, doneName) {
-  str = str.replace(fnReplace, 'function ()');
+  str = str.replace(regexes.fnReplace, 'function ()');
 
   return '(function(){' + wrap('(' + str + ')()', dollarName, doneName) + '})';
 }

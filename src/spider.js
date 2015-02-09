@@ -14,12 +14,13 @@ var EventEmitter = require('events').EventEmitter,
     async = require('async'),
     validate = require('./plugins/validate.js'),
     extend = require('./helpers.js').extend,
-    defaults = require('../defaults.json').spider;
+    defaults = require('../defaults.json').spider,
+    _ = require('lodash');
 
 /**
  * Main
  */
-function Spider(name) {
+function Spider(name, engine) {
   var self = this;
 
   // Events
@@ -31,8 +32,8 @@ function Spider(name) {
 
   // Properties
   this.options = extend(defaults);
-  this.engine = null;
-  this.type = null;
+  this.engine = new engine(this);
+  this.type = engine.type;
   this.remains = {};
   this.index = 0;
   this.lastJob = null;
@@ -233,6 +234,10 @@ function iterate() {
 Spider.prototype.run = function(callback) {
   var self = this;
 
+  // Safeguard
+  if (!this.scraperScript)
+    throw Error('sandcrawler.spider.run: no scraper was provided to this spider.');
+
   // Emitting
   this.emit('spider:start');
 
@@ -368,7 +373,8 @@ Spider.prototype.scraper = function(fn) {
   if (typeof fn !== 'function')
     throw Error('sandcrawler.spider.scraper: argument must be a function.');
 
-  this.scraperScript = fn;
+  this.scraperScript = (this.engine.compile || _.identity)(fn);
+
   return this;
 };
 

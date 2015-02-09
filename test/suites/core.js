@@ -29,6 +29,14 @@ describe('When using sandcrawler API', function() {
     //   }, /returning control/);
     // });
 
+    it('should throw an error when trying to add an invalid scraper function.', function() {
+
+    });
+
+    it('shoul throw an error when running a spider without any scraper registerd.', function() {
+
+    });
+
     it('should throw an error when trying to add a feed without an url.', function() {
 
       assert.throws(function() {

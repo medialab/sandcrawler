@@ -33,6 +33,16 @@ describe('Phantom Scripts', function() {
       ['$', 'done']
     );
 
+    assert.deepEqual(
+      'function(onlyOne) {}'.match(r.argMatch),
+      null
+    );
+
+    assert.deepEqual(
+      'function() {}'.match(r.argMatch),
+      null
+    );
+
     // Function replacement
     assert.strictEqual(
       'function($, done) {}'.replace(r.fnReplace, 'hey'),

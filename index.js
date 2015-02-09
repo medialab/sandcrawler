@@ -8,7 +8,8 @@
 // Main object
 var core = require('./src/core.js'),
     Spider = require('./src/spider.js'),
-    StaticEngine = require('./src/engines/static.js');
+    StaticEngine = require('./src/engines/static.js'),
+    PhantomEngine = require('./src/engines/phantom.js');
 
 var sandcrawler = core;
 
@@ -29,17 +30,12 @@ function buildAlias(target, name, prefix) {
 
 // Public declarations
 sandcrawler.spider = function(name) {
-  var spider = new Spider(name);
-  spider.engine = new StaticEngine(spider);
-  spider.type = 'static';
-  return spider;
+  return new Spider(name, StaticEngine);
 };
 sandcrawler.Spider = sandcrawler.spider;
 
 sandcrawler.phantomSpider = function(name) {
-  var spider = new Spider(name);
-  spider.type = 'phantom';
-  return spider;
+  return new Spider(name, PhantomEngine);
 };
 sandcrawler.PhantomSpider = sandcrawler.phantomSpider;
 

@@ -83,7 +83,7 @@ Spawn.prototype.run = function(spider, callback) {
   this.spiders.push(spider.id);
 
   // Loading engine
-  spider.engine = new PhantomEngine(spider, this.spy);
+  spider.engine.phantom = this.spy;
 
   // Running given spider
   spider.run(function(err, remains) {

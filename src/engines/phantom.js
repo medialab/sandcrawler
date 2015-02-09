@@ -11,12 +11,12 @@ var extend = require('../helpers.js').extend,
 /**
  * Main
  */
-function PhantomEngine(spider, phantom) {
+function PhantomEngine(spider) {
   var self = this;
 
   // Properties
   this.type = 'phantom';
-  this.phantom = phantom;
+  this.phantom = null;
   this.requests = [];
 
   // Helpers
@@ -62,15 +62,11 @@ function PhantomEngine(spider, phantom) {
   };
 
   // Listening
-  this.phantom.once('crash', this.listeners.crash);
-  this.phantom.on('page:log', this.listeners.log);
-  this.phantom.on('page:error', this.listeners.error);
-  this.phantom.on('page:alert', this.listeners.alert);
-
-  // Compiling scraper at start
   spider.once('spider:start', function() {
-
-    spider.scraperScript = phscript.fromFunction(spider.scraperScript);
+    self.phantom.once('crash', self.listeners.crash);
+    self.phantom.on('page:log', self.listeners.log);
+    self.phantom.on('page:error', self.listeners.error);
+    self.phantom.on('page:alert', self.listeners.alert);
   });
 
   // On teardown
@@ -80,6 +76,11 @@ function PhantomEngine(spider, phantom) {
     self.phantom.removeListener('page:error', self.listeners.error);
     self.phantom.removeListener('page:alert', self.listeners.alert);
   });
+
+  // Compiling method
+  this.compile = function(fn) {
+    return phscript.fromFunction(fn);
+  };
 
   // Fetching method
   this.fetch = function(job, callback) {
