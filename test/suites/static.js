@@ -17,8 +17,8 @@ describe('When running a static spider', function() {
       // Creating the spider
       var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
-        .parse(function($) {
-          return $('.url-list a').scrape('href');
+        .scraper(function($, done) {
+          done(null, $('.url-list a').scrape('href'));
         })
         .result(function(err, req, res) {
           assert(err === null);
@@ -35,8 +35,8 @@ describe('When running a static spider', function() {
 
       var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/404.html')
-        .parse(function($) {
-          return $('.url-list a').scrape('href');
+        .scraper(function($, done) {
+          done(null, $('.url-list a').scrape('href'));
         })
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'status-404');

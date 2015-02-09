@@ -45,12 +45,16 @@ function StaticEngine(spider) {
       }
 
       // Parsing
-      if (spider.parser) {
+      if (spider.scraperScript) {
         var $ = cheerio.load(job.res.body);
-        job.res.data = spider.parser.call(spider, $, artoo);
+        spider.scraperScript.call(spider, $, function(err, data) {
+          job.res.data = data;
+          return callback(err, data);
+        });
       }
-
-      return callback(null, job);
+      else {
+        return callback(null, job);
+      }
     });
   };
 }

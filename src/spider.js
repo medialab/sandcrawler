@@ -45,7 +45,10 @@ function Spider(name) {
   };
 
   // Additional properties
+  this.scraperScript = null;
   this.iterator = null;
+
+  // TODO: remove when done
   this.scriptStack = null;
   this.parser = Function.prototype;
 
@@ -360,6 +363,17 @@ Spider.prototype.iterate = function(fn) {
     throw Error('sandcrawler.spider.iterate: iterator must be a function.');
 
   this.iterator = fn;
+  return this;
+};
+
+// Loading the required scraper
+Spider.prototype.scraper = function(fn) {
+
+  // Checking
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.spider.scraper: argument must be a function.');
+
+  this.scraperScript = fn;
   return this;
 };
 
