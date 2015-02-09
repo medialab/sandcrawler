@@ -35,7 +35,7 @@ describe('When running fairly simple spiders', function() {
     it('should work correctly.', function(done) {
 
       // Creating the spider
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
@@ -54,7 +54,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to subscribe to page log.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .on('page:log', function(data, req, res) {
@@ -67,7 +67,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to subscribe to page errors.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .config({timeout: 300})
         .script(__dirname + '/../resources/scrapers/error.js', false)
@@ -80,7 +80,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to subscribe to page alerts.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/alert.js')
         .on('page:alert', function(data) {
@@ -92,7 +92,7 @@ describe('When running fairly simple spiders', function() {
   });
 
   describe('Error handling', function() {
-    var globalSpider = sandcrawler.spider()
+    var globalSpider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .timeout(200)
         .result(function(err) {
@@ -115,7 +115,7 @@ describe('When running fairly simple spiders', function() {
     });
 
     it('should dispatch an error when phantom failed to grasp the page.', function(done) {
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('inexistantpage.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .result(function(err, req, res) {
@@ -126,7 +126,7 @@ describe('When running fairly simple spiders', function() {
     });
 
     it('should dispatch an error when the page status is not correct.', function(done) {
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/404.html')
         .script(__dirname + '/../resources/scrapers/logger.js')
         .result(function(err, req, res) {
@@ -141,7 +141,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to run some jawascript from a function.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript(function(done) {
           artoo.done(artoo.scrape('.url-list a', 'href'));
@@ -155,7 +155,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to run some jawascript from a string.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
         .result(function(err, req, res) {
@@ -167,7 +167,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to notify phantom with done.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .jawascript(function(done) {
           var data = artoo.scrape('.url-list a', 'href');
@@ -184,7 +184,7 @@ describe('When running fairly simple spiders', function() {
   describe('jQuery', function() {
 
     it('should be possible to inject jQuery without breaking the page.', function(done) {
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/jquery.html')
         .jawascript(function(done) {
           var data = {
@@ -208,7 +208,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to use a plugin.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .use(validate('array'))
@@ -224,7 +224,7 @@ describe('When running fairly simple spiders', function() {
   describe('Feed', function() {
 
     it('should be possible to set arbitrary data to jobs.', function(done) {
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url({
           url: 'http://localhost:7337/resources/basic.html',
           data: {
@@ -250,7 +250,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to validate data with a function.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate(function(data) {
@@ -266,7 +266,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to validate data with a type.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate('array')
@@ -280,7 +280,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should fail the job whenever validation fails.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .validate('?string')
@@ -296,7 +296,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to set your own user agent.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/useragent')
         .config({
           params: {
@@ -317,7 +317,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to set your own headers.', function(done) {
 
-      var spider = sandcrawler.spider()
+      var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/headers')
         .config({
           params: {

@@ -18,18 +18,20 @@ Object.defineProperty(sandcrawler, 'version', {
 });
 
 // Public declarations
-sandcrawler.staticSpider = function(name) {
+sandcrawler.spider = function(name) {
   var spider = new Spider(name);
   spider.engine = new StaticEngine(spider);
   spider.type = 'static';
   return spider;
 };
+sandcrawler.Spider = sandcrawler.spider;
 
-sandcrawler.spider = function(name) {
+sandcrawler.phantomSpider = function(name) {
   var spider = new Spider(name);
   spider.type = 'phantom';
   return spider;
 };
+sandcrawler.PhantomSpider = sandcrawler.phantomSpider;
 
 // Exporting
 module.exports = sandcrawler;

@@ -15,7 +15,7 @@ describe('When running a static spider', function() {
     it('should work correctly.', function(done) {
 
       // Creating the spider
-      var spider = sandcrawler.staticSpider()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/basic.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');
@@ -33,7 +33,7 @@ describe('When running a static spider', function() {
 
     it('should handle status 404.', function(done) {
 
-      var spider = sandcrawler.staticSpider()
+      var spider = sandcrawler.spider()
         .url('http://localhost:7337/resources/404.html')
         .parse(function($) {
           return $('.url-list a').scrape('href');

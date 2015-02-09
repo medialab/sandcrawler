@@ -28,7 +28,7 @@ describe('When running multi-url spiders', function() {
     it('should work correctly.' , function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
@@ -51,7 +51,7 @@ describe('When running multi-url spiders', function() {
       var count = 0,
           check = false;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
           {url: 'http://localhost:7337/resources/basic.html', id: 2},
@@ -75,7 +75,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to get the remains back after the spider has been fulfilled.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           {url: 'http://localhost:7337/resources/basic.html', id: 1},
           {url: 'http://localhost:7337/resources/basic.html', id: 2},
@@ -105,7 +105,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to use a function as iterator.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .iterate(function(i, req, res) {
           if (i === 3)
             return false;
@@ -130,7 +130,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to set a limit to the iterator.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
@@ -151,7 +151,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to use the limit shorthand.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
         })
@@ -172,7 +172,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to start from a single url.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .iterate(function(i, req, res) {
           if (i === 3)
@@ -196,7 +196,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to start from a list of urls.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
@@ -223,7 +223,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to limit non iterating spiders all the same.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',
@@ -247,7 +247,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to pause the spider.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .config({limit: 3})
         .iterate(function(i, req, res) {
           return 'http://localhost:7337/resources/basic.html';
@@ -283,7 +283,7 @@ describe('When running multi-url spiders', function() {
           count = 0,
           eventCount = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
@@ -317,7 +317,7 @@ describe('When running multi-url spiders', function() {
       var count = 0,
           discardedCount = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',
@@ -353,7 +353,7 @@ describe('When running multi-url spiders', function() {
       var eventCount = 0,
           resultCount = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/retries')
         .script(__dirname + '/../resources/scrapers/basic.js')
         .result(function(err, req, res) {
@@ -380,7 +380,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to set a max retries parameter.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2})
         .script(__dirname + '/../resources/scrapers/basic.js')
@@ -398,7 +398,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to use the autoRetry setting.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url('http://localhost:7337/404.html')
         .config({maxRetries: 2, autoRetry: true})
         .script(__dirname + '/../resources/scrapers/basic.js')
@@ -418,7 +418,7 @@ describe('When running multi-url spiders', function() {
     it('should be possible to exit the spider.', function(done) {
       var count = 0;
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .url([
           {url: 'http://localhost:7337/resources/basic.html', id: 0},
           {url: 'http://localhost:7337/resources/basic.html', id: 1},

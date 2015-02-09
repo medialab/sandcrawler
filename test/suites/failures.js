@@ -16,7 +16,7 @@ describe('When dealing with failures', function() {
 
     it('should be possible to catch phantomjs crashes.', function(done) {
 
-      var spider = new sandcrawler.spider()
+      var spider = new sandcrawler.phantomSpider()
         .urls([
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html',

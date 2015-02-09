@@ -22,7 +22,7 @@ describe('When using sandcrawler API', function() {
     it('should warn the user when his/her script is probably not returning control.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.spider()
+        var spider = new sandcrawler.phantomSpider()
           .jawascript(function() {
             console.log('hello');
           });
@@ -32,7 +32,7 @@ describe('When using sandcrawler API', function() {
     it('should throw an error when trying to register a script twice.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.spider()
+        var spider = new sandcrawler.phantomSpider()
           .script(__dirname + '/../resources/scrapers/basic.js')
           .script(__dirname + '/../resources/scrapers/basic.js');
       }, /script already registered/);
@@ -41,7 +41,7 @@ describe('When using sandcrawler API', function() {
     it('should throw an error when trying to add a feed without an url.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.spider()
+        var spider = new sandcrawler.phantomSpider()
           .url({data: 'hello'});
       }, /url\(s\)/);
     });
