@@ -6,11 +6,17 @@
  * a phantom page context.
  */
 
+// Regexes
+var regexes = {
+  argMatch: /^function\s*\(\s*([^,\s]+)\s*,\s*([^,)\s]+)/,
+  fnReplace: /^function\s*[^(]*\([^)]*\)/
+};
+
 // Retrieve the first two arguments of the given stringified function
 function argNames(str) {
 
   // Matching
-  var matches = str.match(/^function\s*\(([^,]+),\s*([^,)]+)/);
+  var matches = str.match(regexes.argMatch);
 
   return [matches[1], matches[2]];
 }
@@ -20,14 +26,9 @@ function wrap(str, dollarName, doneName) {
   return '(function(' + dollarName + ', ' + doneName + ', undefined){' + str + '})(artoo.$, artoo.done);';
 }
 
-// Wrap a string into a phantom IIFE
-function wrapString(str) {
-  return '(function(){' + wrap(str) + '})';
-}
-
 // Wrap a JavaScript function into a phantom IIFE
 function wrapFunctionString(str, dollarName, doneName) {
-  str = str.replace(/function\s*[^(]*\([^)]*\)/, 'function ()');
+  str = str.replace(fnReplace, 'function ()');
 
   return '(function(){' + wrap('(' + str + ')()', dollarName, doneName) + '})';
 }
@@ -45,5 +46,6 @@ function fromFunction(fn) {
 // Exporting
 module.exports = {
   argNames: argNames,
-  fromFunction: fromFunction
+  fromFunction: fromFunction,
+  regexes: regexes
 };
