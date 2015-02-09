@@ -135,6 +135,7 @@ function PhantomEngine(spider, phantom) {
         }
 
         // User-generated error
+        console.log(response.error);
         if (response.error)
           return callback(response.error, job);
 

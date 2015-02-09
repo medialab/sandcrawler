@@ -136,6 +136,17 @@ describe('When running fairly simple spiders', function() {
 
       phantom.run(spider, done);
     });
+
+    it('should be possible to get back user-generated errors.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/resources/404.html')
+        .scraper(require('../resources/scrapers/user_error.js'))
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'tada');
+        });
+
+      phantom.run(spider, done);
+    });
   });
 
   describe('Jawascript', function() {
