@@ -21,5 +21,4 @@ require('./suites/static.js');
 // TODO: sync versions
 // TODO: inline versions
 // TODO: stop if no scraper defined
-// TODO: fandom aliases
 // TODO: not possible to pass wrong args to the function

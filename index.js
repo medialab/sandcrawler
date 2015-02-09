@@ -17,6 +17,16 @@ Object.defineProperty(sandcrawler, 'version', {
   value: '0.0.2'
 });
 
+// Helpers
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function buildAlias(target, name, prefix) {
+  sandcrawler[prefix ? prefix + capitalize(name) : name] = target;
+  sandcrawler[prefix ? capitalize(prefix) + capitalize(name) : capitalize(name)] = target;
+}
+
 // Public declarations
 sandcrawler.spider = function(name) {
   var spider = new Spider(name);
@@ -32,6 +42,12 @@ sandcrawler.phantomSpider = function(name) {
   return spider;
 };
 sandcrawler.PhantomSpider = sandcrawler.phantomSpider;
+
+// Aliases
+buildAlias(sandcrawler.spider, 'droid');
+buildAlias(sandcrawler.spider, 'jawa');
+buildAlias(sandcrawler.phantomSpider, 'droid', 'phantom');
+buildAlias(sandcrawler.phantomSpider, 'jawa', 'phantom');
 
 // Exporting
 module.exports = sandcrawler;
