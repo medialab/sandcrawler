@@ -219,6 +219,27 @@ describe('When running multi-url spiders', function() {
         done();
       });
     });
+
+    it('should be possible to limit non iterating spiders all the same.', function(done) {
+      var count = 0;
+
+      var spider = new sandcrawler.spider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .limit(3)
+        .script(__dirname + '/../resources/scrapers/basic.js')
+        .result(function() {
+          count++;
+        });
+
+      phantom.run(spider, function() {
+        assert(count === 3);
+        done();
+      });
+    });
   });
 
   describe('Pausing', function() {
