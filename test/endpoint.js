@@ -22,3 +22,5 @@ require('./suites/static.js');
 // TODO: inline versions
 // TODO: stop if no scraper defined
 // TODO: not possible to pass wrong args to the function
+// TODO: self .run including phantom to run with
+// TODO: detect when script is probably not returning control

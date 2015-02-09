@@ -33,7 +33,7 @@ function Spider(name, engine) {
   // Properties
   this.options = extend(defaults);
   this.engine = new engine(this);
-  this.type = engine.type;
+  this.type = this.engine.type;
   this.remains = {};
   this.index = 0;
   this.lastJob = null;
@@ -231,12 +231,12 @@ function iterate() {
  */
 
 // Starting the spider
-Spider.prototype.run = function(callback) {
+Spider.prototype.start = function(callback) {
   var self = this;
 
   // Safeguard
   if (!this.scraperScript)
-    throw Error('sandcrawler.spider.run: no scraper was provided to this spider.');
+    throw Error('sandcrawler.spider.start: no scraper was provided to this spider.');
 
   // Emitting
   this.emit('spider:start');
@@ -269,6 +269,11 @@ Spider.prototype.run = function(callback) {
       self.queue.resume();
     }
   );
+};
+
+// TODO: run method
+Spider.prototype.run = function(callback) {
+  this.start(callback);
 };
 
 // TODO: those should be internal

@@ -30,17 +30,30 @@ describe('When using sandcrawler API', function() {
     // });
 
     it('should throw an error when trying to add an invalid scraper function.', function() {
+      assert.throws(function() {
+        sandcrawler.phantomSpider()
+          .scraper(function($) {});
+      }, /arguments/);
 
+      assert.throws(function() {
+        sandcrawler.phantomSpider()
+          .scraper(function() {});
+      }, /arguments/);
     });
 
-    it('shoul throw an error when running a spider without any scraper registerd.', function() {
+    it('should throw an error when running a spider without any scraper registerd.', function() {
+      assert.throws(function() {
+        var spider = sandcrawler.spider()
+          .url('test')
 
+        sandcrawler.run(spider);
+      }, /scraper/);
     });
 
     it('should throw an error when trying to add a feed without an url.', function() {
 
       assert.throws(function() {
-        var spider = new sandcrawler.phantomSpider()
+        var spider = sandcrawler.spider()
           .url({data: 'hello'});
       }, /url\(s\)/);
     });
