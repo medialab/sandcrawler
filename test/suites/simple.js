@@ -70,7 +70,7 @@ describe('When running fairly simple spiders', function() {
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .config({timeout: 300})
-        .scraper(require('../resources/scrapers/error.js'))
+        .scraper(require('../resources/scrapers/error.js'), false)
         .on('page:error', function(data) {
           assert.strictEqual(data.message, 'Error: random-error');
         });
@@ -95,7 +95,7 @@ describe('When running fairly simple spiders', function() {
     var globalSpider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
         .timeout(200)
-        .scraper(require('../resources/scrapers/waiter.js'))
+        .scraper(require('../resources/scrapers/waiter.js'), false)
         .result(function(err) {
           assert.strictEqual(err.message, 'timeout');
         });

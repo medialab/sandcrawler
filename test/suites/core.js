@@ -19,15 +19,15 @@ describe('When using sandcrawler API', function() {
   });
 
   describe('Spider level', function() {
-    // it('should warn the user when his/her script is probably not returning control.', function() {
+    it('should warn the user when his/her script is probably not returning control.', function() {
 
-    //   assert.throws(function() {
-    //     var spider = new sandcrawler.phantomSpider()
-    //       .jawascript(function() {
-    //         console.log('hello');
-    //       });
-    //   }, /returning control/);
-    // });
+      assert.throws(function() {
+        var spider = new sandcrawler.phantomSpider()
+          .scraper(function($, done) {
+            console.log('hello');
+          });
+      }, /returning control/);
+    });
 
     it('should throw an error when trying to add an invalid scraper function.', function() {
       assert.throws(function() {
@@ -44,7 +44,7 @@ describe('When using sandcrawler API', function() {
     it('should throw an error when running a spider without any scraper registerd.', function() {
       assert.throws(function() {
         var spider = sandcrawler.spider()
-          .url('test')
+          .url('test');
 
         sandcrawler.run(spider);
       }, /scraper/);

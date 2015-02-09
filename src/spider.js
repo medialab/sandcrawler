@@ -372,13 +372,13 @@ Spider.prototype.iterate = function(fn) {
 };
 
 // Loading the required scraper
-Spider.prototype.scraper = function(fn) {
+Spider.prototype.scraper = function(fn, check) {
 
   // Checking
   if (typeof fn !== 'function')
     throw Error('sandcrawler.spider.scraper: argument must be a function.');
 
-  this.scraperScript = (this.engine.compile || _.identity)(fn);
+  this.scraperScript = (this.engine.compile || _.identity)(fn, check);
 
   return this;
 };

@@ -78,8 +78,8 @@ function PhantomEngine(spider) {
   });
 
   // Compiling method
-  this.compile = function(fn) {
-    return phscript.fromFunction(fn);
+  this.compile = function(fn, check) {
+    return phscript.fromFunction(fn, check);
   };
 
   // Fetching method
