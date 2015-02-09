@@ -45,5 +45,19 @@ describe('When running a static spider', function() {
 
       sandcrawler.run(spider, done);
     });
+
+    it('should handle user-generated errors.', function(done) {
+
+      var spider = sandcrawler.spider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraper(function($, done) {
+          return done(new Error('tada'));
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'tada');
+        });
+
+      sandcrawler.run(spider, done);
+    });
   });
 });

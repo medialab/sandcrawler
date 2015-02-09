@@ -135,9 +135,13 @@ function PhantomEngine(spider, phantom) {
         }
 
         // User-generated error
-        console.log(response.error);
-        if (response.error)
-          return callback(response.error, job);
+        if (response.error) {
+          betterError = new Error(response.error.message);
+
+          for (var k in _.omit(response.error, 'message'))
+            betterError[k] = response.error[k];
+          return callback(betterError, job);
+        }
 
         return callback(null, job);
       }

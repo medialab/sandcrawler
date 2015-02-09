@@ -15,7 +15,6 @@ require('./suites/static.js');
 
 // TODO: browserify builds
 // TODO: test scraper method
-// TODO: user generated error in both static and phantom
 // TODO: test erroneous cases of function arguments
 // TODO: test done calling
 // TODO: consolidate phscript regexes

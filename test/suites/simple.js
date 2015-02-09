@@ -139,7 +139,7 @@ describe('When running fairly simple spiders', function() {
 
     it('should be possible to get back user-generated errors.', function(done) {
       var spider = sandcrawler.phantomSpider()
-        .url('http://localhost:7337/resources/404.html')
+        .url('http://localhost:7337/resources/basic.html')
         .scraper(require('../resources/scrapers/user_error.js'))
         .result(function(err, req, res) {
           assert.strictEqual(err.message, 'tada');
