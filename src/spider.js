@@ -63,6 +63,8 @@ function Spider(name, engine) {
 
       // Processing one job through the pipe
       self.index++;
+      self.emit('job:scrape', job);
+
       return async.applyEachSeries([
         scrape.bind(self),
         afterScraping.bind(self)
