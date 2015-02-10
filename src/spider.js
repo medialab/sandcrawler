@@ -256,7 +256,6 @@ Spider.prototype.start = function(callback) {
 
         // All processes finished, we call it a success
         var remains = flattenRemains.call(self);
-        callback(null, remains);
         return self.succeed(remains);
       };
 
@@ -269,6 +268,15 @@ Spider.prototype.start = function(callback) {
       self.queue.resume();
     }
   );
+
+  // Listening to success/fail events
+  this.once('spider:fail', function(err, remains) {
+    return callback(err, remains);
+  });
+
+  this.once('spider:success', function(remains) {
+    return callback(null, remains);
+  });
 };
 
 // TODO: run method
@@ -276,18 +284,20 @@ Spider.prototype.run = function(callback) {
   this.start(callback);
 };
 
-// TODO: those should be internal
-
 // Failing the spider
-Spider.prototype.fail = function(err, remains) {
-  this.emit('spider:fail', err);
-  this.end('fail', remains);
+Spider.prototype.fail = function(err) {
+  var remains = flattenRemains.call(this);
+
+  this.emit('spider:fail', err, remains);
+  this.end('fail', remains || []);
 };
 
 // Succeeding the spider
-Spider.prototype.succeed = function(remains) {
-  this.emit('spider:success');
-  this.end('success', remains);
+Spider.prototype.succeed = function() {
+  var remains = flattenRemains.call(this);
+
+  this.emit('spider:success', remains);
+  this.end('success', remains || []);
 };
 
 // Ending the spider

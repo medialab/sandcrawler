@@ -35,6 +35,10 @@ function PhantomEngine(spider) {
   this.listeners = {
     crash: function() {
 
+      // Removing queue drain
+      // TODO: there must be more elegant ways to perform this...
+      spider.queue.drain = null;
+
       self.requests.forEach(function(req) {
         req.call.cancel();
       });
