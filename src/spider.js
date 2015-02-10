@@ -46,6 +46,7 @@ function Spider(name, engine) {
 
   // Additional properties
   this.scraperScript = null;
+  this.synchronousScraperScript = false;
   this.iterator = null;
 
   // Queue
@@ -389,6 +390,20 @@ Spider.prototype.scraper = function(fn, check) {
     throw Error('sandcrawler.spider.scraper: argument must be a function.');
 
   this.scraperScript = (this.engine.compile || _.identity)(fn, check);
+  this.synchronousScraperScript = false;
+
+  return this;
+};
+
+// Loading an asynchronous scraper
+Spider.prototype.scraperSync = function(fn, check) {
+
+  // Checking
+  if (typeof fn !== 'function')
+    throw Error('sandcrawler.spider.scraper: argument must be a function.');
+
+  this.scraperScript = fn;
+  this.synchronousScraperScript = true;
 
   return this;
 };

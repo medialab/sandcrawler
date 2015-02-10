@@ -40,10 +40,17 @@ function StaticEngine(spider) {
       // Parsing
       if (spider.scraperScript) {
         var $ = cheerio.load(job.res.body);
-        spider.scraperScript.call(spider, $, function(err, data) {
-          job.res.data = data;
-          return callback(err, data);
-        });
+
+        if (spider.synchronousScraperScript) {
+          job.res.data = spider.scraperScript.call(spider, $);
+          return callback(null, job.res.data);
+        }
+        else {
+          spider.scraperScript.call(spider, $, function(err, data) {
+            job.res.data = data;
+            return callback(err, data);
+          });
+        }
       }
       else {
         return callback(null, job);
