@@ -402,7 +402,7 @@ Spider.prototype.scraperSync = function(fn, check) {
   if (typeof fn !== 'function')
     throw Error('sandcrawler.spider.scraper: argument must be a function.');
 
-  this.scraperScript = fn;
+  this.scraperScript = (this.engine.compile || _.identity)(fn, check, true);
   this.synchronousScraperScript = true;
 
   return this;

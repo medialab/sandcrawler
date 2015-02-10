@@ -82,8 +82,8 @@ function PhantomEngine(spider) {
   });
 
   // Compiling method
-  this.compile = function(fn, check) {
-    return phscript.fromFunction(fn, check);
+  this.compile = function(fn, check, synchronous) {
+    return phscript.fromFunction(fn, check, synchronous);
   };
 
   // Fetching method
@@ -100,6 +100,7 @@ function PhantomEngine(spider) {
       // Sent data
       {
         url: job.req.url,
+        synchronousScript: spider.synchronousScraperScript,
         script: spider.scraperScript,
         params: extend(spider.options.params, job.req.params),
         timeout: timeout

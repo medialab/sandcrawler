@@ -43,6 +43,37 @@ describe('Phantom Scripts', function() {
       null
     );
 
+    // Single argument match
+    assert.deepEqual(
+      'function($, done) {}'.match(r.singleArgMatch)[1],
+      '$'
+    );
+
+    assert.deepEqual(
+      'function ($, done) {}'.match(r.singleArgMatch)[1],
+      '$'
+    );
+
+    assert.deepEqual(
+      'function   ( $ , done ){}'.match(r.singleArgMatch)[1],
+      '$'
+    );
+
+    assert.deepEqual(
+      'function($, done, otherCrap) {}'.match(r.singleArgMatch)[1],
+      '$'
+    );
+
+    assert.deepEqual(
+      'function(onlyOne) {}'.match(r.singleArgMatch)[1],
+      'onlyOne'
+    );
+
+    assert.deepEqual(
+      'function() {}'.match(r.singleArgMatch),
+      null
+    );
+
     // Function replacement
     assert.strictEqual(
       'function($, done) {}'.replace(r.fnReplace, 'hey'),
@@ -70,6 +101,11 @@ describe('Phantom Scripts', function() {
     assert.deepEqual(
       phscript.argNames('function($, done) {}'),
       ['$', 'done']
+    );
+
+    assert.deepEqual(
+      phscript.argName('function($) {}'),
+      ['$']
     );
   });
 });

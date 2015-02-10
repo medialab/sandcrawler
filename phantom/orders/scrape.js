@@ -174,7 +174,18 @@ module.exports = function(parent, params) {
       injectArtoo();
 
       // Evaluating scraper
-      page.evaluateAsync(order.script);
+      if (order.synchronousScript) {
+        var data = page.evaluate(order.script);
+
+        // Replying to parent
+        parent.replyTo(callId, wrapSuccess({data: data}));
+
+        // Closing
+        return cleanup();
+      }
+      else {
+        page.evaluateAsync(order.script);
+      }
     };
 
     // On page console message
