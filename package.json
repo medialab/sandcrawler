@@ -4,7 +4,8 @@
   "description": "The server-side scraping companion.",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "mocha -R spec ./test/endpoint.js",
+    "lint": "jshint src && jshint test"
   },
   "repository": {
     "type": "git",
@@ -36,9 +37,7 @@
   },
   "devDependencies": {
     "express": "^4.11.1",
-    "gulp": "^3.8.9",
-    "gulp-jshint": "^1.8.5",
-    "gulp-mocha": "^2.0.0",
+    "jshint": "^2.6.0",
     "mocha": "^2.1.0"
   }
 }
