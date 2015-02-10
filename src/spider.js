@@ -13,7 +13,8 @@ var EventEmitter = require('events').EventEmitter,
     uuid = require('uuid'),
     async = require('async'),
     validate = require('./plugins/validate.js'),
-    extend = require('./helpers.js').extend,
+    helpers = require('./helpers.js'),
+    extend = helpers.extend,
     defaults = require('../defaults.json').spider,
     _ = require('lodash');
 
@@ -87,7 +88,7 @@ function Spider(name, engine) {
 
           // Updating remains
           self.remains[job.id] = {
-            error: err,
+            error: helpers.serializeError(err),
             job: job
           };
 

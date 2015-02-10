@@ -5,7 +5,8 @@
  * Scraping job handler function.
  */
 var webpage = require('webpage'),
-    extend = require('../../src/helpers.js').extend;
+    helpers = require('../../src/helpers.js'),
+    extend = helpers.extend;
 
 module.exports = function(parent, params) {
 
@@ -88,7 +89,7 @@ module.exports = function(parent, params) {
         url: page.url,
         headers: page.response.headers,
         status: page.response.status,
-        error: result.error,
+        error: result.error ? helpers.serializeError(result.error) : null,
         data: result.data
       };
     }

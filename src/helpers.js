@@ -4,6 +4,7 @@
  *
  * Miscellaneous helper functions.
  */
+var _ = require('lodash');
 
 // Is the var a plain object?
 function isPlainObject(v) {
@@ -29,7 +30,19 @@ function extend() {
   return res;
 }
 
+// Serialize a JavaScript error
+function serializeError(err) {
+  var o = {};
+
+  Object.getOwnPropertyNames(err).forEach(function (k) {
+    o[k] = err[k];
+  });
+
+  return _.omit(o, ['stack', 'type', 'arguments']);
+}
+
 // Exporting
 module.exports = {
-  extend: extend
+  extend: extend,
+  serializeError: serializeError
 };

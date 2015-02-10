@@ -6,9 +6,6 @@
  * a sandcrawler instance.
  */
 
-// Extensions
-require('./extensions.js');
-
 // Requiring orders
 var orders = {
   scrape: require('./orders/scrape.js')
