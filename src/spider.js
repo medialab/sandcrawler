@@ -13,6 +13,7 @@ var EventEmitter = require('events').EventEmitter,
     uuid = require('uuid'),
     async = require('async'),
     validate = require('./plugins/validate.js'),
+    stats = require('./plugins/stats.js'),
     helpers = require('./helpers.js'),
     extend = helpers.extend,
     defaults = require('../defaults.json').spider,
@@ -58,6 +59,9 @@ function Spider(name, engine) {
       retrying: false,
       failing: false
     };
+
+    // Emitting
+    self.emit('job:start', job);
 
     // Apply before middlewares so we can tell if the job needs discarding
     beforeScraping.call(self, job, function(err) {
@@ -138,6 +142,9 @@ function Spider(name, engine) {
     beforeScraping: [],
     afterScraping: []
   };
+
+  // Built-in plugins
+  this.use(stats());
 }
 
 // Inheriting

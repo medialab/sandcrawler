@@ -413,6 +413,32 @@ describe('When running multi-url spiders', function() {
     });
   });
 
+  describe('Statistics', function() {
+
+    it('should properly record some basic counts.', function(done) {
+      var spider = new sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .scraper(require('../resources/scrapers/basic.js'))
+        .result(function(err, req, res) {
+
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(spider, function(err) {
+        assert(spider.stats.done === 3);
+        assert(spider.stats.completion === 100);
+        assert(spider.stats.successes === 3);
+        assert(spider.stats.failures === 0);
+        done();
+      });
+    });
+  });
+
   Function.prototype('Exiting', function() {
 
     it('should be possible to exit the spider.', function(done) {
