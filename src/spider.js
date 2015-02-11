@@ -53,6 +53,12 @@ function Spider(name, engine) {
   // Queue
   this.queue = async.queue(function(job, callback) {
 
+    // Resetting state
+    job.state = {
+      retrying: false,
+      failing: false
+    };
+
     // Apply before middlewares so we can tell if the job needs discarding
     beforeScraping.call(self, job, function(err) {
       if (err) {
@@ -93,12 +99,18 @@ function Spider(name, engine) {
           };
 
           // Failing the job
+          job.state.failing = true;
           self.emit('job:fail', err, job);
+
+          // If the job is not retried even though we declared it failing
+          // we call it a day
+          self.emit('job:end', job);
         }
         else {
 
           // Calling it a success
           self.emit('job:success', job);
+          self.emit('job:end', job);
         }
 
         // Keeping last job
@@ -142,6 +154,10 @@ function createJob(feed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: feed,
+    state: {
+      retrying: false,
+      failing: false
+    },
     req: {
       retries: 0,
       data: {},
@@ -184,6 +200,7 @@ function retryJob(job, when) {
 
   // Request
   job.req.retries++;
+  job.state.retrying = true;
 
   // Adding to the queue again
   this.queue[when === 'now' ? 'unshift' : 'push'](job);
