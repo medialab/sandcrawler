@@ -8,192 +8,178 @@ id: quick_start
 
 ---
 
-**sandcrawler.js** is a scraping library aiming at performing complex scraping tasks where client-side JavaScript execution is needed.
+**sandcrawler.js** is a scraping library aiming at performing complex scraping tasks where client-side JavaScript execution might be needed.
 
 But before being able to do so, let's see how one could perform simpler tasks like scraping the famous *Hacker News*.
 
 ---
 
-## Defining our scraper
+* [Defining a spider](#defining)
+* [Enter the scraper](#scraper)
+* [Analyzing the results](#results)
+* [Running the spider](#running)
+* [More pages?](#more-pages)
+* [Need phantomjs?](#phantomjs)
+* [Prototyping within your web browser](#prototyping)
+* [What now?](#what-now)
 
-First of all, we need to create a scraper to describe what we intend to perform here:
+---
+
+<h2 id="defining">Defining a spider</h2>
+
+First of all, we need to create a spider that will fetch *Hacker News*' front page so we can scrape its data.
+
+We'll gather only post titles and urls for the sake of the demonstration but I am sure anyone would be greedier than that in a normal use case.
 
 ```js
 // Let's start by requiring the library
 var sandcrawler = require('sandcrawler');
 
-// Now let's define a new scraper and start chaining
-var myScraper = sandcrawler.scraper();
+// Now let's define a new spider and start chaining
+var spider = sandcrawler.spider()
 
   // What we need is to hit the following url
   .url('https://news.ycombinator.com')
 
-  // With the following extracting script we are going to write
-  .script('./extractor.js')
+  // With the following scraper
+  .scraper(function($, done) {
 
-  // So that we can handle the result
-  .result(function(err, req, res) {
-    console.log('Url scraped, retrieved:', res.data);
-  });
-```
-
----
-
-## Writing a script to extract our data
-
-Now that we defined the behaviour of our scraper, we need to write the `extractor.js` file so that we can retrieve the data we need.
-
-Let's say we are a bit lazy and we just want to retrieve the title of the site for the time being.
-
-One has to understand that the script we are writing now will be executed within phantomjs on `https://news.ycombinator.com` and must be asynchronous.
-
-This script must therefore call the `done` function with the desired data when extraction is finished so he can return control to **sandcrawler**.
-
-*extractor.js*
-
-```js
-// Getting the title
-var title = document.title;
-
-// Notifying sandcrawler that the extraction is done
-done(title);
-```
-
-1. Why should I use a callback? Can't I just return the data like in a function?
-
-> No you cannot. How would you fare if what you need is to wait for certain XHR calls to succeed before retrieving your data? Stop fighting against asynchronicity and start playing along with it.
-
-<ol start="2">
-  <li>What if this <em>done</em> function already exists within the host webpage and we are messing with it?</li>
-</ol>
-
-> Do not worry for **sandcrawler** always ensures that your client-side extracting scripts are always run within a safe environment. This callback will always be available as well as other utilities the library offers you such as jQuery and artoo.js.
-
----
-
-## More on the result
-
-Let's go back a moment on our scraper's result callback so we understand what is going on:
-
-```js
-var myScraper = sandcrawler.scraper()
-  .url('https://news.ycombinator.com')
-  .script('./extractor.js')
-  .result(function(err, req, res) {
-    // Exposing result of our scraping job
-  });
-```
-
-This callback is exposing the following arguments:
-
-* **err**: a potential error. Life is hard and errors are frequent when scraping: 404 status, your extracting script was poorly written etc.
-* **req**: the request that was passed by your scraping job. `req.url` is `https://news.ycombinator.com`, for instance.
-* **res**: the response you received. Here, `res.data` would be what was returned by the `done` callback in your extracting script.
-
-Note that both `req` and `res` arguments hold a lot of information you might need while scraping like urls, headers, arbitrary data etc.
-
----
-
-## Running our scraper
-
-We are now ready to unleash our scraper, let's wrap things up and use `sandcrawler.run` to do so:
-
-*extractor.js*
-
-```js
-var title = document.title;
-done(title);
-```
-
-*scrape-hn.js*
-
-```js
-var sandcrawler = require('sandcrawler');
-
-var myScraper = sandcrawler.scraper();
-  .url('https://news.ycombinator.com')
-  .script('./extractor.js')
-  .result(function(err, req, res) {
-    console.log('Url scraped, retrieved:', res.data);
-  });
-
-// Launching the scraper
-sandcrawler.run(myScraper);
-```
-
-*Running the script*
-
-```bash
-node scrape-hn.js
-```
-
-Now, if stars are correctly aligned, your console should ouput the following:
-
-```
-Hacker News
-```
-
-A phantomjs instance was spawned automatically for you and ran your extracting script on `'https://news.ycombinator.com` so you could retrieve the page's title.
-
----
-
-## Prototyping within your web browser
-
----
-
-## Adding more pages to that
-
----
-
-## Jawascript
-
----
-
-## Isn't phantomjs overkill?
-
----
-
-## What now?
-
-plugins
-
-
-
-## Bootcamp
-
-Now that you have installed **sandcrawler.js** let's scrape the famous *Hacker News*:
-
-```js
-var sandcrawler = require('sandcrawler');
-
-// Defining our scraping task
-var scraper = sandcrawler.scraper()
-
-  // Hitting Hacker News' url
-  .url('https://news.ycombinator.com/')
-
-  // Running the following client-side script on the page
-  .jawascript(function(done) {
-
-    // Using artoo.js to gather data
     var data = $('td.title:has(a):not(:last)').scrape({
       title: {sel: 'a'},
       url: {sel: 'a', attr: 'href'}
     });
 
-    // Notifying that the scraping is done
-    done(data);
+    done(null, data);
   })
 
-  // Acting upon result
+  // So that we can handle the result
   .result(function(err, req, res) {
-
-    // Printing scraped data
-    console.log(res.data);
+    console.log('Scraped data:', res.data);
   });
+```
 
-// Running our scraper with phantomjs
-sandcrawler.run(scraper, function(err, remains) {
-  console.log('Finished');
+---
+
+<h2 id="scraper">Enter the scraper</h2>
+
+To scrape our post title and urls, we need to use a scraping function.
+
+This function takes two arguments:
+
+* **$**: The retrieved html parsed with [cheerio](https://github.com/cheeriojs/cheerio) and extended with [artoo.scrape](http://medialab.github.io/artoo/node/).
+* **done**: a callback to call when your scraping is done. This function is a typical node.js callback and takes as first argument an error if needed and the scraped data as second argument.
+
+---
+
+<h2 id="results">Analyzing the results</h2>
+
+Once your scraping has been done, or if an error occurred in the process, you'll be able to analyse the results of your actions within a dedicated callback taking the following arguments:
+
+* **err**: an error asserting that your scraping job failed (because of a 404 for instance or because your script did not return the information before a precise timeout etc.). You should **really** handle errors. Scraping is not a reliable science and might blow your face up if you are not careful enough.
+* **req**: the request you passed to the spider (the url you requested, any arbitrary data or parameters you might need to pass along the spider etc.).
+* **res**: the response received along with the scraped data. `res.data`, for instance, holds the results of your scraper function.
+
+---
+
+<h2 id="running">Running the spider</h2>
+
+Once your spider is correctly defined, you can finally run it:
+
+```js
+spider.run(function(err, remains) {
+  console.log('Finished!');
 });
 ```
+
+The `run` callback accepts two important arguments:
+
+* **err**: a spider-level error that made it fail globally.
+* **remains**: an array of scraping jobs that failed along with the resultant error so you can retry later or just assess the losses.
+
+---
+
+<h2 id="more-pages">More pages?</h2>
+
+But one might notice that this is quite silly to deploy such shenaningans just to scrape a single page.
+
+Needless to say that **sandcrawler** enables you to scrape multiple pages. Just pass an array of urls to the spider's `urls` method and there you go:
+
+```js
+spider.urls([
+  'https://news.ycombinator.com',
+  'https://news.ycombinator.com?p=2',
+  'https://news.ycombinator.com?p=3',
+  'https://news.ycombinator.com?p=4'
+]);
+```
+
+Note also that if you need to deduce the next urls from the current page, you can also [iterate]({{ site.baseurl }}/spider#iterate) or even [add urls]({{ site.baseurl }}/spider#add) to the spider at runtime without further ado.
+
+---
+
+<h2 id="phantomjs">Need phantomjs?</h2>
+
+But sometimes, static scraping is clearly not enough and you might need to perform silly operations such as develop a long infinite scrolling or triggering complex XHR requests requiring great amount of authentication.
+
+For this, you can use the library's phantom spiders that will use [phantomjs](http://phantomjs.org/) for you:
+
+```js
+// Just change
+sandcrawler.spider();
+// into
+sandcrawler.phantomSpider();
+```
+
+---
+
+<h2 id="prototyping">Prototyping within your web browser</h2>
+
+Prototyping scrapers server-side can be tiresome at times.
+
+Fortunately, **sandcrawler** has been designed to be a brother to the [artoo.js](https://medialab.github.io/artoo/) library. This handy library makes client-side scraping feel like a breeze and enables you to prototype, in your browser, scrapers you will run with **sandcrawler** later.
+
+Indeed, any **sandcrawler** scraper function can use **artoo.js** and **jQuery** seamlessly so you can use your scripts both in the browser and in the server.
+
+---
+
+<h2 id="plugins">Plugins</h2>
+
+As a conclusion, know that, under the hood, **sandcrawler**'s spiders are event emitters. This makes the creation of plugins a very easy task.
+
+For the sake of the example, let's say you want to log "Yeah!" to the console each time a scraping job succeeds:
+
+```js
+spider.on('job:success', function(job) {
+  console.log('Yeah!');
+});
+```
+
+One can easily create a plugin function by writing the following:
+
+```js
+function myPlugin(opts) {
+  return function(spider) {
+
+    spider.on('job:success', function(job) {
+      console.log('Yeah!');
+    });
+  };
+}
+```
+
+And plug it into his/her spiders likewise:
+
+```js
+spider.use(myPlugin());
+```
+
+For more information about plugins or if you want to know if a plugin already exists to tackle your needs, you can check this [page]({{ site.baseurl }}/plugins).
+
+---
+
+<h2 id="what-now">What now?</h2>
+
+Now that you know the basics of sandcrawler, feel free to roam its documentation whose summary you can find on your left and don't forget this golden rule:
+
+<blockquote align="center" class="twitter-tweet" lang="en"><p>Show more data on your web page than available in your API? That&#39;s a scrapin&#39; <a href="http://t.co/sGCsFXUTjF">pic.twitter.com/sGCsFXUTjF</a></p>&mdash; Andrew Nesbitt (@teabass) <a href="https://twitter.com/teabass/status/557877644474454016">January 21, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
