@@ -347,6 +347,21 @@ Spider.prototype.end = function(status, remains) {
   this.teardown();
 };
 
+// Manually exiting the spide
+Spider.prototype.exit = function() {
+  this.queue.tasks.forEach(function(task) {
+    var job = task.data;
+
+    this.remains[job.id] = {
+      error: helpers.serializeError(new Error('spider-exit')),
+      job: job
+    };
+  }, this);
+
+  this.queue.kill();
+  this.fail(new Error('exited'));
+};
+
 // Teardown
 Spider.prototype.teardown = function() {
 

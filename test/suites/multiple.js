@@ -470,19 +470,19 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  Function.prototype('Exiting', function() {
+  describe('Exiting', function() {
 
     it('should be possible to exit the spider.', function(done) {
       var count = 0;
 
       var spider = new sandcrawler.phantomSpider()
         .url([
-          {url: 'http://localhost:7337/resources/basic.html', id: 0},
-          {url: 'http://localhost:7337/resources/basic.html', id: 1},
-          {url: 'http://localhost:7337/resources/basic.html', id: 2}
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/basic.html'}
         ])
         .scraper(function($, done) {
-          done(true);
+          done();
         })
         .result(function() {
           count++;
@@ -493,8 +493,7 @@ describe('When running multi-url spiders', function() {
         assert.strictEqual(err.message, 'exited');
         assert(count === 1);
         assert(remains.length === 2);
-        assert.strictEqual(remains[0].job.id, 1);
-        assert.strictEqual(remains[0].error.message, 'exited');
+        assert.strictEqual(remains[0].error.message, 'spider-exit');
         done();
       });
     });
