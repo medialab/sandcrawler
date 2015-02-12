@@ -437,6 +437,37 @@ describe('When running multi-url spiders', function() {
         done();
       });
     });
+
+    it('should properly record an error index.', function(done) {
+      var count = 0;
+
+      var spider = new sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .scraper(require('../resources/scrapers/basic.js'))
+        .afterScraping(function(req, res, next) {
+          if (count > 1)
+            next(new Error('alert'));
+          else
+            next(new Error('achtung'));
+
+          count++;
+        });
+
+      phantom.run(spider, function(err) {
+        assert.deepEqual(
+          spider.stats.errorIndex,
+          {
+            alert: 1,
+            achtung: 2
+          }
+        );
+        done();
+      });
+    });
   });
 
   Function.prototype('Exiting', function() {

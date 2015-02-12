@@ -161,6 +161,10 @@ function createJob(feed) {
   var job = {
     id: 'Job[' + uuid.v4() + ']',
     original: feed,
+    time: {
+      start: 0,
+      end: 0
+    },
     state: {
       retrying: false,
       failing: false
