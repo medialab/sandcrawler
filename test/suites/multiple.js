@@ -229,14 +229,14 @@ describe('When running multi-url spiders', function() {
           'http://localhost:7337/resources/basic.html',
           'http://localhost:7337/resources/basic.html'
         ])
-        .limit(3)
+        .limit(1)
         .scraper(require('../resources/scrapers/basic.js'))
         .result(function() {
           count++;
         });
 
       phantom.run(spider, function() {
-        assert(count === 3);
+        assert(count === 1);
         done();
       });
     });

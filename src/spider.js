@@ -503,6 +503,9 @@ Spider.prototype.limit = function(l) {
 
   this.options.limit = l;
 
+  // Applying limit on already existant queue
+  this.queue.tasks = this.queue.tasks.slice(0, l);
+
   return this;
 };
 
