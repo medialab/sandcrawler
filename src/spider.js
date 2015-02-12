@@ -138,7 +138,6 @@ function Spider(name, engine) {
   // Middlewares
   this.middlewares = {
     before: [],
-    after: [],
     beforeScraping: [],
     afterScraping: []
   };
@@ -335,16 +334,15 @@ Spider.prototype._succeed = function() {
 // Ending the spider
 Spider.prototype._end = function(status, remains) {
 
-  // Emitting
-  this.emit('spider:end', status, remains || []);
-
-  // TODO: Resolving ending middlewares
-
+  // State
   this.state.running = false;
   this.state.fulfilled = true;
 
   // Tearing down
   this._teardown();
+
+  // Emitting
+  this.emit('spider:end', status, remains || []);
 };
 
 // Manually exiting the spide
@@ -550,7 +548,6 @@ function middlewareRegister(type) {
 }
 
 middlewareRegister('before');
-middlewareRegister('after');
 middlewareRegister('beforeScraping');
 middlewareRegister('afterScraping');
 

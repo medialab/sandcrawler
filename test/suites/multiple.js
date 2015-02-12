@@ -311,7 +311,7 @@ describe('When running multi-url spiders', function() {
     });
   });
 
-  describe('Discards', function() {
+  describe('Before', function() {
 
     it('should be possible to discard some jobs before they are executed.', function(done) {
       var count = 0,
