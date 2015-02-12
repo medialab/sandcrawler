@@ -29,7 +29,7 @@ module.exports = function(opts) {
       totalTime: 0,
       averageTimePerJob: 0,
       getRemainingTimeEstimation: function() {
-        return Math.floor((stats.queued + stats.doing) * stats.averageTimePerJob);
+        return Math.round((stats.queued + stats.doing) * stats.averageTimePerJob);
       },
       getElapsedTime: function() {
         return process.hrtime()[0] - stats.startTime;
@@ -43,11 +43,11 @@ module.exports = function(opts) {
 
     // Helpers
     function updateCompletion() {
-      stats.completion = Math.floor((stats.done * 100) / stats.total);
+      stats.completion = Math.round((stats.done * 100) / stats.total);
     }
 
     function updateSuccessRate() {
-      stats.successRate = Math.floor((stats.successes * 100) / stats.done);
+      stats.successRate = Math.round((stats.successes * 100) / stats.done);
     }
 
     // Adding listeners
@@ -97,8 +97,8 @@ module.exports = function(opts) {
       job.time.end = process.hrtime()[0];
 
       var jobElapsedTime = job.time.end - job.time.start;
-      stats.averageTimePerJob = stats.averageTimePerJob +
-        ((jobElapsedTime - stats.averageTimePerJob) / stats.done);
+      stats.averageTimePerJob = Math.round(stats.averageTimePerJob +
+        ((jobElapsedTime - stats.averageTimePerJob) / stats.done));
     });
   };
 };
