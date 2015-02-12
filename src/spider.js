@@ -12,6 +12,7 @@ var EventEmitter = require('events').EventEmitter,
     util = require('util'),
     uuid = require('uuid'),
     async = require('async'),
+    throttle = require('./plugins/throttle.js'),
     validate = require('./plugins/validate.js'),
     stats = require('./plugins/stats.js'),
     helpers = require('./helpers.js'),
@@ -520,6 +521,11 @@ Spider.prototype.use = function(plugin) {
 // Shortcut for the built-in validate plugin
 Spider.prototype.validate = function(definition) {
   return this.use(validate(definition));
+};
+
+// Shortcut for the built-in throttle plugin
+Spider.prototype.throttle = function(min, max) {
+  return this.use(throttle(min, max));
 };
 
 // Pausing the spider

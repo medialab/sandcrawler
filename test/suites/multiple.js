@@ -470,6 +470,35 @@ describe('When running multi-url spiders', function() {
     });
   });
 
+  describe('Throttling', function() {
+
+    it('should be possible to throttle in an uniform way.', function(done) {
+      var spider = new sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .throttle(10)
+        .scraper(require('../resources/scrapers/basic.js'));
+
+      phantom.run(spider, done);
+    });
+
+    it('should be possible to throttle by supplying a min and max value.', function(done) {
+      var spider = new sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/basic.html'
+        ])
+        .throttle(10, 20)
+        .scraper(require('../resources/scrapers/basic.js'));
+
+      phantom.run(spider, done);
+    });
+  });
+
   describe('Exiting', function() {
 
     it('should be possible to exit the spider.', function(done) {
