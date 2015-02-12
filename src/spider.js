@@ -263,7 +263,7 @@ function iterate() {
  */
 
 // Starting the spider
-Spider.prototype.start = function(callback) {
+Spider.prototype._start = function(callback) {
   var self = this;
 
   // Safeguard
@@ -288,7 +288,7 @@ Spider.prototype.start = function(callback) {
 
         // All processes finished, we call it a success
         var remains = flattenRemains.call(self);
-        return self.succeed(remains);
+        return self._succeed(remains);
       };
 
       // Starting iterator?
@@ -313,27 +313,27 @@ Spider.prototype.start = function(callback) {
 
 // TODO: run method
 Spider.prototype.run = function(callback) {
-  this.start(callback);
+  this._start(callback);
 };
 
 // Failing the spider
-Spider.prototype.fail = function(err) {
+Spider.prototype._fail = function(err) {
   var remains = flattenRemains.call(this);
 
   this.emit('spider:fail', err, remains);
-  this.end('fail', remains || []);
+  this._end('fail', remains || []);
 };
 
 // Succeeding the spider
-Spider.prototype.succeed = function() {
+Spider.prototype._succeed = function() {
   var remains = flattenRemains.call(this);
 
   this.emit('spider:success', remains);
-  this.end('success', remains || []);
+  this._end('success', remains || []);
 };
 
 // Ending the spider
-Spider.prototype.end = function(status, remains) {
+Spider.prototype._end = function(status, remains) {
 
   // Emitting
   this.emit('spider:end', status, remains || []);
@@ -344,7 +344,7 @@ Spider.prototype.end = function(status, remains) {
   this.state.fulfilled = true;
 
   // Tearing down
-  this.teardown();
+  this._teardown();
 };
 
 // Manually exiting the spide
@@ -359,11 +359,11 @@ Spider.prototype.exit = function() {
   }, this);
 
   this.queue.kill();
-  this.fail(new Error('exited'));
+  this._fail(new Error('exited'));
 };
 
 // Teardown
-Spider.prototype.teardown = function() {
+Spider.prototype._teardown = function() {
 
   // Emitting
   this.emit('spider:teardown');

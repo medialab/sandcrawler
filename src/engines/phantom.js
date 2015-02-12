@@ -43,7 +43,7 @@ function PhantomEngine(spider) {
         req.call.cancel();
       });
 
-      spider.fail(new Error('phantom-crash'));
+      spider._fail(new Error('phantom-crash'));
     },
     log: function(msg) {
       var job = getJob(msg);
