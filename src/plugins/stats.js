@@ -29,7 +29,7 @@ module.exports = function(opts) {
       totalTime: 0,
       averageTimePerJob: 0,
       getEstimatedTimeToCompletion: function() {
-        return (stats.done + stats.doing) * stats.averageTimePerJob;
+        return ((stats.queued + stats.doing) * stats.averageTimePerJob) | 0;
       },
       getElapsedTime: function() {
         return process.hrtime()[0] - stats.startTime;
