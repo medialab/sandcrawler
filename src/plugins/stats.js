@@ -47,7 +47,7 @@ module.exports = function(opts) {
     }
 
     function updateSuccessRate() {
-      stats.successRate = Math.floor((stats.successes * 100) / stats.total);
+      stats.successRate = Math.floor((stats.successes * 100) / stats.done);
     }
 
     // Adding listeners
