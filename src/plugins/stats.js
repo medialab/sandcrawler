@@ -28,8 +28,8 @@ module.exports = function(opts) {
       startTime: 0,
       totalTime: 0,
       averageTimePerJob: 0,
-      getEstimatedTimeToCompletion: function() {
-        return ((stats.queued + stats.doing) * stats.averageTimePerJob) | 0;
+      getRemainingTimeEstimation: function() {
+        return Math.floor((stats.queued + stats.doing) * stats.averageTimePerJob);
       },
       getElapsedTime: function() {
         return process.hrtime()[0] - stats.startTime;
@@ -97,8 +97,8 @@ module.exports = function(opts) {
       job.time.end = process.hrtime()[0];
 
       var jobElapsedTime = job.time.end - job.time.start;
-      stats.averageTimePerJob =
-        stats.averageTimePerJob + jobElapsedTime / stats.done;
+      stats.averageTimePerJob = stats.averageTimePerJob +
+        ((jobElapsedTime - stats.averageTimePerJob) / stats.done);
     });
   };
 };
