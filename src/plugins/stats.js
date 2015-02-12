@@ -22,6 +22,7 @@ module.exports = function(opts) {
 
       // Completion
       completion: 0,
+      successRate: 0,
 
       // Time
       startTime: 0,
@@ -43,6 +44,10 @@ module.exports = function(opts) {
     // Helpers
     function updateCompletion() {
       stats.completion = Math.floor((stats.done * 100) / stats.total);
+    }
+
+    function updateSuccessRate() {
+      stats.successRate = Math.floor((stats.successes * 100) / stats.total);
     }
 
     // Adding listeners
@@ -86,6 +91,7 @@ module.exports = function(opts) {
       stats.done++;
 
       updateCompletion();
+      updateSuccessRate();
 
       // Timing
       job.time.end = process.hrtime()[0];
