@@ -51,7 +51,7 @@ function wrapFunctionString(str, dollarName, doneName) {
 }
 
 function wrapSynchronousFunctionString(str, dollarName) {
-  return '(function(){ return ' + wrap('(' + str + ')()', dollarName) + '})';
+  return 'function(){ return ' + wrap('return (' + str + ')()', dollarName) + '}';
 }
 
 function fromFunction(fn, check, synchronous) {

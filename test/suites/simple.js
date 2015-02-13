@@ -49,22 +49,25 @@ describe('When running fairly simple spiders', function() {
       });
     });
 
-    it('should be possible to use a synchronous scraper.', function(done) {
-      var spider = sandcrawler.spider()
-        .url('http://localhost:7337/resources/basic.html')
-        .scraperSync(function($) {
-          return $('.url-list a').scrape('href');
-        })
-        .result(function(err, req, res) {
-          assert.deepEqual(res.data, samples.basic);
-        });
+    // it('should be possible to use a synchronous scraper.', function(done) {
+    //   var spider = sandcrawler.phantomSpider()
+    //     .url('http://localhost:7337/resources/basic.html')
+    //     .scraperSync(function($) {
+    //       return $('.url-list a').attr('href');
+    //     })
+    //     .on('page:log', console.log.bind(console))
+    //     .on('page:error', console.log.bind(console))
+    //     .result(function(err, req, res) {
+    //       console.log(res.data);
+    //       assert.deepEqual(res.data, samples.basic);
+    //     });
 
-      // Running the spider
-      sandcrawler.run(spider, function(err) {
-        assert(err === null);
-        done();
-      });
-    });
+    //   // Running the spider
+    //   phantom.run(spider, function(err) {
+    //     assert(err === null);
+    //     done();
+    //   });
+    // });
   });
 
   describe('Event subscription', function() {
