@@ -39,6 +39,9 @@ module.exports = function(parent, params) {
 
       // jQuery
       page.injectJs(params.paths.jquery);
+      page.evaluate(function() {
+        window.artooPhantomJQuery = window.jQuery.noConflict();
+      });
 
       // Settings
       page.evaluate(function(jsonSettings) {
@@ -49,13 +52,8 @@ module.exports = function(parent, params) {
         document.documentElement.appendChild(settings);
       }, JSON.stringify(order.params.artoo));
 
-      // artoo
+      // artoo (this will eradicate our jQuery version from window)
       page.injectJs(params.paths.artoo);
-
-      // Returning control to ye olde dollar
-      page.evaluate(function() {
-        jQuery.noConflict();
-      });
     }
 
     // Kill
