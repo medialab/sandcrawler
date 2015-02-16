@@ -88,9 +88,7 @@ function Spider(name, engine) {
 
           // Retry?
           if (self.options.autoRetry) {
-
-            // TODO: autoretry when polymorphism
-            retryJob.call(self, job);
+            retryJob.call(self, job, self.options.autoRetry === 'later' ? 'later' : 'now');
           }
           else {
             job.req.retry = retryJob.bind(self, job);
