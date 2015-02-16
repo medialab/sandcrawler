@@ -11,6 +11,13 @@ var extend = require('../helpers.js').extend,
     _ = require('lodash');
 
 /**
+ * Helper
+ */
+function btoa(str) {
+  return (new Buffer(str, 'binary')).toString('base64');
+}
+
+/**
  * Main
  */
 function PhantomEngine(spider) {
@@ -117,7 +124,14 @@ function PhantomEngine(spider) {
   this.fetch = function(job, callback) {
 
     // Figuring timeout
-    var timeout = job.req.timeout || spider.options.timeout;
+    var timeout = job.req.timeout || spider.options.timeout
+
+    // Headers (because of phantom lack of http auth)
+    var headers = extend(job.req.headers, spider.options.headers),
+        auth = extend(job.req.auth, spider.options.auth);
+
+    if (auth.user)
+      headers['Authorization'] = 'Basic ' + btoa(auth.user + (auth.password ? ':' + auth.password : ''));
 
     var call = this.phantom.request(
 
@@ -127,7 +141,7 @@ function PhantomEngine(spider) {
       // Sent data
       {
         artoo: extend(job.req.artoo, spider.options.artoo),
-        headers: extend(job.req.headers, spider.options.headers),
+        headers: headers,
         page: extend(job.req.phantomPage, spider.options.phantomPage),
         url: job.req.url,
         method: job.req.method || spider.options.method,

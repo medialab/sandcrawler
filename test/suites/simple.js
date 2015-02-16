@@ -454,6 +454,37 @@ describe('When running fairly simple spiders', function() {
       }, done);
     });
 
+    it('should be possible to use http authentication.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/auth')
+            .config({auth: {user: 'admin', password: 'password'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/auth', auth: {user: 'admin', password: 'password'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
+
     it('should be possible to change phantom page\'s settings.', function(done) {
 
       async.series({

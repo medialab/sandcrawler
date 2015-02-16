@@ -141,6 +141,37 @@ describe('When running a static spider', function() {
         }
       }, done);
     });
+
+    it('should be possible to use http authentication.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/auth')
+            .config({auth: {user: 'admin', password: 'password'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/auth', auth: {user: 'admin', password: 'password'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
   });
 
   describe('Error handling', function() {

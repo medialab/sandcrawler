@@ -6,6 +6,7 @@
  * to be correctly run.
  */
 var express = require('express'),
+    auth = require('basic-auth'),
     app = express();
 
 // Static files
@@ -20,6 +21,15 @@ app.get('/retries', function(req, res) {
     res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
 
   flag = !flag;
+});
+
+app.get('/auth', function(req, res){
+  var a = auth(req);
+
+  if (a && a.name === 'admin' && a.pass === 'password')
+    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+  else
+    return res.status(403).send('Unauthorized');
 });
 
 app.all('/method', function(req, res) {
@@ -46,6 +56,9 @@ app.get('/headers', function(req, res) {
   else
     return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
 });
+
+if (require.main === module)
+  app.listen(7337);
 
 // Exporting
 module.exports = app;

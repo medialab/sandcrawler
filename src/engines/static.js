@@ -33,6 +33,9 @@ function StaticEngine(spider) {
       uri: job.req.url
     };
 
+    if (job.req.auth || spider.options.auth)
+      settings.auth = extend(job.req.auth, spider.options.auth);
+
     request(settings, function(err, response, body) {
 
       // If an error occurred

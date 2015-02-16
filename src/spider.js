@@ -198,7 +198,14 @@ function createJob(feed) {
   // Request properties
   job.req.data = feed.data || {};
 
-  ['artoo', 'headers', 'method', 'phantomPage', 'timeout'].forEach(function(p) {
+  [
+    'auth',
+    'artoo',
+    'headers',
+    'method',
+    'phantomPage',
+    'timeout'
+  ].forEach(function(p) {
     if (feed[p])
       job.req[p] = feed[p];
   });

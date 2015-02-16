@@ -6,6 +6,7 @@
         "enabled": false
       }
     },
+    "auth": false,
     "autoExit": true,
     "autoRetry": false,
     "globalTimeout": false,

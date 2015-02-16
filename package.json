@@ -36,6 +36,7 @@
     "uuid": "~2.0.1"
   },
   "devDependencies": {
+    "basic-auth": "^1.0.0",
     "express": "^4.11.1",
     "jshint": "^2.6.0",
     "mocha": "^2.1.0"
