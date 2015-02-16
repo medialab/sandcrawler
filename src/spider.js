@@ -108,6 +108,10 @@ function Spider(name, engine) {
           job.state.failing = true;
           self.emit('job:fail', err, job);
 
+          delete job.req.retry;
+          delete job.req.retryLater;
+          delete job.req.retryNow;
+
           // If the job is not retried even though we declared it failing
           // we call it a day
           self.emit('job:end', job);

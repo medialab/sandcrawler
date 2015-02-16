@@ -357,9 +357,11 @@ describe('When running multi-url spiders', function() {
         .url('http://localhost:7337/retries')
         .scraper(require('../resources/scrapers/basic.js'))
         .result(function(err, req, res) {
-          assert(typeof req.retry === 'function');
-          assert(typeof req.retryLater === 'function');
-          assert(typeof req.retryNow === 'function');
+          if (err) {
+            assert(typeof req.retry === 'function');
+            assert(typeof req.retryLater === 'function');
+            assert(typeof req.retryNow === 'function');
+          }
 
           resultCount++;
           if (err) req.retryLater();
