@@ -273,6 +273,8 @@ function iterate() {
 Spider.prototype._start = function(callback) {
   var self = this;
 
+  callback = callback || Function.prototype;
+
   // Safeguard
   if (!this.scraperScript)
     throw Error('sandcrawler.spider.start: no scraper was provided to this spider.');
@@ -316,11 +318,6 @@ Spider.prototype._start = function(callback) {
   this.once('spider:success', function(remains) {
     return callback(null, remains);
   });
-};
-
-// TODO: run method
-Spider.prototype.run = function(callback) {
-  this._start(callback);
 };
 
 // Failing the spider

@@ -5,6 +5,8 @@
  * Using a phantomjs child to scrape the given pages.
  */
 var extend = require('../helpers.js').extend,
+    spawn = require('../spawn.js'),
+    types = require('../typology.js'),
     phscript = require('../phantom_script.js'),
     _ = require('lodash');
 
@@ -30,6 +32,31 @@ function PhantomEngine(spider) {
 
     return request ? request.job : undefined;
   }
+
+  // Spider run method
+  spider.run = function(phantom, callback) {
+    if (typeof phantom === 'function') {
+      callback = phantom;
+      phantom = null;
+    }
+
+    if (phantom) {
+      if (!types.check(phantom, 'object'))
+        throw Error('sandcrawler.spider.engines.phantom: trying to run spider with a non-phantom.');
+
+      self.phantom = phantom;
+      spider._start(callback);
+    }
+    else {
+      spawn(function(err, defaultSpawn) {
+        if (err)
+          return callback(err);
+
+        self.phantom = defaultSpawn.spy;
+        spider._start(callback);
+      });
+    }
+  };
 
   // Listeners
   this.listeners = {

@@ -14,7 +14,4 @@ require('./suites/failures.js');
 require('./suites/static.js');
 
 // TODO: browserify builds
-// TODO: test scraper method
-// TODO: sync versions
 // TODO: inline versions
-// TODO: self .run including phantom to run with

@@ -18,6 +18,11 @@ function StaticEngine(spider) {
 
   this.type = 'static';
 
+  // Spider run method
+  spider.run = function(callback) {
+    return spider._start(callback);
+  };
+
   // Fetching method
   this.fetch = function(job, callback) {
 

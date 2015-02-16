@@ -5,9 +5,12 @@
  * Sandcrawler abstract wrapper around a custom phantom child process.
  */
 var bothan = require('bothan'),
+    path = require('path'),
+    artoo = require('artoo-js'),
     uuid = require('uuid'),
     types = require('./typology.js'),
-    PhantomEngine = require('./engines/phantom.js'),
+    extend = require('./helpers.js').extend,
+    defaults = require('../defaults.json'),
     _ = require('lodash');
 
 /**
@@ -82,11 +85,8 @@ Spawn.prototype.run = function(spider, callback) {
   // Registering
   this.spiders.push(spider.id);
 
-  // Loading engine
-  spider.engine.phantom = this.spy;
-
   // Running given spider
-  spider.run(function(err, remains) {
+  spider.run(this.spy, function(err, remains) {
 
     // Removing spiders from list
     _.pullAt(self.spiders, self.spiders.indexOf(spider.id));
@@ -109,4 +109,40 @@ Spawn.prototype.run = function(spider, callback) {
 /**
  * Exporting
  */
-module.exports = Spawn;
+module.exports = function(p, callback) {
+
+  // Handling polymorphism
+  if (typeof p === 'function') {
+    callback = p;
+    p = null;
+  }
+
+  // Merging defaults
+  var params = extend(p, defaults.spawn);
+
+  // Registering phantom bindings
+  params.bindings = path.join(__dirname, '..', 'phantom', 'bindings.js');
+
+  // Registering phantom required parameters
+  params.data = extend(
+    {
+      paths: {
+        // artoo: artoo.paths.phantom,
+        artoo: __dirname + '/../temp/artoo.phantom.js',
+        jquery: require.resolve('jquery')
+      }
+    },
+    params.data
+  );
+
+  // Creating spawn
+  var spawn = new Spawn(params);
+
+  // Starting
+  spawn.start(function(err) {
+    if (err)
+      return callback(err);
+
+    callback(null, spawn);
+  });
+};
