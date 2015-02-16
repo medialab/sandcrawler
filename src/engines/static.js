@@ -42,14 +42,25 @@ function StaticEngine(spider) {
         var $ = cheerio.load(job.res.body);
 
         if (spider.synchronousScraperScript) {
-          job.res.data = spider.scraperScript.call(spider, $);
+          try {
+            job.res.data = spider.scraperScript.call(spider, $);
+          }
+          catch (e) {
+            return callback(e);
+          }
+
           return callback(null, job.res.data);
         }
         else {
-          spider.scraperScript.call(spider, $, function(err, data) {
-            job.res.data = data;
-            return callback(err, data);
-          });
+          try {
+            spider.scraperScript.call(spider, $, function(err, data) {
+              job.res.data = data;
+              return callback(err, data);
+            });
+          }
+          catch (e) {
+            return callback(e);
+          }
         }
       }
       else {

@@ -76,5 +76,31 @@ describe('When running a static spider', function() {
 
       sandcrawler.run(spider, done);
     });
+
+    it('should wrap scrapers in a try-catch statement.', function(done) {
+      var spider = sandcrawler.spider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraper(function($, done) {
+          throw Error('tada');
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'tada');
+        });
+
+      sandcrawler.run(spider, done);
+    });
+
+    it('should wrap synchronous scrapers in a try-catch statement.', function(done) {
+      var spider = sandcrawler.spider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraperSync(function($, done) {
+          throw Error('tada');
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(err.message, 'tada');
+        });
+
+      sandcrawler.run(spider, done);
+    });
   });
 });
