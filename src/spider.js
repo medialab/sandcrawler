@@ -198,17 +198,10 @@ function createJob(feed) {
   // Request properties
   job.req.data = feed.data || {};
 
-  if (feed.headers)
-    job.req.headers = feed.headers;
-
-  if (feed.method)
-    job.req.method = feed.method;
-
-  if (feed.phantomPage)
-    job.req.phantomPage = feed.phantomPage;
-
-  if (feed.timeout)
-    job.req.timeout = feed.timeout;
+  ['artoo', 'headers', 'method', 'phantomPage', 'timeout'].forEach(function(p) {
+    if (feed[p])
+      job.req[p] = feed[p];
+  });
 
   return job;
 }

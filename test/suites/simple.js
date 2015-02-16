@@ -486,5 +486,40 @@ describe('When running fairly simple spiders', function() {
         }
       }, done);
     });
+
+    it('should be possible to change artoo\'s settings', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/resources/basic.html')
+            .config({artoo: {log: {enabled: true, welcome: false}}})
+            .timeout(100)
+            .scraper(function($, done) {
+              artoo.log('hello')
+              done(null, $('body').scrapeOne());
+            })
+            .on('page:log', function(data) {
+              assert(!!~data.message.indexOf('artoo'));
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/resources/basic.html', artoo: {log: {enabled: true}}})
+            .timeout(100)
+            .scraper(function($, done) {
+              artoo.log('hello')
+              done(null, $('body').scrapeOne());
+            })
+            .on('page:log', function(data) {
+              assert(!!~data.message.indexOf('artoo'));
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
   });
 });
