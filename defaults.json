@@ -11,6 +11,7 @@
     "globalTimeout": false,
     "limit": false,
     "concurrency": 1,
+    "headers": false,
     "maxRetries": 3,
     "method": "GET",
     "timeout": 5000

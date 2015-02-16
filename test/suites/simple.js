@@ -196,18 +196,6 @@ describe('When running fairly simple spiders', function() {
       phantom.run(spider, done);
     });
 
-    // it('should be possible to run some jawascript from a string.', function(done) {
-
-    //   var spider = sandcrawler.phantomSpider()
-    //     .url('http://localhost:7337/resources/basic.html')
-    //     .jawascript("artoo.done(artoo.scrape('.url-list a', 'href'));")
-    //     .result(function(err, req, res) {
-    //       assert.deepEqual(res.data, samples.basic);
-    //     });
-
-    //   phantom.run(spider, done);
-    // });
-
     it('should be possible to notify phantom with done.', function(done) {
 
       var spider = sandcrawler.phantomSpider()
@@ -404,46 +392,66 @@ describe('When running fairly simple spiders', function() {
       }, done);
     });
 
-  //   it('should be possible to set your own user agent.', function(done) {
+    it('should be possible to set your own user agent.', function(done) {
 
-  //     var spider = sandcrawler.phantomSpider()
-  //       .url('http://localhost:7337/useragent')
-  //       .config({
-  //         params: {
-  //           page: {
-  //             userAgent: 'tada'
-  //           }
-  //         }
-  //       })
-  //       .scraper(function($, done) {
-  //         done(null, $('body').scrapeOne());
-  //       })
-  //       .result(function(err, req, res) {
-  //         assert.strictEqual(res.data, 'Yay!');
-  //       });
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/useragent')
+            .config({headers: {'User-Agent': 'tada'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
 
-  //     phantom.run(spider, done);
-  //   });
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/useragent', headers: {'User-Agent': 'tada'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
 
-  //   it('should be possible to set your own headers.', function(done) {
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
 
-  //     var spider = sandcrawler.phantomSpider()
-  //       .url('http://localhost:7337/headers')
-  //       .config({
-  //         params: {
-  //           headers: {
-  //             'x-tada': 'valid'
-  //           }
-  //         }
-  //       })
-  //       .scraper(function($, done) {
-  //         done(null, $('body').scrapeOne());
-  //       })
-  //       .result(function(err, req, res) {
-  //         assert.strictEqual(res.data, 'Yay!');
-  //       });
+    it('should be possible to set your own headers.', function(done) {
 
-  //     phantom.run(spider, done);
-  //   });
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/headers')
+            .config({headers: {'x-tada': 'valid'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/headers', headers: {'x-tada': 'valid'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
   });
 });

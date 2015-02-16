@@ -6,7 +6,8 @@
  */
 var request = require('request'),
     artoo = require('artoo-js'),
-    cheerio = require('cheerio');
+    cheerio = require('cheerio'),
+    extend = require('../helpers.js').extend;
 
 // Bootstrapping cheerio
 artoo.bootstrap(cheerio);
@@ -27,8 +28,9 @@ function StaticEngine(spider) {
   this.fetch = function(job, callback) {
 
     var settings = {
-      uri: job.req.url,
-      method: job.req.method || spider.options.method
+      headers: extend(job.req.headers, spider.options.headers),
+      method: job.req.method || spider.options.method,
+      uri: job.req.url
     };
 
     request(settings, function(err, response, body) {

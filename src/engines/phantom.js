@@ -127,6 +127,7 @@ function PhantomEngine(spider) {
       // Sent data
       {
         artoo: extend(job.req.artoo, spider.options.artoo),
+        headers: extend(job.req.headers, spider.options.headers),
         page: extend(job.req.phantomPage, spider.options.phantomPage),
         url: job.req.url,
         method: job.req.method || spider.options.method,

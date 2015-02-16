@@ -198,6 +198,9 @@ function createJob(feed) {
   // Request properties
   job.req.data = feed.data || {};
 
+  if (feed.headers)
+    job.req.headers = feed.headers;
+
   if (feed.method)
     job.req.method = feed.method;
 

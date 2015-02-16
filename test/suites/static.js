@@ -79,6 +79,68 @@ describe('When running a static spider', function() {
         }
       }, done);
     });
+
+    it('should be possible to set your own user agent.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/useragent')
+            .config({headers: {'User-Agent': 'tada'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/useragent', headers: {'User-Agent': 'tada'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
+
+    it('should be possible to set your own headers.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/headers')
+            .config({headers: {'x-tada': 'valid'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/headers', headers: {'x-tada': 'valid'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
   });
 
   describe('Error handling', function() {

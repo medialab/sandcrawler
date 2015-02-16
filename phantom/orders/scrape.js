@@ -23,6 +23,20 @@ module.exports = function(parent, params) {
     // Applying precise page settings
     page.settings = extend(order.page, page.settings);
 
+    // Checking headers for User-Agent
+    if (order.headers) {
+      var values = [],
+          names = Object.keys(order.headers).map(function(n) {
+            values.push(order.headers[n]);
+            return n.toLowerCase();
+          });
+
+      var idx = names.indexOf('user-agent');
+
+      if (~idx)
+        page.settings.userAgent = values[idx];
+    }
+
     /**
      * Enhancing webpage
      */
@@ -251,9 +265,11 @@ module.exports = function(parent, params) {
      */
     var request = {
       encoding: order.encoding || 'utf-8',
-      operation: order.method || 'GET',
-      headers: order.headers || {}
+      operation: order.method || 'GET'
     };
+
+    if (order.headers)
+      request.headers = order.headers;
 
     page.open(order.url, request);
   };
