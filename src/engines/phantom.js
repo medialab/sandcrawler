@@ -147,6 +147,14 @@ function PhantomEngine(spider) {
         });
 
         // Populating response
+        if (response.headers) {
+          var headers = {};
+          response.headers.forEach(function(h) {
+            headers[h.name.toLowerCase()] = h.value;
+          });
+          response.headers = headers;
+        }
+
         job.res = response;
 
         if (err)

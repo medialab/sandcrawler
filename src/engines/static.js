@@ -34,6 +34,7 @@ function StaticEngine(spider) {
       // Overloading
       job.res.body = body;
       job.res.status = response.statusCode;
+      job.res.headers = response.caseless.dict;
 
       // Status error
       if (response.statusCode >= 400) {
