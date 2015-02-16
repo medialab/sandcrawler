@@ -453,5 +453,38 @@ describe('When running fairly simple spiders', function() {
         }
       }, done);
     });
+
+    it('should be possible to change phantom page\'s settings.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/resources/basic.html')
+            .config({phantomPage: {javascriptEnabled: false}})
+            .timeout(100)
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(err.message, 'timeout');
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/resources/basic.html', phantomPage: {javascriptEnabled: false}})
+            .timeout(100)
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(err.message, 'timeout');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
   });
 });

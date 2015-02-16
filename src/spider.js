@@ -204,6 +204,9 @@ function createJob(feed) {
   if (feed.method)
     job.req.method = feed.method;
 
+  if (feed.phantomPage)
+    job.req.phantomPage = feed.phantomPage;
+
   if (feed.timeout)
     job.req.timeout = feed.timeout;
 
