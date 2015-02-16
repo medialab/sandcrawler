@@ -76,23 +76,23 @@ describe('Phantom Scripts', function() {
 
     // Function replacement
     assert.strictEqual(
-      'function($, done) {}'.replace(r.fnReplace, 'hey'),
-      'hey {}'
+      'function($, done) {code}'.replace(r.fnReplace, '$1'),
+      'code'
     );
 
     assert.strictEqual(
-      'function ($, done) {}'.replace(r.fnReplace, 'hey'),
-      'hey {}'
+      'function ($, done) {code}'.replace(r.fnReplace, '$1'),
+      'code'
     );
 
     assert.strictEqual(
-      'function   ( $ , done ){}'.replace(r.fnReplace, 'hey'),
-      'hey{}'
+      'function   ( $ , done ){code}'.replace(r.fnReplace, '$1'),
+      'code'
     );
 
     assert.strictEqual(
-      'function($, done, otherCrap) {}'.replace(r.fnReplace, 'hey'),
-      'hey {}'
+      'function($, done, otherCrap) {code}'.replace(r.fnReplace, '$1'),
+      'code'
     );
   });
 

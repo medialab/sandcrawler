@@ -10,7 +10,7 @@
 var regexes = {
   argMatch: /^function\s*\(\s*([^,\s]+)\s*,\s*([^,)\s]+)/,
   singleArgMatch: /^function\s*\(\s*([^,)\s]+)/,
-  fnReplace: /^function\s*[^(]*\([^)]*\)/
+  fnReplace: /^function\s*[^(]*\([^)]*\)\s*\{([\s\S]*)\}$/
 };
 
 // Retrieve the first two arguments of the given stringified function
@@ -47,11 +47,11 @@ function wrap(str, dollarName, doneName) {
 // Wrap a JavaScript function into a phantom IIFE
 function wrapFunctionString(str, dollarName, doneName) {
 
-  return '(function(){' + wrap('(' + str + ')()', dollarName, doneName) + '})';
+  return '(function(){' + wrap(str, dollarName, doneName) + '})';
 }
 
 function wrapSynchronousFunctionString(str, dollarName) {
-  return 'function(){ return ' + wrap('return (' + str + ')()', dollarName) + '}';
+  return '(function(){ return ' + wrap(str, dollarName) + '})';
 }
 
 function fromFunction(fn, check, synchronous) {
@@ -64,7 +64,7 @@ function fromFunction(fn, check, synchronous) {
       names = (synchronous ? argName : argNames)(str);
 
   // Cleaning up
-  str = str.replace(regexes.fnReplace, 'function ()');
+  str = str.replace(regexes.fnReplace, '$1');
 
   if (check && !synchronous) {
     if (!~str.indexOf(names[1]))
