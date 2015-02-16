@@ -4,11 +4,16 @@
  *
  * Handy data-validation definitions.
  */
-var Typology = require('typology'),
-    Spider = require('./spider.js');
+var Typology = require('typology');
 
 module.exports = new Typology({
-  'spider': function(v) {
-    return v instanceof Spider;
+  objectFeed: function(v) {
+    return this.check(v, 'object') && (
+      this.check(v.url, 'string|object') ||
+      !!(v.host || v.hostname)
+    );
+  },
+  feed: function(v) {
+    return this.check(v, 'string|objectFeed');
   }
 });

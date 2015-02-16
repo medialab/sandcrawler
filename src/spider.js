@@ -8,7 +8,8 @@
  * The intention here is to clearly separate the spider's logic from its means.
  */
 var EventEmitter = require('events').EventEmitter,
-    types = require('typology'),
+    types = require('./typology.js'),
+    nodeUrl = require('url'),
     util = require('util'),
     uuid = require('uuid'),
     async = require('async'),
@@ -178,16 +179,22 @@ function createJob(feed) {
   };
 
   // Handling polymorphism
-  if (types.get(feed) === 'string') {
+  if (types.check(feed, 'string')) {
     job.req.url = feed;
   }
   else {
+    var url;
 
-    // Safeguard
-    if (!feed.url)
-      throw Error('sandcrawler.spider.url(s)/addUrl(s): no url provided.');
+    // Parsing url if needed
+    if (feed.url)
+      if (types.check(feed.url, 'object'))
+        url = nodeUrl.format(extend(feed.url, {protocol: 'http'}));
+      else
+        url = feed.url;
+    else
+      url = nodeUrl.format(extend(feed, {protocol: 'http'}));
 
-    job.req.url = feed.url;
+    job.req.url = url;
     job.req.data = feed.data || {};
     job.req.params = feed.params || {};
 
@@ -377,8 +384,7 @@ Spider.prototype._teardown = function() {
 // Assigning a single url
 Spider.prototype.url = function(feed) {
 
-  // TODO: more precise type checking
-  if (!types.check(feed, 'string|array|object'))
+  if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
   // Don't add if already at limit
@@ -395,8 +401,7 @@ Spider.prototype.url = function(feed) {
 // Adding a new url during runtime
 Spider.prototype.addUrl = function(feed) {
 
-  // TODO: more precise type checking
-  if (!types.check(feed, 'string|array|object'))
+  if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
   // Don't add if already at limit

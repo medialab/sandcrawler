@@ -286,6 +286,42 @@ describe('When running fairly simple spiders', function() {
 
         phantom.run(spider, done);
     });
+
+    it('should be possible to pass an url object to parse as a job.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url({hostname: 'localhost', port: '7337', protocol: 'http', pathname: 'resources/basic.html'})
+        .scraper(require('../resources/scrapers/basic.js'))
+        .result(function(err, req, res) {
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+        phantom.run(spider, done);
+    });
+
+    it('should be possible to pass an url object to parse as a job with default http protocol.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url({hostname: 'localhost', port: '7337', pathname: 'resources/basic.html'})
+        .scraper(require('../resources/scrapers/basic.js'))
+        .result(function(err, req, res) {
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+        phantom.run(spider, done);
+    });
+
+    it('should be possible to pass an url object under `url` to parse as a job.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url({url: {hostname: 'localhost', port: '7337', protocol: 'http', pathname: 'resources/basic.html'}})
+        .scraper(require('../resources/scrapers/basic.js'))
+        .result(function(err, req, res) {
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+        phantom.run(spider, done);
+    });
   });
 
   describe('Data validation', function() {

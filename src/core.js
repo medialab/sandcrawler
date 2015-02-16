@@ -14,6 +14,13 @@ var path = require('path'),
     extend = require('./helpers.js').extend;
 
 /**
+ * Extending types
+ */
+types.add('spider', function(v) {
+  return v instanceof Spider;
+});
+
+/**
  * Main interface
  */
 var sandcrawler = {};
