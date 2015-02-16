@@ -181,26 +181,28 @@ function createJob(feed) {
   // Handling polymorphism
   if (types.check(feed, 'string')) {
     job.req.url = feed;
+    feed = {};
   }
   else {
-    var url;
 
     // Parsing url if needed
     if (feed.url)
       if (types.check(feed.url, 'object'))
-        url = nodeUrl.format(extend(feed.url, {protocol: 'http'}));
+        job.req.url = nodeUrl.format(extend(feed.url, {protocol: 'http'}));
       else
-        url = feed.url;
+        job.req.url = feed.url;
     else
-      url = nodeUrl.format(extend(feed, {protocol: 'http'}));
-
-    job.req.url = url;
-    job.req.data = feed.data || {};
-    job.req.params = feed.params || {};
-
-    if (feed.timeout)
-      job.req.timeout = feed.timeout;
+      job.req.url = nodeUrl.format(extend(feed, {protocol: 'http'}));
   }
+
+  // Request properties
+  job.req.data = feed.data || {};
+
+  if (feed.method)
+    job.req.method = feed.method;
+
+  if (feed.timeout)
+    job.req.timeout = feed.timeout;
 
   return job;
 }

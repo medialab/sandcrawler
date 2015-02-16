@@ -5,6 +5,7 @@
  * Testing some simple spiders use cases.
  */
 var assert = require('assert'),
+    async = require('async'),
     sandcrawler = require('../../index.js'),
     validate = require('../../src/plugins/validate.js'),
     samples = require('../samples.js');
@@ -372,46 +373,77 @@ describe('When running fairly simple spiders', function() {
 
   describe('Page customization', function(done) {
 
-    it('should be possible to set your own user agent.', function(done) {
+    it('should be possible to use other http verbs than GET.', function(done) {
 
-      var spider = sandcrawler.phantomSpider()
-        .url('http://localhost:7337/useragent')
-        .config({
-          params: {
-            page: {
-              userAgent: 'tada'
-            }
-          }
-        })
-        .scraper(function($, done) {
-          done(null, $('body').scrapeOne());
-        })
-        .result(function(err, req, res) {
-          assert.strictEqual(res.data, 'Yay!');
-        });
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/method')
+            .config({method: 'POST'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
 
-      phantom.run(spider, done);
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/method', method: 'POST'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
     });
 
-    it('should be possible to set your own headers.', function(done) {
+  //   it('should be possible to set your own user agent.', function(done) {
 
-      var spider = sandcrawler.phantomSpider()
-        .url('http://localhost:7337/headers')
-        .config({
-          params: {
-            headers: {
-              'x-tada': 'valid'
-            }
-          }
-        })
-        .scraper(function($, done) {
-          done(null, $('body').scrapeOne());
-        })
-        .result(function(err, req, res) {
-          assert.strictEqual(res.data, 'Yay!');
-        });
+  //     var spider = sandcrawler.phantomSpider()
+  //       .url('http://localhost:7337/useragent')
+  //       .config({
+  //         params: {
+  //           page: {
+  //             userAgent: 'tada'
+  //           }
+  //         }
+  //       })
+  //       .scraper(function($, done) {
+  //         done(null, $('body').scrapeOne());
+  //       })
+  //       .result(function(err, req, res) {
+  //         assert.strictEqual(res.data, 'Yay!');
+  //       });
 
-      phantom.run(spider, done);
-    });
+  //     phantom.run(spider, done);
+  //   });
+
+  //   it('should be possible to set your own headers.', function(done) {
+
+  //     var spider = sandcrawler.phantomSpider()
+  //       .url('http://localhost:7337/headers')
+  //       .config({
+  //         params: {
+  //           headers: {
+  //             'x-tada': 'valid'
+  //           }
+  //         }
+  //       })
+  //       .scraper(function($, done) {
+  //         done(null, $('body').scrapeOne());
+  //       })
+  //       .result(function(err, req, res) {
+  //         assert.strictEqual(res.data, 'Yay!');
+  //       });
+
+  //     phantom.run(spider, done);
+  //   });
   });
 });

@@ -21,10 +21,7 @@ module.exports = function(parent, params) {
     var page = webpage.create();
 
     // Applying precise page settings
-    page.settings = extend(order.params.page, page.settings);
-
-    // Applying precise page headers
-    page.customHeaders = extend(order.params.headers, page.customHeaders);
+    page.settings = extend(order.page, page.settings);
 
     /**
      * Enhancing webpage
@@ -50,7 +47,7 @@ module.exports = function(parent, params) {
         settings.setAttribute('settings', jsonSettings);
 
         document.documentElement.appendChild(settings);
-      }, JSON.stringify(order.params.artoo));
+      }, JSON.stringify(order.artoo));
 
       // artoo (this will eradicate our jQuery version from window)
       page.injectJs(params.paths.artoo);
@@ -252,14 +249,12 @@ module.exports = function(parent, params) {
     /**
      * Opening url
      */
-    var args = [order.url];
+    var request = {
+      encoding: order.encoding || 'utf-8',
+      operation: order.method || 'GET',
+      headers: order.headers || {}
+    };
 
-    if (order.params.method !== 'GET')
-      args.push(order.params.method);
-
-    if (order.params.querystring)
-      args.push(order.params.querystring);
-
-    page.open.apply(page, args);
+    page.open(order.url, request);
   };
 };

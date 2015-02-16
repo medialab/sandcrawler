@@ -126,11 +126,13 @@ function PhantomEngine(spider) {
 
       // Sent data
       {
+        artoo: extend(job.req.artoo, spider.options.artoo),
+        page: extend(job.req.phantomPage, spider.options.phantomPage),
         url: job.req.url,
+        method: job.req.method || spider.options.method,
         synchronousScript: spider.synchronousScraperScript,
         script: spider.scraperScript,
-        params: extend(spider.options.params, job.req.params),
-        timeout: timeout
+        timeout: timeout,
       },
 
       // Request timeout

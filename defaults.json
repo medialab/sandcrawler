@@ -1,19 +1,18 @@
 {
   "spider": {
+    "artoo": {
+      "log": {
+        "welcome": false,
+        "enabled": false
+      }
+    },
     "autoExit": true,
     "autoRetry": false,
     "globalTimeout": false,
     "limit": false,
     "concurrency": 1,
     "maxRetries": 3,
-    "params": {
-      "artoo": {
-        "log": {
-          "welcome": false,
-          "enabled": false
-        }
-      }
-    },
+    "method": "GET",
     "timeout": 5000
   },
   "spawn": {

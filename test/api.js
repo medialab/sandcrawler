@@ -22,6 +22,13 @@ app.get('/retries', function(req, res) {
   flag = !flag;
 });
 
+app.all('/method', function(req, res) {
+  if (req.method !== 'POST')
+    return res.status(403).send('Unauthorized');
+  else
+    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+});
+
 app.get('/useragent', function(req, res) {
   var ua = req.headers['user-agent'];
 

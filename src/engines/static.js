@@ -26,7 +26,12 @@ function StaticEngine(spider) {
   // Fetching method
   this.fetch = function(job, callback) {
 
-    request(job.req.url, function(err, response, body) {
+    var settings = {
+      uri: job.req.url,
+      method: job.req.method || spider.options.method
+    };
+
+    request(settings, function(err, response, body) {
 
       // If an error occurred
       if (err) return callback(err);

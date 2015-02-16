@@ -5,6 +5,7 @@
  * Testing a spiders using static requests.
  */
 var assert = require('assert'),
+    async = require('async'),
     sandcrawler = require('../../index.js'),
     samples = require('../samples.js');
 
@@ -43,6 +44,40 @@ describe('When running a static spider', function() {
           assert(remains.length === 0);
           done();
         });
+    });
+  });
+
+  describe('Page customization', function(done) {
+
+    it('should be possible to use other http verbs than GET.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/method')
+            .config({method: 'POST'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/method', method: 'POST'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
     });
   });
 
