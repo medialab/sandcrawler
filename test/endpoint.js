@@ -13,5 +13,4 @@ require('./suites/complex.js');
 require('./suites/failures.js');
 require('./suites/static.js');
 
-// TODO: browserify builds
 // TODO: inline versions

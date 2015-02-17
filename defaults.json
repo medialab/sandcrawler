@@ -9,6 +9,8 @@
     "auth": false,
     "autoExit": true,
     "autoRetry": false,
+    "body": false,
+    "bodyType": "form",
     "globalTimeout": false,
     "limit": false,
     "concurrency": 1,

@@ -172,6 +172,92 @@ describe('When running a static spider', function() {
         }
       }, done);
     });
+
+    it('should be possible to send urlencoded data.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/urlencoded')
+            .config({method: 'POST', bodyType: 'form', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/urlencoded', method: 'POST', bodyType: 'form', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        text: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/urlencoded', method: 'POST', body: 'pass=test'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
+
+    it('should be possible to send json data.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/json')
+            .config({method: 'POST', bodyType: 'json', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/json', method: 'POST', bodyType: 'json', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        text: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/json', method: 'POST', bodyType: 'json', body: '{"pass": "test"}'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
   });
 
   describe('Error handling', function() {

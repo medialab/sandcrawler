@@ -36,6 +36,27 @@ function StaticEngine(spider) {
     if (job.req.auth || spider.options.auth)
       settings.auth = extend(job.req.auth, spider.options.auth);
 
+    var bodyType = job.req.bodyType || spider.options.bodyType,
+        body = typeof job.req.body === 'string' ?
+          job.req.body :
+          extend(job.req.body, spider.options.body);
+
+    if (body) {
+      if (bodyType === 'json') {
+        if (typeof body === 'string') {
+          settings.body = body;
+          settings.headers['Content-Type'] = 'application/json';
+        }
+        else {
+          settings.json = true;
+          settings.body = body;
+        }
+      }
+      else {
+        settings.form = body;
+      }
+    }
+
     request(settings, function(err, response, body) {
 
       // If an error occurred

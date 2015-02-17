@@ -8,6 +8,7 @@ var extend = require('../helpers.js').extend,
     spawn = require('../spawn.js'),
     types = require('../typology.js'),
     phscript = require('../phantom_script.js'),
+    qs = require('querystring'),
     _ = require('lodash');
 
 /**
@@ -124,14 +125,36 @@ function PhantomEngine(spider) {
   this.fetch = function(job, callback) {
 
     // Figuring timeout
-    var timeout = job.req.timeout || spider.options.timeout
+    var timeout = job.req.timeout || spider.options.timeout;
 
     // Headers (because of phantom lack of http auth)
     var headers = extend(job.req.headers, spider.options.headers),
         auth = extend(job.req.auth, spider.options.auth);
 
     if (auth.user)
-      headers['Authorization'] = 'Basic ' + btoa(auth.user + (auth.password ? ':' + auth.password : ''));
+      headers.Authorization = 'Basic ' + btoa(auth.user + (auth.password ? ':' + auth.password : ''));
+
+    var body = null;
+    if (job.req.body || spider.options.body) {
+      var type = job.req.bodyType || spider.options.bodyType;
+
+      body = typeof job.req.body === 'string' ?
+        job.req.body :
+        extend(job.req.body, spider.options.body);
+
+      if (type === 'json') {
+        headers['Content-Type'] = 'application/json';
+        body = typeof body === 'string' ?
+          body :
+          JSON.stringify(body);
+      }
+      else {
+        headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        body = typeof body === 'string' ?
+          body :
+          qs.stringify(body);
+      }
+    }
 
     var call = this.phantom.request(
 
@@ -141,6 +164,7 @@ function PhantomEngine(spider) {
       // Sent data
       {
         artoo: extend(job.req.artoo, spider.options.artoo),
+        body: body,
         headers: headers,
         page: extend(job.req.phantomPage, spider.options.phantomPage),
         url: job.req.url,

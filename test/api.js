@@ -6,8 +6,13 @@
  * to be correctly run.
  */
 var express = require('express'),
+    bodyParser = require('body-parser'),
     auth = require('basic-auth'),
     app = express();
+
+// Middlewares
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 // Static files
 app.use('/resources', express.static(__dirname + '/resources'));
@@ -52,6 +57,24 @@ app.get('/headers', function(req, res) {
   var h = req.headers['x-tada'];
 
   if (!h)
+    return res.status(403).send('Unauthorized');
+  else
+    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+});
+
+app.post('/json', function(req, res) {
+  var pass = req.body.pass;
+
+  if (pass !== 'test')
+    return res.status(403).send('Unauthorized');
+  else
+    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+});
+
+app.post('/urlencoded', function(req, res) {
+  var pass = req.body.pass;
+
+  if (pass !== 'test')
     return res.status(403).send('Unauthorized');
   else
     return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');

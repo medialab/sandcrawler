@@ -485,6 +485,92 @@ describe('When running fairly simple spiders', function() {
       }, done);
     });
 
+    it('should be possible to send urlencoded data.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/urlencoded')
+            .config({method: 'POST', bodyType: 'form', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/urlencoded', method: 'POST', bodyType: 'form', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        text: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/urlencoded', method: 'POST', body: 'pass=test'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
+
+    it('should be possible to send json data.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url('http://localhost:7337/json')
+            .config({method: 'POST', bodyType: 'json', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/json', method: 'POST', bodyType: 'json', body: {pass: 'test'}})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        },
+        text: function(next) {
+          var spider = sandcrawler.phantomSpider()
+            .url({url: 'http://localhost:7337/json', method: 'POST', bodyType: 'json', body: '{"pass": "test"}'})
+            .scraper(function($, done) {
+              done(null, $('body').scrapeOne());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          phantom.run(spider, next);
+        }
+      }, done);
+    });
+
     it('should be possible to change phantom page\'s settings.', function(done) {
 
       async.series({
@@ -527,7 +613,7 @@ describe('When running fairly simple spiders', function() {
             .config({artoo: {log: {enabled: true, welcome: false}}})
             .timeout(100)
             .scraper(function($, done) {
-              artoo.log('hello')
+              artoo.log('hello');
               done(null, $('body').scrapeOne());
             })
             .on('page:log', function(data) {
@@ -541,7 +627,7 @@ describe('When running fairly simple spiders', function() {
             .url({url: 'http://localhost:7337/resources/basic.html', artoo: {log: {enabled: true}}})
             .timeout(100)
             .scraper(function($, done) {
-              artoo.log('hello')
+              artoo.log('hello');
               done(null, $('body').scrapeOne());
             })
             .on('page:log', function(data) {

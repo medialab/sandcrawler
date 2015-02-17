@@ -203,6 +203,8 @@ function createJob(feed) {
   [
     'auth',
     'artoo',
+    'body',
+    'bodyType',
     'headers',
     'method',
     'phantomPage',

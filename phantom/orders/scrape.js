@@ -271,6 +271,9 @@ module.exports = function(parent, params) {
     if (order.headers)
       request.headers = order.headers;
 
+    if (order.body)
+      request.data = order.body;
+
     page.open(order.url, request);
   };
 };
