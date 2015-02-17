@@ -97,6 +97,11 @@ function PhantomEngine(spider) {
 
       if (job)
         spider.emit('page:alert', msg.body.data, job.req, job.res);
+    },
+    navigation: function(msg) {
+      var job = getJob(msg);
+
+      console.log(msg);
     }
   };
 
@@ -106,6 +111,7 @@ function PhantomEngine(spider) {
     self.phantom.on('page:log', self.listeners.log);
     self.phantom.on('page:error', self.listeners.error);
     self.phantom.on('page:alert', self.listeners.alert);
+    self.phantom.on('page:navigation', self.listeners.navigation);
   });
 
   // On teardown
@@ -114,6 +120,7 @@ function PhantomEngine(spider) {
     self.phantom.removeListener('page:log', self.listeners.log);
     self.phantom.removeListener('page:error', self.listeners.error);
     self.phantom.removeListener('page:alert', self.listeners.alert);
+    self.phantom.removeListener('page:navigation', self.listeners.navigation);
   });
 
   // Compiling method

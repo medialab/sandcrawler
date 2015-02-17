@@ -107,6 +107,17 @@ describe('When running fairly simple spiders', function() {
 
       phantom.run(spider, done);
     });
+
+    // it('should be possible to handle page navigation.', function(done) {
+    //   var spider = sandcrawler.phantomSpider()
+    //     .url('http://localhost:7337/resources/basic.html')
+    //     .scraper(require('../resources/scrapers/changer.js'), false)
+    //     .on('page:navigation', function(job) {
+
+    //     });
+
+    //   phantom.run(spider, done);
+    // });
   });
 
   describe('Error handling', function() {

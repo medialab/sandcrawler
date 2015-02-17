@@ -228,6 +228,25 @@ module.exports = function(parent, params) {
       }));
     };
 
+    // On navigation
+    var firstTime = true;
+    page.onNavigationRequested = function(url, type, willNavigate) {
+
+      if (firstTime)
+        return (firstTime = false);
+
+      if (!willNavigate)
+        return;
+
+      // Caching the callback
+
+      parent.send('page:navigation', wrapData({
+        to: url,
+        type: type
+      }));
+    };
+
+    // When page load is finished
     page.onLoadFinished = function(status) {
 
       // Page is now opened
