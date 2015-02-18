@@ -27,9 +27,11 @@ function StaticEngine(spider) {
   // Fetching method
   this.fetch = function(job, callback) {
 
+    // Request settings
     var settings = {
       headers: extend(job.req.headers, spider.options.headers),
       method: job.req.method || spider.options.method,
+      timeout: job.req.timeout || spider.options.timeout,
       uri: job.req.url
     };
 
@@ -60,7 +62,11 @@ function StaticEngine(spider) {
     request(settings, function(err, response, body) {
 
       // If an error occurred
-      if (err) return callback(err);
+      if (err) {
+        if (err.message === 'ETIMEDOUT')
+          return callback(new Error('timeout'));
+        return callback(err);
+      }
 
       // Overloading
       job.res.body = body;
