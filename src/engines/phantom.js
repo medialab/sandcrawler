@@ -31,7 +31,7 @@ function PhantomEngine(spider) {
 
   // Helpers
   function getJob(msg) {
-    if (msg.from !== self.phantom.name)
+    if (!msg.id && msg.from !== self.phantom.name)
         return;
 
     var request = _.find(self.requests, function(req) {
@@ -101,7 +101,24 @@ function PhantomEngine(spider) {
     navigation: function(msg) {
       var job = getJob(msg);
 
-      console.log(msg);
+      if (!job)
+        return;
+
+      // Creating navigation object
+      var navigation = extend(
+        msg.body.data,
+        {
+          replyWithScraper: function(scraper) {
+            var compiled = self.compile(scraper, false);
+
+            // Replying
+            self.phantom.replyTo(msg.id, compiled);
+          }
+        }
+      );
+
+      // Emitting
+      spider.emit('page:navigation', navigation, job.req, job.res);
     }
   };
 

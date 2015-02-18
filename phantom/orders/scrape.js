@@ -42,6 +42,7 @@ module.exports = function(parent, params) {
      */
 
     // Fallback response object
+    page.status = null;
     page.response = {};
     page.error = {};
     page.isOpened = false;
@@ -238,12 +239,44 @@ module.exports = function(parent, params) {
       if (!willNavigate)
         return;
 
-      // Caching the callback
+      // Page is no longer opened
+      page.isOpened = false;
+      page.status = null;
 
-      parent.send('page:navigation', wrapData({
-        to: url,
-        type: type
-      }));
+      // Caching the callback
+      var onLoadFinished = page.onLoadFinished;
+      page.onLoadFinished = function(status) {
+        page.isOpened = true;
+        page.status = status;
+      };
+
+      parent.request(
+
+        // Notifying navigation
+        'page:navigation',
+
+        // Message body
+        wrapData({
+          to: url,
+          type: type
+        }),
+
+        // On answer
+        function(err, msg) {
+          if (err)
+            return;
+
+          // Setting new scraper
+          order.script = msg.body;
+
+          // Resetting callback
+          page.onLoadFinished = onLoadFinished;
+
+          // Calling it if page is already opened by the time the response arrives
+          if (page.isOpened)
+            onLoadFinished(page.status);
+        }
+      );
     };
 
     // When page load is finished
@@ -251,6 +284,7 @@ module.exports = function(parent, params) {
 
       // Page is now opened
       page.isOpened = true;
+      page.status = status;
 
       // Failing
       if (status !== 'success') {

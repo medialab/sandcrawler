@@ -174,10 +174,11 @@ function createJob(feed) {
     },
     req: {
       retries: 0,
-      data: {},
-      params: {}
+      data: {}
     },
-    res: {}
+    res: {
+      data: null
+    }
   };
 
   // Handling polymorphism

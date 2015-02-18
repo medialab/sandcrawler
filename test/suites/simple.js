@@ -108,16 +108,22 @@ describe('When running fairly simple spiders', function() {
       phantom.run(spider, done);
     });
 
-    // it('should be possible to handle page navigation.', function(done) {
-    //   var spider = sandcrawler.phantomSpider()
-    //     .url('http://localhost:7337/resources/basic.html')
-    //     .scraper(require('../resources/scrapers/changer.js'), false)
-    //     .on('page:navigation', function(job) {
+    it('should be possible to handle page navigation.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraper(require('../resources/scrapers/changer.js'), false)
+        .on('page:navigation', function(navigation) {
+          navigation.replyWithScraper(function($, done) {
+            return done(null, $('title').text());
+          });
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Basic 2');
+          assert.strictEqual(res.url, 'http://localhost:7337/resources/basic2.html');
+        });
 
-    //     });
-
-    //   phantom.run(spider, done);
-    // });
+      phantom.run(spider, done);
+    });
   });
 
   describe('Error handling', function() {
