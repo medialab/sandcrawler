@@ -49,13 +49,25 @@ module.exports = function(parent, params) {
 
     function injectArtoo() {
 
-      // jQuery
-      page.injectJs(params.paths.jquery);
+      // Backup of local jQuery
       page.evaluate(function() {
-        window.artooPhantomJQuery = window.jQuery.noConflict();
+        if (window.jQuery)
+          window.artooBackupJQuery = window.jQuery;
       });
 
-      // Settings
+      // Injecting ours
+      page.injectJs(params.paths.jquery);
+
+      // Cleaning up
+      page.evaluate(function() {
+        window.artooPhantomJQuery = window.jQuery.noConflict();
+        if (window.artooBackupJQuery) {
+          window.jQuery = window.artooBackupJQuery;
+          delete window.artooBackupJQuery;
+        }
+      });
+
+      // Artoo settings
       page.evaluate(function(jsonSettings) {
         var settings = document.createElement('div');
         settings.setAttribute('id', 'artoo_injected_script');
@@ -64,7 +76,7 @@ module.exports = function(parent, params) {
         document.documentElement.appendChild(settings);
       }, JSON.stringify(order.artoo));
 
-      // artoo (this will eradicate our jQuery version from window)
+      // Main script (this will eradicate our jQuery version from window)
       page.injectJs(params.paths.artoo);
     }
 
@@ -231,7 +243,11 @@ module.exports = function(parent, params) {
 
     // On navigation
     var firstTime = true;
-    page.onNavigationRequested = function(url, type, willNavigate) {
+    page.onNavigationRequested = function(url, type, willNavigate, main) {
+
+      // We only want the main frame
+      if (!main)
+        return;
 
       if (firstTime)
         return (firstTime = false);
