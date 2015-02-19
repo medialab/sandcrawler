@@ -52,7 +52,7 @@ var spider = sandcrawler.spider()
     done(null, data);
   })
 
-  // So that we can handle the result
+  // So that we can handle its result
   .result(function(err, req, res) {
     console.log('Scraped data:', res.data);
   });
@@ -93,7 +93,7 @@ spider.run(function(err, remains) {
 
 The `run` callback accepts two important arguments:
 
-* **err**: a spider-level error that made it fail globally.
+* **err**: a spider-level error that made it fail globally, if any.
 * **remains**: an array of scraping jobs that failed along with the resultant error so you can retry later or just assess the losses.
 
 ---
@@ -130,13 +130,15 @@ sandcrawler.spider();
 sandcrawler.phantomSpider();
 ```
 
+If you ever need more information about differences between regular spiders and phantom ones, you can read this [page]({{ site.baseurl }}/phantom_spider).
+
 ---
 
 <h2 id="prototyping">Prototyping within your web browser</h2>
 
 Prototyping scrapers server-side can be tiresome at times.
 
-Fortunately, **sandcrawler** has been designed to be a brother to the [artoo.js](https://medialab.github.io/artoo/) library. This handy library makes client-side scraping feel like a breeze and enables you to prototype, in your browser, scrapers you will run with **sandcrawler** later.
+Fortunately, **sandcrawler** has been designed to be the [artoo.js](https://medialab.github.io/artoo/)' big brother. The latter makes client-side scraping more comfortable and enables you to prototype, in your browser, scrapers you will run using **sandcrawler** later.
 
 Indeed, any **sandcrawler** scraper function can use **artoo.js** and **jQuery** seamlessly so you can use your scripts both in the browser and in the server.
 
@@ -154,7 +156,7 @@ spider.on('job:success', function(job) {
 });
 ```
 
-One can easily create a plugin function by writing the following:
+One can then easily create a plugin function by writing the following:
 
 ```js
 function myPlugin(opts) {
@@ -179,7 +181,7 @@ For more information about plugins or if you want to know if a plugin already ex
 
 <h2 id="what-now">What now?</h2>
 
-Now that you know the basics of sandcrawler, feel free to roam its documentation whose summary you can find on your left and don't forget this golden rule:
+Now that you know the basics of sandcrawler, feel free to roam (or event scrape) its documentation whose summary can be found on your left.
 
 <blockquote align="center" class="twitter-tweet" lang="en"><p>Show more data on your web page than available in your API? That&#39;s a scrapin&#39; <a href="http://t.co/sGCsFXUTjF">pic.twitter.com/sGCsFXUTjF</a></p>&mdash; Andrew Nesbitt (@teabass) <a href="https://twitter.com/teabass/status/557877644474454016">January 21, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
