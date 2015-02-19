@@ -35,6 +35,8 @@ sidebar:
   - url: 'examples'
     title: 'Examples'
   - sep
+  - url: 'changelog'
+    title: 'Changelog'
 
 github:
   repo:           https://github.com/medialab/sandcrawler
