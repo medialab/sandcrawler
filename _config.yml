@@ -32,6 +32,8 @@ sidebar:
     title: 'Lifecycle'
   - url: 'plugins'
     title: 'Plugins'
+  - url: 'examples'
+    title: 'Examples'
   - sep
 
 github:

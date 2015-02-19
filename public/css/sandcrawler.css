@@ -5,10 +5,6 @@ h1 {
   color: #2a1600;
 }
 
-a {
-  font-weight: bold;
-}
-
 .artoo-logo {
   margin-bottom: 0;
   display: inline;
@@ -36,7 +32,7 @@ a {
 .theme-base-artoo .container a,
 .theme-base-artoo .sidebar-toggle,
 .theme-base-artoo .related-posts li a:hover {
-  color: #2a1600;
+  color: #0f0700;
 }
 
 .artoo-bookmark-highlight {
