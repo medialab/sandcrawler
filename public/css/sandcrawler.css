@@ -2,7 +2,7 @@
 h1 {
   text-align: center;
   margin-top: 0px;
-  color: #663501;
+  color: #2a1600;
 }
 
 a {
@@ -31,12 +31,12 @@ a {
 .theme-base-artoo .sidebar,
 .theme-base-artoo .sidebar-toggle:active,
 .theme-base-artoo #sidebar-checkbox:checked ~ .sidebar-toggle {
-  background-color: #663501;
+  background-color: #b92b00;
 }
 .theme-base-artoo .container a,
 .theme-base-artoo .sidebar-toggle,
 .theme-base-artoo .related-posts li a:hover {
-  color: #663501;
+  color: #2a1600;
 }
 
 .artoo-bookmark-highlight {
@@ -44,7 +44,7 @@ a {
 }
 
 .artoo-bookmark-highlight a {
-  background-color: #663501;
+  background-color: #b92b00;
   color: white;
   padding: 0 10px;
   padding-bottom: 3px;
@@ -69,6 +69,10 @@ a {
 
 .sidebar-toggle {
   display: none;
+}
+
+.sidebar-nav-item a {
+  color: #1D1D1D;
 }
 
 .inline-img {
