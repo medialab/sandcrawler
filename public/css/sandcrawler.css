@@ -32,7 +32,11 @@ h1 {
 .theme-base-artoo .container a,
 .theme-base-artoo .sidebar-toggle,
 .theme-base-artoo .related-posts li a:hover {
-  color: #0f0700;
+  color: #b92b00;
+}
+
+.masthead h3.masthead-title > a {
+  color: #2a1600;
 }
 
 .artoo-bookmark-highlight {
