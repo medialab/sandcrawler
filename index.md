@@ -45,6 +45,19 @@ var spider = sandcrawler.spider()
 
 ---
 
+## Features
+
+* **Spider abstraction**: define your scraping jobs easily with the library's chainable methods and run them without further ado.
+* **Fully customizable**: You want really precise headers, a custom user-agent and complex logic? You'll have them all.
+* **Phantomjs**: Let the library handle [phantomjs](http://phantomjs.org/) for you if you need browser emulation.
+* **Complex dynamic scraping**: Need to log into facebook and auto-scroll/expand a full page? sandcrawler is made for you.
+* **Reliable**: Don't lose data during your scraping process anymore thanks to the library's paranoid strategies.
+* **Scalable**: sandcrawler has been battle-hardened and has already seen the real web's nasty and dirty face.
+* **Easy prototyping**: Design your scraping scripts within your browser thanks to [artoo.js](http://medialab.github.io/artoo/) and use the same script within sandcrawler to perform the job.
+* **Reusable logic**: Creating plugins for sandcrawler is really easy. Use already existing [ones]({{ site.baseurl }}/plugins) or build yours to fit your needs.
+
+---
+
 ## Installation
 
 You can install the latest version of **sandcrawler.js** with npm (note that it will install phantomjs for you thanks to this [package](https://www.npmjs.com/package/phantomjs)):
@@ -71,26 +84,12 @@ var sandcrawler = require('sandcrawler');
 
 ---
 
-## Features
-
-* **Spider abstraction**: define your scraping jobs easily with the library's chainable methods and run them without further ado.
-* **Fully customizable**: You want really precise headers, a custom user-agent and complex logic? You'll have them all.
-* **Phantomjs**: Let the library handle [phantomjs](http://phantomjs.org/) for you if you need browser emulation.
-* **Complex dynamic scraping**: Need to log into facebook and auto-scroll/expand a full page? sandcrawler is made for you.
-* **Static scraping**: You don't need browser emulation? The library will fallback to ye olde static scraping techniques.
-* **Scalable and reliable**: Don't lose data within your scraping process anymore thanks to the library's paranoid strategies.
-* **Easy prototyping**: Design your scraping scripts in your browser thanks to [artoo.js](http://medialab.github.io/artoo/) and use the same script within sandcrawler to perform the job.
-* **Loaded with helpers**: sandcrawler deploys a comfortable scraping environment along with [artoo.js](http://medialab.github.io/artoo/) utilities.
-* **Reusable logic**: Creating plugins for sandcrawler is really easy. Use already existing [ones]({{ site.baseurl }}/plugins) or build yours to fit your needs.
-
----
-
 ## Philosophy
 
 **sandcrawler.js** is being developed by scraper developers for scraper developers with the following concepts in mind:
 
 * **Not a framework**: sandcrawler is a library and not a framework so that people can remain free to develop things in their own way.
-* **Exhaustivity over minimalist API**: every detail can be customized. This comes with the cost of a bigger footprint for tiny projects but with more reliance for big ones.
+* **Exhaustivity over minimalist API**: every detail can be customized. This comes at the cost of a bigger code footprint for tiny projects but with more reliance for big ones.
 * **Asynchronicity**: sandcrawler is not trying to fight the asynchronous nature of client-side JavaScript. If you want to be able to perform complex scraping tasks on modern dynamic websites, you won't be able to avoid asynchronicity very long.
 * **Better workflow**: sandcrawler aims at enabling developers to design their scraping scripts within the cosy environment of their browsers using [artoo.js](http://medialab.github.io/artoo/) so they can automatize them easily afterwards.
 
