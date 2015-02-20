@@ -75,8 +75,8 @@ This function takes two arguments:
 
 Once your scraping has been done, or if an error occurred in the process, you'll be able to analyse the results of your actions within a dedicated callback taking the following arguments:
 
-* **err**: an error asserting that your scraping job failed (because of a 404 for instance or because your script did not return the information before a precise timeout etc.). You should **really** handle errors. Scraping is not a reliable science and might blow your face up if you are not careful enough.
-* **req**: the request you passed to the spider (the url you requested, any arbitrary data or parameters you might need to pass along the spider etc.).
+* **err**: an error asserting that your scraping job failed (because of a 404 for instance or because your script did not return the information before a precise timeout etc.). You should **really** check errors. Scraping is not a reliable science and you should be prepared to see things fail sometimes. Note however that the spider is able to retry jobs if you ever want to.
+* **req**: the request you passed to the spider (the url you gave, any arbitrary data or parameters you might need to pass along the spider etc.).
 * **res**: the response received along with the scraped data. `res.data`, for instance, holds the results of your scraper function.
 
 ---
@@ -181,7 +181,7 @@ For more information about plugins or if you want to know if a plugin already ex
 
 <h2 id="what-now">What now?</h2>
 
-Now that you know the basics of sandcrawler, feel free to roam (or event scrape) its documentation whose summary can be found on your left.
+Now that you know the basics of sandcrawler, feel free to roam (or even scrape...) its documentation whose summary can be found on your left.
 
 <blockquote align="center" class="twitter-tweet" lang="en"><p>Show more data on your web page than available in your API? That&#39;s a scrapin&#39; <a href="http://t.co/sGCsFXUTjF">pic.twitter.com/sGCsFXUTjF</a></p>&mdash; Andrew Nesbitt (@teabass) <a href="https://twitter.com/teabass/status/557877644474454016">January 21, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>

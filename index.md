@@ -76,7 +76,7 @@ npm install git+https://github.com/medialab/sandcrawler.git
 
 ## Usage
 
-To start using the library, head towards the [Quick Start]({{ site.baseurl/quick_start }}) section for a fast tutorial or browse the documentation through the navigation at your left.
+To start using the library, head towards the [Quick Start]({{ site.baseurl }}/quick_start) section for a fast tutorial or browse the documentation through the navigation at your left.
 
 ```js
 var sandcrawler = require('sandcrawler');
