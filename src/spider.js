@@ -293,6 +293,7 @@ Spider.prototype._start = function(callback) {
     throw Error('sandcrawler.spider.start: no scraper was provided to this spider.');
 
   // Emitting
+  this.state.running = true;
   this.emit('spider:start');
 
   // Resolving starting middlewares
@@ -391,25 +392,8 @@ Spider.prototype._teardown = function() {
   this.removeAllListeners();
 };
 
-// Assigning a single url
-Spider.prototype.url = function(feed) {
-
-  if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
-    throw Error('sandcrawler.spider.url(s): wrong argument.');
-
-  // Don't add if already at limit
-  if(this.options.limit && this.index >= this.options.limit)
-    return this;
-
-  (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    this.queue.push(createJob(item));
-  }, this);
-
-  return this;
-};
-
 // Adding a new url during runtime
-Spider.prototype.addUrl = function(feed) {
+Spider.prototype.url = function(feed) {
 
   if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
@@ -422,7 +406,9 @@ Spider.prototype.addUrl = function(feed) {
     var job = createJob(item);
 
     this.queue.push(job);
-    this.emit('job:add', job);
+
+    if (this.state.running)
+      this.emit('job:add', job);
   }, this);
 
   return this;
@@ -430,7 +416,8 @@ Spider.prototype.addUrl = function(feed) {
 
 // Aliases
 Spider.prototype.urls = Spider.prototype.url;
-Spider.prototype.addUrls = Spider.prototype.addUrl;
+Spider.prototype.addUrl = Spider.prototype.url;
+Spider.prototype.addUrls = Spider.prototype.url;
 
 // Iterating through a generator
 Spider.prototype.iterate = function(fn) {
