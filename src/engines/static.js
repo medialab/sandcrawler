@@ -21,6 +21,8 @@ function StaticEngine(spider) {
 
   // Spider run method
   spider.run = function(callback) {
+    if (this.state.running)
+      throw Error('sandcrawler.spider.run: spider already running.');
     return spider._start(callback);
   };
 

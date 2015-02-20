@@ -44,6 +44,9 @@ function PhantomEngine(spider) {
 
   // Spider run method
   spider.run = function(phantom, callback) {
+    if (this.state.running)
+      throw Error('sandcrawler.spider.run: spider already running.');
+
     if (typeof phantom === 'function') {
       callback = phantom;
       phantom = null;
