@@ -14,7 +14,32 @@ They aim at visiting series of urls in order to scrape the retrieved pages' cont
 
 ---
 
+*Introduction*
+
 * [Basics](#basics)
+
+*Spider methods*
+
+* [spider.url](#url)
+* [spider.urls](#urls)
+* [spider.addUrl](#addurl)
+* [spider.addUrls](#addurls)
+* [spider.iterate](#iterate)
+* [spider.scraper](#scraper)
+* [spider.scraperSync](#scraperSync)
+* [spider.result](#result)
+* [spider.config](#config)
+* [spider.timeout](#timeout)
+* [spider.limit](#limit)
+* [spider.validate](#validate)
+* [spider.throttle](#throttle)
+* [spider.use](#use)
+* [spider.pause](#pause)
+* [spider.resume](#resume)
+* [spider.exit](#exit)
+
+*Conclusion*
+
 * [Bonus](#bonus)
 
 ---
@@ -64,7 +89,7 @@ spider.run(function(err, remains) {
 });
 ```
 
-* Chained, it should look like that:
+* Chained, it may look like this:
 
 ```js
 var spider = sandcrawler('MySpiderName')
@@ -85,7 +110,7 @@ var spider = sandcrawler('MySpiderName')
 
 ---
 
-Note that if you need phantom to perform your scraping task in a phantom, you just need to change the spider type and it should work the same:
+Note that if you need to perform your scraping task in a phantom, you just need to change the spider type and it should work the same:
 
 ```js
 var spider = sandcrawler.phantomSpider();
