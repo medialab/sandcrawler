@@ -75,10 +75,26 @@ function fromFunction(fn, check, synchronous) {
   return (synchronous ? wrapSynchronousFunctionString : wrapFunctionString)(str, names[0], names[1]);
 }
 
+function fromString(str, check, synchronous) {
+  check = check === false ? false : true;
+
+  if (typeof str !== 'string')
+    throw Error('sandcrawler.phantom_script.fromString: given argument is not a string.');
+
+  if (check && !synchronous) {
+    if (!~str.indexOf('done'))
+      throw Error('sandcrawler.phantom_script.fromFunction: cannot find any mention of the "done" callback ' +
+                  'into the given function. You are probably never returning control.');
+  }
+
+  return (synchronous ? wrapSynchronousFunctionString : wrapFunctionString)(str, '$', 'done');
+}
+
 // Exporting
 module.exports = {
   argName: argName,
   argNames: argNames,
   fromFunction: fromFunction,
+  fromString: fromString,
   regexes: regexes
 };

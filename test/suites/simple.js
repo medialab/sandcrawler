@@ -227,6 +227,28 @@ describe('When running fairly simple spiders', function() {
 
       phantom.run(spider, done);
     });
+
+    it('should be possible to load an inline scraper.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/resources/basic.html')
+        .inlineScraper('var data = artoo.scrape(\'.url-list a\', \'href\'); done(null, data);')
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(spider, done);
+    });
+
+    it('should be possible to load an inline synchronous scraper.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/resources/basic.html')
+        .inlineScraperSync('return artoo.scrape(\'.url-list a\', \'href\');')
+        .result(function(err, req, res) {
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      phantom.run(spider, done);
+    });
   });
 
   describe('jQuery', function() {

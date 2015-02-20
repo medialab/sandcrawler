@@ -67,6 +67,19 @@ function PhantomEngine(spider) {
     }
   };
 
+  // Inline script loading
+  spider.inlineScraper = function(str, check) {
+    this.scraperScript = phscript.fromString(str, check, false);
+    this.synchronousScraperScript = false;
+    return this;
+  };
+
+  spider.inlineScraperSync = function(str) {
+    this.scraperScript = phscript.fromString(str, false, true);
+    this.synchronousScraperScript = true;
+    return this;
+  };
+
   // Listeners
   this.listeners = {
     crash: function() {
