@@ -16,6 +16,11 @@ describe('When using sandcrawler API', function() {
         sandcrawler.run('tada');
       }, /sandcrawler\.run/);
     });
+
+    it('should be possible to change defaults.', function() {
+      sandcrawler.config({spawn: {hello: 'world'}});
+      assert.strictEqual(require('../../defaults.json').spawn.hello, 'world');
+    });
   });
 
   describe('Spider level', function() {

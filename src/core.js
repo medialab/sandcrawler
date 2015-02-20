@@ -8,6 +8,7 @@ var spawn = require('./spawn.js'),
     Spider = require('./spider.js'),
     bothan = require('bothan'),
     types = require('./typology.js'),
+    defaults = require('../defaults.json'),
     extend = require('./helpers.js').extend;
 
 /**
@@ -23,6 +24,13 @@ types.add('spider', function(v) {
 var sandcrawler = {
   config: function(o) {
     bothan.config(o);
+
+    // Merging spider defaults
+    defaults.spider = extend(o.spider, defaults.spider);
+
+    // Merging spawn defaults
+    defaults.spawn = extend(o.spawn, defaults.spawn);
+
     return sandcrawler;
   },
   run: function(spider, callback) {
