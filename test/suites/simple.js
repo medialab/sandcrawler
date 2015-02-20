@@ -155,7 +155,7 @@ describe('When running fairly simple spiders', function() {
         .url('inexistantpage.html')
         .scraper(require('../resources/scrapers/logger.js'))
         .result(function(err, req, res) {
-          assert.strictEqual(err.message, 'phantom-fail');
+          assert.strictEqual(err.message, 'content-not-found');
         });
 
       phantom.run(spider, done);

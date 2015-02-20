@@ -5,6 +5,7 @@
  * Using a phantomjs child to scrape the given pages.
  */
 var extend = require('../helpers.js').extend,
+    errors = require('../../errors.json').phantom,
     spawn = require('../spawn.js'),
     types = require('../typology.js'),
     phscript = require('../phantom_script.js'),
@@ -227,7 +228,7 @@ function PhantomEngine(spider) {
 
         // Phantom failure
         if (response.fail && response.reason === 'fail') {
-          betterError = new Error('phantom-fail');
+          betterError = new Error(errors[response.error.errorCode] || 'phantom-fail');
           betterError.code = response.error.errorCode;
           betterError.reason = response.error.errorString;
           return callback(betterError, job);

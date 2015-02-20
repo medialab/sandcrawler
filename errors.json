@@ -1,0 +1,26 @@
+{
+  "phantom": {
+    "0": "no-error",
+    "1": "connection-refused",
+    "2": "remote-host-closed",
+    "3": "host-not-found",
+    "4": "remote-timeout",
+    "5": "operation-canceled",
+    "6": "ssl-handshake-failed",
+    "7": "temporary-network-failure",
+    "101": "proxy-connection-refused",
+    "102": "proxy-connection-closed",
+    "103": "proxy-not-found",
+    "104": "proxy-timeout",
+    "105": "proxy-authentication-required",
+    "201": "content-access-denied",
+    "202": "content-operation-not-permitted",
+    "203": "content-not-found",
+    "204": "authentication-required",
+    "205": "content-resend",
+    "301": "protocol-invalid-operation",
+    "199": "proxy-unknown",
+    "299": "content-unknown",
+    "399": "protocol-failure"
+  }
+}
