@@ -122,6 +122,50 @@ Be sure however to pay a visit to the [Phantom Spider]({{ site.baseurl }}/phanto
 
 ---
 
+<h2 id="url">spider.url</h2>
+
+This method can be used to add jobs to your spider's queue.
+
+A job, in its most simple definition, is a mere url but can be described by an object to inform the spider you need finer parameters.
+
+```js
+spider.url(feed);
+```
+
+*Arguments*
+
+// TODO: here link to node url
+* **feed** *string|object* : either a string representing the url you need to hit, or a descriptive object containing the possible keys listed below:
+
+*Job descriptive object*:
+
+* **url** *string|object*: the url you need to hit.
+
+*Examples*
+
+```js
+// String url
+spider.url('http://nicesite.com');
+
+// Descriptive object
+spider.url({
+  url: {
+    port: 8000,
+    hostname: 'nicesite.com'
+  },
+  headers: {
+    'User-Agent': 'The jawa avenger'
+  },
+  data: {
+    id: 'nice1',
+    location: './test/'
+  }
+});
+```
+
+
+---
+
 <h2 id="bonus">Bonus</h2>
 
 If you do not fancy spiders and believe they are a creepy animal that should be shunned, you remain free to use less fearsome names such as `droid` or `jawa`:
