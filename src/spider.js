@@ -530,15 +530,31 @@ Spider.prototype.throttle = function(min, max) {
   return this.use(throttle(min, max));
 };
 
+// Locking the spider
+Spider.prototype._lock = function() {
+  this.state.locked = true;
+  return this.pause();
+};
+
+Spider.prototype._unlock = function() {
+  this.state.locked = false;
+  return this.resume();
+};
+
 // Pausing the spider
 Spider.prototype.pause = function() {
   this.queue.pause();
+  this.state.paused = true;
   return this;
 };
 
 // Resuming the spider
 Spider.prototype.resume = function() {
+  if (this.state.locked)
+    return this;
+
   this.queue.resume();
+  this.state.paused = false;
   return this;
 };
 
