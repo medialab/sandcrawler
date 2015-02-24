@@ -7,10 +7,21 @@
  */
 var express = require('express'),
     bodyParser = require('body-parser'),
+    cookieParser = require('cookie-parser'),
     auth = require('basic-auth'),
     app = express();
 
+// Helpers
+express.response.ko = function() {
+  return res.status(403).send('Unauthorized');
+};
+
+express.response.ok = function() {
+  return this.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+};
+
 // Middlewares
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -23,7 +34,7 @@ app.get('/retries', function(req, res) {
   if (!flag)
     res.status(404).send('Retry!');
   else
-    res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    res.ok();
 
   flag = !flag;
 });
@@ -32,52 +43,65 @@ app.get('/auth', function(req, res){
   var a = auth(req);
 
   if (a && a.name === 'admin' && a.pass === 'password')
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
   else
-    return res.status(403).send('Unauthorized');
+    return res.ko();
 });
 
 app.all('/method', function(req, res) {
   if (req.method !== 'POST')
-    return res.status(403).send('Unauthorized');
+    return res.ko();
   else
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
 });
 
 app.get('/useragent', function(req, res) {
   var ua = req.headers['user-agent'];
 
   if (ua !== 'tada')
-    return res.status(403).send('Unauthorized');
+    return res.ko();
   else
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
 });
 
 app.get('/headers', function(req, res) {
   var h = req.headers['x-tada'];
 
   if (!h)
-    return res.status(403).send('Unauthorized');
+    return res.ko();
   else
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
 });
 
 app.post('/json', function(req, res) {
   var pass = req.body.pass;
 
   if (pass !== 'test')
-    return res.status(403).send('Unauthorized');
+    return res.ko();
   else
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
 });
 
 app.post('/urlencoded', function(req, res) {
   var pass = req.body.pass;
 
   if (pass !== 'test')
-    return res.status(403).send('Unauthorized');
+    return res.ko();
   else
-    return res.status(200).send('<!DOCTYPE html><html><head><body>Yay!</body></head></html>');
+    return res.ok();
+});
+
+app.get('/set-cookie', function(req, res) {
+  return res.cookie('hello', 'world').ok();
+});
+
+app.get('/check-cookie', function(req, res) {
+  var cookie = req.cookies.hello || {};
+
+  if (cookie !== 'world')
+    return res.ko();
+  else
+    return res.ok();
 });
 
 if (require.main === module)
