@@ -98,7 +98,7 @@ var spider = sandcrawler('MySpiderName')
     'http://url2.com'
   ])
   .scraper(function($, done) {
-    done($('.yummy-data').scrape());
+    done(null, $('.yummy-data').scrape());
   })
   .result(function(err, req, res) {
     console.log('Yummy data!', res.data);

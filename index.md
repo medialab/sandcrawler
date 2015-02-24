@@ -28,7 +28,7 @@ var spider = sandcrawler.spider()
   .url('https://news.ycombinator.com/')
   .scraper(function($, done) {
 
-    var data = $('td.title:has(a):not(:last)').scrape({
+    var data = $('td.title:nth-child(3)').scrape({
       title: {sel: 'a'},
       url: {sel: 'a', attr: 'href'}
     });
