@@ -8,11 +8,14 @@
  * The intention here is to clearly separate the spider's logic from its means.
  */
 var EventEmitter = require('events').EventEmitter,
+    FileCookieStore = require('tough-cookie-filestore'),
     types = require('./typology.js'),
     nodeUrl = require('url'),
     util = require('util'),
     uuid = require('uuid'),
     async = require('async'),
+    fse = require('fs-extra'),
+    request = require('request'),
     throttle = require('./plugins/throttle.js'),
     validate = require('./plugins/validate.js'),
     stats = require('./plugins/stats.js'),
@@ -37,6 +40,7 @@ function Spider(name, engine) {
   // Properties
   this.options = extend(defaults);
   this.engine = new engine(this);
+  this.jar = null;
   this.type = this.engine.type;
   this.remains = {};
   this.index = 0;
@@ -295,6 +299,18 @@ Spider.prototype._start = function(callback) {
   // Emitting
   this.state.running = true;
   this.emit('spider:start');
+
+  // Initializing jar
+  if (typeof this.options.jar === 'string') {
+    fse.ensureFileSync(this.options.jar);
+    this.jar = request.jar(new FileCookieStore(this.options.jar));
+  }
+  else if (typeof this.options.jar === 'object') {
+    this.jar = this.options.jar;
+  }
+  else if (this.options.jar) {
+    this.jar = request.jar();
+  }
 
   // Resolving starting middlewares
   async.series(

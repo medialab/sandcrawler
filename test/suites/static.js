@@ -260,6 +260,57 @@ describe('When running a static spider', function() {
     });
   });
 
+  describe('Cookies', function() {
+
+    it('should be possible to use a cookie jar.', function(done) {
+      var spider = sandcrawler.spider()
+        .urls([
+          'http://localhost:7337/set-cookie',
+          'http://localhost:7337/check-cookie'
+        ])
+        .config({jar: true})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      sandcrawler.run(spider, done);
+    });
+
+    it('should be possible to use a cookie jar file storage.', function(done) {
+      var spider = sandcrawler.spider()
+        .urls([
+          'http://localhost:7337/set-cookie',
+          'http://localhost:7337/check-cookie'
+        ])
+        .config({jar: __dirname + '/../.tmp/cookies.json'})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      sandcrawler.run(spider, done);
+    });
+
+    it('should be able to restart from a saved jar.', function(done) {
+      var spider = sandcrawler.spider()
+        .url('http://localhost:7337/check-cookie')
+        .config({jar: __dirname + '/../.tmp/cookies.json'})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      sandcrawler.run(spider, done);
+    });
+  });
+
   describe('Error handling', function() {
 
     it('should handle status 404.', function(done) {
