@@ -67,6 +67,8 @@ function StaticEngine(spider) {
       if (err) {
         if (err.message === 'ETIMEDOUT')
           return callback(new Error('timeout'));
+        if (~err.message.search(/getaddrinfo/))
+          return callback(new Error('host-not-found'));
         return callback(err);
       }
 
