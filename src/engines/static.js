@@ -34,6 +34,7 @@ function StaticEngine(spider) {
     var settings = {
       headers: extend(job.req.headers, spider.options.headers),
       method: job.req.method || spider.options.method,
+      proxy: job.req.proxy || spider.options.proxy,
       timeout: job.req.timeout || spider.options.timeout,
       uri: job.req.url
     };

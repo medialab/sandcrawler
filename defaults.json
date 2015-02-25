@@ -19,6 +19,7 @@
     "maxRetries": 3,
     "method": "GET",
     "phantomPage": false,
+    "proxy": false,
     "timeout": 5000,
     "url": null
   },

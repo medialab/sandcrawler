@@ -31,6 +31,7 @@ t.add('config', {
   maxRetries: '?number',
   method: '?string',
   phantomPage: '?object',
+  proxy: '?string',
   timeout: '?number',
   url: '?string|object'
 });
