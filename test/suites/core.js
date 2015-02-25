@@ -62,5 +62,12 @@ describe('When using sandcrawler API', function() {
           .url({data: 'hello'});
       }, /url\(s\)/);
     });
+
+    it('should throw an error when trying to set an invalid config.', function() {
+      assert.throws(function() {
+        var spider = sandcrawler.spider()
+          .config({cookies: 'hey'});
+      }, /invalid/);
+    });
   });
 });

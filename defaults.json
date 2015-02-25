@@ -12,14 +12,15 @@
     "body": false,
     "bodyType": "form",
     "concurrency": 1,
-    "globalTimeout": false,
+    "cookies": null,
     "headers": false,
     "jar": false,
     "limit": false,
     "maxRetries": 3,
     "method": "GET",
     "phantomPage": false,
-    "timeout": 5000
+    "timeout": 5000,
+    "url": null
   },
   "spawn": {
     "autoClose": true,

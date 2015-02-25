@@ -54,9 +54,9 @@ describe('When running multi-url spiders', function() {
 
       var spider = new sandcrawler.phantomSpider()
         .urls([
-          {url: 'http://localhost:7337/resources/basic.html', id: 1},
-          {url: 'http://localhost:7337/resources/basic.html', id: 2},
-          {url: 'http://localhost:7337/resources/basic.html', id: 3}
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/basic.html'}
         ])
         .config({concurrency: 2})
         .scraper(require('../resources/scrapers/basic.js'))
@@ -78,9 +78,9 @@ describe('When running multi-url spiders', function() {
 
       var spider = new sandcrawler.phantomSpider()
         .urls([
-          {url: 'http://localhost:7337/resources/basic.html', id: 1},
-          {url: 'http://localhost:7337/resources/basic.html', id: 2},
-          {url: 'http://localhost:7337/resources/404.html', id: 3}
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/basic.html'},
+          {url: 'http://localhost:7337/resources/404.html'}
         ])
         .config({concurrency: 3, timeout: 300})
         .scraper(require('../resources/scrapers/basic.js'))

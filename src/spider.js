@@ -492,8 +492,8 @@ Spider.prototype.result = function(fn) {
 // Altering configuration
 Spider.prototype.config = function(o) {
 
-  if (!types.check(o, 'object'))
-    throw Error('sandcrawler.spider.config: wrong argument.');
+  if (!types.check(o, 'config'))
+    throw Error('sandcrawler.spider.config: invalid configuration provided.');
 
   this.options = extend(o, this.options);
 
