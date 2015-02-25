@@ -416,7 +416,7 @@ Spider.prototype.url = function(feed) {
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
   // Don't add if already at limit
-  if(this.options.limit && this.index >= this.options.limit)
+  if (this.options.limit && this.index >= this.options.limit)
     return this;
 
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {

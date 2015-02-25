@@ -265,7 +265,6 @@ module.exports = function(parent, params) {
       page.status = null;
 
       // Caching the callback
-      var onLoadFinished = page.onLoadFinished;
       page.onLoadFinished = function(status) {
         page.isOpened = true;
         page.status = status;
@@ -301,7 +300,7 @@ module.exports = function(parent, params) {
     };
 
     // When page load is finished
-    page.onLoadFinished = function(status) {
+    var onLoadFinished = function(status) {
 
       // Page is now opened
       page.isOpened = true;
@@ -348,6 +347,6 @@ module.exports = function(parent, params) {
     if (order.body)
       request.data = order.body;
 
-    page.open(order.url, request);
+    page.open(order.url, request, onLoadFinished);
   };
 };
