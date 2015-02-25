@@ -5,6 +5,7 @@
  * Testing some spiders fetching a discrete series of urls.
  */
 var assert = require('assert'),
+    async = require('async'),
     sandcrawler = require('../../index.js'),
     samples = require('../samples.js');
 
@@ -550,6 +551,67 @@ describe('When running multi-url spiders', function() {
 
       // NOTE: purposedly using a different phantom here
       sandcrawler.run(spider, done);
+    });
+
+    it('should be able to send a specific set of cookies.', function(done) {
+      sandcrawler.spawn({autoClose: false}, function(err, customPhantom) {
+
+        async.series({
+          configString: function(next) {
+            var spider = sandcrawler.phantomSpider()
+              .url('http://localhost:7337/check-cookie')
+              .config({cookies: ['hello=world']})
+              .scraper(function($, done) {
+                done(null, $('body').text());
+              })
+              .result(function(err, req, res) {
+                assert.strictEqual(res.data, 'Yay!');
+              });
+
+            customPhantom.run(spider, next);
+          },
+          configObject: function(next) {
+            var spider = sandcrawler.phantomSpider()
+              .url('http://localhost:7337/check-cookie')
+              .config({cookies: [{key: 'hello', value: 'world'}]})
+              .scraper(function($, done) {
+                done(null, $('body').text());
+              })
+              .result(function(err, req, res) {
+                assert.strictEqual(res.data, 'Yay!');
+              });
+
+            customPhantom.run(spider, next);
+          },
+          jobString: function(next) {
+            var spider = sandcrawler.phantomSpider()
+              .url({url: 'http://localhost:7337/check-cookie', cookies: ['hello=world']})
+              .scraper(function($, done) {
+                done(null, $('body').text());
+              })
+              .result(function(err, req, res) {
+                assert.strictEqual(res.data, 'Yay!');
+              });
+
+            customPhantom.run(spider, next);
+          },
+          jobObject: function(next) {
+            var spider = sandcrawler.phantomSpider()
+              .url({url: 'http://localhost:7337/check-cookie', cookies: [{key: 'hello', value: 'world'}]})
+              .scraper(function($, done) {
+                done(null, $('body').text());
+              })
+              .result(function(err, req, res) {
+                assert.strictEqual(res.data, 'Yay!');
+              });
+
+            customPhantom.run(spider, next);
+          }
+        }, function(err) {
+          customPhantom.close();
+          return done(err);
+        });
+      });
     });
   });
 

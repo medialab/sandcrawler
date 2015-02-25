@@ -7,7 +7,8 @@
 var request = require('request'),
     artoo = require('artoo-js'),
     cheerio = require('cheerio'),
-    extend = require('../helpers.js').extend;
+    extend = require('../helpers.js').extend,
+    Cookie = require('tough-cookie').Cookie;
 
 // Bootstrapping cheerio
 artoo.bootstrap(cheerio);
@@ -39,6 +40,19 @@ function StaticEngine(spider) {
 
     if (job.req.auth || spider.options.auth)
       settings.auth = extend(job.req.auth, spider.options.auth);
+
+    if (job.req.cookies || spider.options.cookies) {
+      var pool = (job.req.cookies || []).concat(spider.options.cookies || []);
+
+      var cookieString = pool.map(function(c) {
+        if (typeof c === 'string')
+          return c;
+        else
+          return (new Cookie(c)).cookieString();
+      }).join('; ');
+
+      settings.headers.Cookie = cookieString;
+    }
 
     if (spider.jar)
       settings.jar = spider.jar;

@@ -309,6 +309,61 @@ describe('When running a static spider', function() {
 
       sandcrawler.run(spider, done);
     });
+
+    it('should be able to send a specific set of cookies.', function(done) {
+      async.series({
+        configString: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/check-cookie')
+            .config({cookies: ['hello=world']})
+            .scraper(function($, done) {
+              done(null, $('body').text());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        configObject: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/check-cookie')
+            .config({cookies: [{key: 'hello', value: 'world'}]})
+            .scraper(function($, done) {
+              done(null, $('body').text());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        jobString: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/check-cookie', cookies: ['hello=world']})
+            .scraper(function($, done) {
+              done(null, $('body').text());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        jobObject: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/check-cookie', cookies: [{key: 'hello', value: 'world'}]})
+            .scraper(function($, done) {
+              done(null, $('body').text());
+            })
+            .result(function(err, req, res) {
+              assert.strictEqual(res.data, 'Yay!');
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
   });
 
   describe('Error handling', function() {

@@ -210,6 +210,7 @@ function createJob(feed) {
     'artoo',
     'body',
     'bodyType',
+    'cookies',
     'headers',
     'method',
     'phantomPage',

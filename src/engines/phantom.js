@@ -12,6 +12,8 @@ var extend = require('../helpers.js').extend,
     phscript = require('../phantom_script.js'),
     helpers = require('../helpers.js'),
     qs = require('querystring'),
+    Cookie = require('tough-cookie').Cookie,
+    nodeUrl = require('url'),
     _ = require('lodash');
 
 /**
@@ -175,9 +177,11 @@ function PhantomEngine(spider) {
     var headers = extend(job.req.headers, spider.options.headers),
         auth = extend(job.req.auth, spider.options.auth);
 
+    // Authentication
     if (auth.user)
       headers.Authorization = 'Basic ' + btoa(auth.user + (auth.password ? ':' + auth.password : ''));
 
+    // Request body
     var body = null;
     if (job.req.body || spider.options.body) {
       var type = job.req.bodyType || spider.options.bodyType;
@@ -201,8 +205,32 @@ function PhantomEngine(spider) {
     }
 
     // Process
+    // TODO: resimplify this part. waterfall is overkill
     return async.waterfall([
       function setCookies(next) {
+
+        if (job.req.cookies || spider.options.cookies) {
+          var pool = (job.req.cookies || []).concat(spider.options.cookies || []),
+              purl = nodeUrl.parse(job.req.url);
+
+          var cookies = pool
+            .map(function(c) {
+              var cookie;
+
+              if (typeof c === 'string')
+                cookie = Cookie.parse(c);
+              else
+                cookie = new Cookie(c);
+
+              cookie.domain = cookie.domain || purl.hostname;
+              cookie.path = cookie.path || '/';
+
+              return cookie;
+            })
+            .map(helpers.serializeCookie);
+
+          return next(null, cookies);
+        }
 
         if (spider.jar)
           return next(null, spider.jar.getCookies(job.req.url).map(helpers.serializeCookie));
