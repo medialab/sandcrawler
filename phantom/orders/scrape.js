@@ -37,6 +37,11 @@ module.exports = function(parent, params) {
         page.settings.userAgent = values[idx];
     }
 
+    if (order.cookies)
+      order.cookies.forEach(function(cookie) {
+        phantom.addCookie(cookie);
+      });
+
     /**
      * Enhancing webpage
      */

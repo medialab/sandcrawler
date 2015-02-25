@@ -41,8 +41,19 @@ function serializeError(err) {
   return _.omit(o, ['stack', 'type', 'arguments']);
 }
 
+// Serialize a tough-cookie Cookie instance
+function serializeCookie(cookie) {
+  return {
+    path: cookie.path,
+    name: cookie.key,
+    value: cookie.value,
+    domain: cookie.domain
+  };
+}
+
 // Exporting
 module.exports = {
   extend: extend,
+  serializeCookie: serializeCookie,
   serializeError: serializeError
 };

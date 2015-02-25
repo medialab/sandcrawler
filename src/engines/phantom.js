@@ -6,9 +6,11 @@
  */
 var extend = require('../helpers.js').extend,
     errors = require('../../errors.json').phantom,
+    async = require('async'),
     spawn = require('../spawn.js'),
     types = require('../typology.js'),
     phscript = require('../phantom_script.js'),
+    helpers = require('../helpers.js'),
     qs = require('querystring'),
     _ = require('lodash');
 
@@ -164,6 +166,7 @@ function PhantomEngine(spider) {
 
   // Fetching method
   this.fetch = function(job, callback) {
+    var call;
 
     // Figuring timeout
     var timeout = job.req.timeout || spider.options.timeout;
@@ -197,29 +200,48 @@ function PhantomEngine(spider) {
       }
     }
 
-    var call = this.phantom.request(
+    // Process
+    return async.waterfall([
+      function setCookies(next) {
 
-      // We ask the phantom child to scrape
-      'scrape',
+        if (spider.jar)
+          return next(null, spider.jar.getCookies(job.req.url).map(helpers.serializeCookie));
 
-      // Sent data
-      {
-        artoo: extend(job.req.artoo, spider.options.artoo),
-        body: body,
-        headers: headers,
-        page: extend(job.req.phantomPage, spider.options.phantomPage),
-        url: job.req.url,
-        method: job.req.method || spider.options.method,
-        synchronousScript: spider.synchronousScraperScript,
-        script: spider.scraperScript,
-        timeout: timeout,
+        return next(null, null);
       },
+      function callPhantom(cookies, next) {
+        call = self.phantom.request(
 
-      // Request timeout
-      {timeout: timeout},
+          // We ask the phantom child to scrape
+          'scrape',
 
-      // Callback
-      function(err, msg) {
+          // Sent data
+          {
+            artoo: extend(job.req.artoo, spider.options.artoo),
+            body: body,
+            cookies: cookies || null,
+            headers: headers,
+            page: extend(job.req.phantomPage, spider.options.phantomPage),
+            url: job.req.url,
+            method: job.req.method || spider.options.method,
+            synchronousScript: spider.synchronousScraperScript,
+            script: spider.scraperScript,
+            timeout: timeout,
+          },
+
+          // Request timeout
+          {timeout: timeout},
+
+          // Callback
+          next
+        );
+
+        self.requests.push({
+          call: call,
+          job: job
+        });
+      },
+      function onResponse(msg, next) {
         var response = (msg || {}).body || {},
             betterError;
 
@@ -237,43 +259,49 @@ function PhantomEngine(spider) {
           response.headers = headers;
         }
 
+        // Setting job's response
         job.res = response;
+        return next();
+      },
+      function retrieveCookie(next) {
+        var header = (job.res.headers || {})['set-cookie'];
 
-        if (err)
-          return callback(err, job);
+        if (spider.jar && header)
+          header.split('\n').forEach(function(str) {
+            spider.jar.setCookie(str, job.res.url);
+          });
+
+        return next();
+      },
+      function analyzeResponse(next) {
 
         // Phantom failure
-        if (response.fail && response.reason === 'fail') {
-          betterError = new Error(errors[response.error.errorCode] || 'phantom-fail');
-          betterError.code = response.error.errorCode;
-          betterError.reason = response.error.errorString;
-          return callback(betterError, job);
+        if (job.res.fail && job.res.reason === 'fail') {
+          betterError = new Error(errors[job.res.error.errorCode] || 'phantom-fail');
+          betterError.code = job.res.error.errorCode;
+          betterError.reason = job.res.error.errorString;
+          return next(betterError, job);
         }
 
         // Wrong status code
-        if (response.fail && response.reason === 'status') {
-          betterError = new Error('status-' + (response.status || 'unknown'));
-          betterError.status = response.status;
-          return callback(betterError, job);
+        if (job.res.fail && job.res.reason === 'status') {
+          betterError = new Error('status-' + (job.res.status || 'unknown'));
+          betterError.status = job.res.status;
+          return next(betterError, job);
         }
 
         // User-generated error
-        if (response.error) {
-          betterError = new Error(response.error.message);
+        if (job.res.error) {
+          betterError = new Error(job.res.error.message);
 
-          for (var k in _.omit(response.error, 'message'))
-            betterError[k] = response.error[k];
-          return callback(betterError, job);
+          for (var k in _.omit(job.res.error, 'message'))
+            betterError[k] = job.res.error[k];
+          return next(betterError, job);
         }
 
-        return callback(null, job);
+        return next(null, job);
       }
-    );
-
-    this.requests.push({
-      call: call,
-      job: job
-    });
+    ], callback);
   };
 }
 

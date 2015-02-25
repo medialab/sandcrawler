@@ -501,6 +501,58 @@ describe('When running multi-url spiders', function() {
     });
   });
 
+  describe('Cookies', function() {
+
+    it('should be possible to use a cookie jar.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/set-cookie',
+          'http://localhost:7337/check-cookie'
+        ])
+        .config({jar: true})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      phantom.run(spider, done);
+    });
+
+    it('should be possible to use a cookie jar file storage.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/set-cookie',
+          'http://localhost:7337/check-cookie'
+        ])
+        .config({jar: __dirname + '/../.tmp/phantom-cookies.json'})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      phantom.run(spider, done);
+    });
+
+    it('should be able to restart from a saved jar.', function(done) {
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/check-cookie')
+        .config({jar: __dirname + '/../.tmp/phantom-cookies.json'})
+        .scraper(function($, done) {
+          done(null, $('body').text());
+        })
+        .result(function(err, req, res) {
+          assert.strictEqual(res.data, 'Yay!');
+        });
+
+      // NOTE: purposedly using a different phantom here
+      sandcrawler.run(spider, done);
+    });
+  });
+
   describe('Exiting', function() {
 
     it('should be possible to exit the spider.', function(done) {

@@ -13,7 +13,7 @@ var express = require('express'),
 
 // Helpers
 express.response.ko = function() {
-  return res.status(403).send('Unauthorized');
+  return this.status(403).send('Unauthorized');
 };
 
 express.response.ok = function() {
@@ -92,7 +92,7 @@ app.post('/urlencoded', function(req, res) {
 });
 
 app.get('/set-cookie', function(req, res) {
-  return res.cookie('hello', 'world').ok();
+  return res.cookie('hello', 'world').cookie('super', 'star').ok();
 });
 
 app.get('/check-cookie', function(req, res) {

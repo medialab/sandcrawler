@@ -40,7 +40,7 @@ function StaticEngine(spider) {
     if (job.req.auth || spider.options.auth)
       settings.auth = extend(job.req.auth, spider.options.auth);
 
-    if (spider.options.jar)
+    if (spider.jar)
       settings.jar = spider.jar;
 
     var bodyType = job.req.bodyType || spider.options.bodyType,
