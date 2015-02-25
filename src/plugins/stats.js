@@ -53,7 +53,7 @@ module.exports = function(opts) {
     // Adding listeners
     spider.once('spider:start', function() {
       stats.startTime = process.hrtime()[0];
-      stats.queued = spider.queue.length();
+      stats.queued = spider.initialBuffer.length;
       stats.total = stats.queued;
     });
 

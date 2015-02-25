@@ -58,6 +58,7 @@ function Spider(name, engine) {
   this.iterator = null;
 
   // Queue
+  this.initialBuffer = [];
   this.queue = async.queue(function(job, callback) {
 
     // Resetting state
@@ -139,9 +140,6 @@ function Spider(name, engine) {
     });
 
   }, this.options.concurrency || 1);
-
-  // Pausing so that the queue starts processing only when we want it
-  this.queue.pause();
 
   // Middlewares
   this.middlewares = {
@@ -319,9 +317,8 @@ Spider.prototype._start = function(callback) {
     function(err) {
 
       // Failing the spider if error occurred
-      if (err) {
+      if (err)
         return self.fail(err);
-      }
 
       // Else, we simply resume the queue and wait for it to drain
       self.queue.drain = function() {
@@ -331,13 +328,17 @@ Spider.prototype._start = function(callback) {
         return self._succeed(remains);
       };
 
+      // Starting the queue
+      self.initialBuffer.forEach(function(job) {
+        self.queue.push(job);
+      });
+
+      delete self.initialBuffer;
+
       // Starting iterator?
       var limit = self.options.limit || Infinity;
       if (!self.queue.length() && self.iterator && self.index < limit)
         iterate.call(self);
-
-      // Resuming queue to start the jobs
-      self.queue.resume();
     }
   );
 
@@ -422,10 +423,13 @@ Spider.prototype.url = function(feed) {
   (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
     var job = createJob(item);
 
-    this.queue.push(job);
-
-    if (this.state.running)
+    if (!this.state.running) {
+      this.initialBuffer.push(job);
+    }
+    else {
+      this.queue.push(job);
       this.emit('job:add', job);
+    }
   }, this);
 
   return this;
@@ -522,7 +526,7 @@ Spider.prototype.limit = function(l) {
   this.options.limit = l;
 
   // Applying limit on already existant queue
-  this.queue.tasks = this.queue.tasks.slice(0, l);
+  this.initialBuffer = this.initialBuffer.slice(0, l);
 
   return this;
 };

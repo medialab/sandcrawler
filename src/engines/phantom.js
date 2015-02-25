@@ -61,10 +61,10 @@ function PhantomEngine(spider) {
         throw Error('sandcrawler.spider.engines.phantom: trying to run spider with a non-phantom.');
 
       self.phantom = phantom;
-      spider._start(callback);
+      return spider._start(callback);
     }
     else {
-      spawn(function(err, defaultSpawn) {
+      return spawn(function(err, defaultSpawn) {
         if (err)
           return callback(err);
 
