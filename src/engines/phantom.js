@@ -145,6 +145,8 @@ function PhantomEngine(spider) {
 
   // Listening
   spider.once('spider:start', function() {
+    self.phantom.socket.setMaxListeners(20);
+
     self.phantom.once('crash', self.listeners.crash);
     self.phantom.on('page:log', self.listeners.log);
     self.phantom.on('page:error', self.listeners.error);
