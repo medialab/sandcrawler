@@ -66,7 +66,7 @@ To scrape our post title and urls, we need to use a scraping function.
 
 This function takes two arguments:
 
-* **$**: The retrieved html parsed with [cheerio](https://github.com/cheeriojs/cheerio) and extended with [artoo.scrape](http://medialab.github.io/artoo/node/).
+* **$**: The retrieved html parsed with [cheerio](https://github.com/cheeriojs/cheerio) and extended with [artoo.scrape]({{ site.links.artoo }}/node).
 * **done**: a callback to call when your scraping is done. This function is a typical node.js callback and takes as first argument an error if needed and the scraped data as second argument.
 
 ---
@@ -138,7 +138,7 @@ If you ever need more information about differences between regular spiders and 
 
 Prototyping scrapers server-side can be tiresome at times.
 
-Fortunately, **sandcrawler** has been designed to be the [artoo.js](https://medialab.github.io/artoo/)' big brother. The latter makes client-side scraping more comfortable and enables you to prototype, in your browser, scrapers you will run using **sandcrawler** later.
+Fortunately, **sandcrawler** has been designed to be [artoo.js](https://medialab.github.io/artoo/)' big brother. The latter makes client-side scraping more comfortable and enables you to prototype, in your browser, scrapers you will run using **sandcrawler** later.
 
 Indeed, any **sandcrawler** scraper function can use **artoo.js** and **jQuery** seamlessly so you can use your scripts both in the browser and in the server.
 
@@ -181,7 +181,7 @@ For more information about plugins or if you want to know if a plugin already ex
 
 <h2 id="what-now">What now?</h2>
 
-Now that you know the basics of sandcrawler, feel free to roam (or even scrape...) its documentation whose summary can be found on your left.
+Now that you know the basics of sandcrawler, feel free to roam (or even scrape...) the present documentation whose summary can be found on your left.
 
 <blockquote align="center" class="twitter-tweet" lang="en"><p>Show more data on your web page than available in your API? That&#39;s a scrapin&#39; <a href="http://t.co/sGCsFXUTjF">pic.twitter.com/sGCsFXUTjF</a></p>&mdash; Andrew Nesbitt (@teabass) <a href="https://twitter.com/teabass/status/557877644474454016">January 21, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>

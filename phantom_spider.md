@@ -23,3 +23,7 @@ js: phantomSpider
 Jawascript
 
 environment (jQuery, artoo)
+
+inlineScraper
+
+artoo/phantomPage in feed

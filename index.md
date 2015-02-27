@@ -51,9 +51,9 @@ var spider = sandcrawler.spider()
 * **Fully customizable**: You want really precise headers, a custom user-agent and complex logic? You'll have them all.
 * **Phantomjs**: Let the library handle [phantomjs](http://phantomjs.org/) for you if you need browser emulation.
 * **Complex dynamic scraping**: Need to log into facebook and auto-scroll/expand a full page? sandcrawler is made for you.
-* **Reliable**: Don't lose data during your scraping process anymore thanks to the library's paranoid strategies.
-* **Scalable**: sandcrawler has been battle-hardened and has already seen the real web's nasty and dirty face.
-* **Easy prototyping**: Design your scraping scripts within your browser thanks to [artoo.js](http://medialab.github.io/artoo/) and use the same script within sandcrawler to perform the job.
+* **Reliable**: Never lose data during your scraping process anymore thanks to the library's paranoid strategies.
+* **Scalable**: sandcrawler has been battle-hardened across the web's most dirty places.
+* **Easy prototyping**: Design your scraping scripts within your browser thanks to [artoo.js]({{ site.links.artoo }}) and use the same script with sandcrawler to perform the job.
 * **Reusable logic**: Creating plugins for sandcrawler is really easy. Use already existing [ones]({{ site.baseurl }}/plugins) or build yours to fit your needs.
 
 ---
@@ -89,8 +89,8 @@ var sandcrawler = require('sandcrawler');
 **sandcrawler.js** is being developed by scraper developers for scraper developers with the following concepts in mind:
 
 * **Not a framework**: sandcrawler is a library and not a framework so that people can remain free to develop things in their own way.
-* **Exhaustivity over minimalist API**: every detail can be customized. This comes at the cost of a bigger code footprint for tiny projects but with more reliance for big ones.
-* **Asynchronicity**: sandcrawler is not trying to fight the asynchronous nature of client-side JavaScript. If you want to be able to perform complex scraping tasks on modern dynamic websites, you won't be able to avoid asynchronicity very long.
+* **Exhaustivity over minimalistic API**: every detail can be customized. This comes at the cost of a bigger code footprint for tiny projects but with more reliance for big ones.
+* **Asynchronicity**: sandcrawler is not trying to fight the asynchronous nature of client-side JavaScript. If you want to be able to perform complex scraping tasks on modern dynamic websites, you won't be able to avoid asynchronicity.
 * **Better workflow**: sandcrawler aims at enabling developers to design their scraping scripts within the cosy environment of their browsers using [artoo.js](http://medialab.github.io/artoo/) so they can automatize them easily afterwards.
 
 ---
