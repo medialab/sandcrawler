@@ -416,12 +416,18 @@ Spider.prototype.url = function(feed) {
   if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
-  // Don't add if already at limit
-  if (this.options.limit && this.index >= this.options.limit)
-    return this;
+  var a = !(feed instanceof Array) ? [feed] : feed,
+      c = !this.state.running ? this.initialBuffer.length : this.index,
+      job,
+      i,
+      l;
 
-  (!(feed instanceof Array) ? [feed] : feed).forEach(function(item) {
-    var job = createJob(item);
+  for (i = 0, l = a.length; i < l; i++) {
+    job = createJob(a[i]);
+
+    // Don't add if already at limit
+    if (this.options.limit && c >= this.options.limit)
+      break;
 
     if (!this.state.running) {
       this.initialBuffer.push(job);
@@ -430,7 +436,7 @@ Spider.prototype.url = function(feed) {
       this.queue.push(job);
       this.emit('job:add', job);
     }
-  }, this);
+  }
 
   return this;
 };
@@ -525,8 +531,9 @@ Spider.prototype.limit = function(l) {
 
   this.options.limit = l;
 
-  // Applying limit on already existant queue
-  this.initialBuffer = this.initialBuffer.slice(0, l);
+  // Applying limit on already existant queue if spider has not started yet
+  if (!this.state.running)
+    this.initialBuffer = this.initialBuffer.slice(0, l);
 
   return this;
 };
