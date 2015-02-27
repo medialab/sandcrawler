@@ -212,6 +212,7 @@ function createJob(feed) {
     'headers',
     'method',
     'phantomPage',
+    'proxy',
     'timeout'
   ].forEach(function(p) {
     if (feed[p])
