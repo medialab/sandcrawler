@@ -169,6 +169,7 @@ spider.url(feed);
 * **data** *?mixed*: any arbitrary data, usually an object, you would need to attach to your job and pass along the spider for later user (a database id for instance).
 * **headers** *?object*: object of custom headers to send with the request.
 * **method** *?string* [`'GET'`]: http method to use.
+* **proxy** *?string*: a proxy for the request.
 * **timeout** *?integer* [`5000`]: time in milliseconds to perform the job before triggering a timeout.
 
 *Examples*
@@ -480,6 +481,80 @@ var spider = sandcrawler.spider()
     else
       return next();
   });
+```
+
+---
+
+<h2 id="on">spider.on/etc.</h2>
+
+Every spider is a standard node [event emitter](http://nodejs.org/api/events.html).
+
+This means you can use any of the event emitters methods like `on` or `removeListener`.
+
+For more information about the events you can listen, you should head towards the [lifecycle]({{ site.baseurl }}/lifecycle) part of this documentation.
+
+---
+
+<h2 id="config">spider.config</h2>
+
+This method can be used to tune the spider's configuration.
+
+```js
+spider.config(object);
+```
+
+*Options*
+
+* **auth** *?object*: an object containing at least a `user` and optionally a `password` to authenticate through http.
+* **autoRetry** [`false`]: should the spider attempt to retry failed job on its own?
+* **body** *?object|string*: if `bodyType` is set to `'form'`, either a querystring or an object that will be formatted as a querystring. If `bodyType` is set to `'json'`, either a JSON string or an object that will be stringified.
+* **bodyType** *?string* [`'form'`]: either `'form'` or `'json'`.
+* **concurrency** *integer* [`1`]: number of jobs to perform at the same time.
+* **cookies** *?array*: array of cookies to send with the request. Can be given as string or as an object that will be passed to [tough-cookie](https://www.npmjs.com/package/tough-cookie#properties).
+* **headers** *?object*: object of custom headers to send with the request.
+* **jar** *?boolean|object|string*: if `true` the spider will keep the received cookies to use them in further requests. Can also take a path where cookies will be store thanks to [tough-cookie-filestore](https://www.npmjs.com/package/tough-cookie-filestore) so you can re-use them later. Finally, can take a [tough-cookie](https://www.npmjs.com/package/tough-cookie) or [request](https://www.npmjs.com/package/request) jar object (note that you can also access a spider's jar through `spider.jar`.
+* **limit** *?integer*: max number of jobs to perform.
+* **maxRetries** *?integer*  [`3`]: max number of times one can retry a job.
+* **method** *?string* [`'GET'`]: http method to use.
+* **proxy** *?string*: a proxy to use for the requests.
+* **timeout** *?integer* [`5000`]: time in milliseconds to perform the jobs before triggering a timeout.
+
+*Example*
+
+```js
+spider.config({
+  proxy: 'http://my-proxy.fr',
+  method: 'POST',
+  timeout: 50 * 1000
+});
+```
+
+---
+
+<h2 id="timeout">spider.timeout</h2>
+
+```js
+spider.timeout(milliseconds);
+```
+
+Shorthand for:
+
+```js
+spider.config({timeout: milliseconds});
+```
+
+---
+
+<h2 id="limit">spider.limit</h2>
+
+```js
+spider.limit(nb);
+```
+
+Shorthand for:
+
+```js
+spider.config({limit: nb});
 ```
 
 ---
