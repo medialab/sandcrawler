@@ -52,12 +52,14 @@ They aim at visiting series of urls in order to scrape the retrieved pages' cont
 
 --*Controls*
 
+* [spider.run](#run)
 * [spider.pause](#pause)
 * [spider.resume](#resume)
 * [spider.exit](#exit)
 
 *Job specification*
 
+* [job](#job)
 * [job.req](#req)
 * [job.res](#res)
 
@@ -71,7 +73,7 @@ They aim at visiting series of urls in order to scrape the retrieved pages' cont
 
 Here is how a spider works:
 
-* You must create it:
+* You must create one:
 
 ```js
 var sandcrawler = require('sandcrawler');
@@ -232,13 +234,13 @@ Under the hood, `spider.url` and `spider.urls` are strictly the same. It's just
 
 <h2 id="addurl">spider.addUrl</h2>
 
-Alias of `spider.url`.
+Alias of [`spider.url`](#url).
 
 ---
 
 <h2 id="addurls">spider.addUrls</h2>
 
-Alias of `spider.urls`.
+Alias of [`spider.urls`](#urls).
 
 ---
 
@@ -556,6 +558,159 @@ Shorthand for:
 ```js
 spider.config({limit: nb});
 ```
+
+---
+
+<h2 id="validate">spider.validate</h2>
+
+Gives you an opportunity to validate the scraped data before the result callback.
+
+```js
+spider.validate(spec);
+```
+
+*Argument*
+
+* **spec** *typologyDefinition|function*: either a [typology](https://github.com/jacomyal/typology) definition or a custom function taking as sole argument the scraped data.
+
+*Examples*
+
+```js
+// The scraped data must be a string or a number
+spider.validate('string|number');
+
+// The scraped title must be at least 5 characters
+spider.validate(function(data) {
+  return data.length >= 5;
+});
+```
+
+Under the hood, this method registers a validation `afterScraping` middleware.
+
+---
+
+<h2 id="throttle">spider.throttle</h2>
+
+Delay the scraping process of each job by the given amount of time (this is particularily helpful when you don't want to hit on servers too hard and avoid being kicked out for being too obvious in your endeavours).
+
+```js
+spider.throttle(milliseconds);
+spider.throttle(minMilliseconds, maxMilliseconds);
+```
+
+Either the job will be delayed for the given time in milliseconds or you can pass a minimum and a maximum, also in milliseconds, to randomize the throttling.
+
+---
+
+<h2 id="user">spider.use</h2>
+
+Makes the spider use the given plugin.
+
+```js
+spider.use(plugin);
+```
+
+For more information about plugins, you should head towards [this]({{ site.baseurl }}/plugins) section of the documentation.
+
+---
+
+<h2 id="run">spider.run</h2>
+
+Starts the spider.
+
+```js
+spider.run(callback);
+```
+
+Takes a single callback taking the following arguments:
+
+* **err** *error*: a JavaScript error if the spider failed globally.
+* **remains** *array*: an array consisting of every failed jobs and their associated errors.
+
+*Example*
+
+```js
+spider.run(function(err, remains) {
+  if (err)
+    console.log('The spider failed:', err.message);
+  else
+    console.log(remains.length + ' jobs failed.');
+});
+```
+
+---
+
+<h2 id="pause">spider.pause</h2>
+
+Pauses the spider execution.
+
+---
+
+<h2 id="resume">spider.resume</h2>
+
+Resumes the spider execution.
+
+---
+
+<h2 id="exit">spider.exit</h2>
+
+Exits the spider and fails every jobs in the queue.
+
+```js
+spider.result(function(err, req, res) {
+  this.exit();
+});
+
+sandcrawler.run(function(err, remains) {
+  // err.message will be 'exited'
+});
+```
+
+---
+
+<h2 id="job">job</h2>
+
+Spiders materialize their scraping processes as jobs so they can track them and provide their users with useful information.
+
+For instance, every url fed to a spider will be translated, in the spider's lifecycle, as a job having the following keys:
+
+*Keys*
+
+* **id**: the job's unique id.
+* **original**: the exact feed you passed to the spider and that was used to create the job.
+* **req**: the job's request.
+* **res**: the job's response.
+* **state**: several state-related flag like whether the job is failing etc.
+* **time**: an object containing a `start` and `stop` node process hrtime.
+
+---
+
+<h2 id="req">job.req</h2>
+
+The job's request object.
+
+*Keys*
+
+* **data**: any arbitrary data attached by the user to the request.
+* **retries**: number of time the request was already retried.
+* **url**: the requested url (may differ from the eventually hit url).
+
+And any other keys set by the user while adding the job through the [url](#url) method.
+
+---
+
+<h2 id="res">job.res</h2>
+
+The job's response object.
+
+*Keys*
+
+* **body**: body of the response.
+* **data**: data as returned by the scraping function supplied to the spider.
+* **error**: an eventual error if the job failed.
+* **headers**: any response headers.
+* **status**: http status code.
+* **url**: the eventually hit url (after redirections, for instance).
 
 ---
 

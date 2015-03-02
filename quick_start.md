@@ -113,7 +113,7 @@ spider.urls([
 ]);
 ```
 
-Note also that if you need to deduce the next urls from the current page, you can also [iterate]({{ site.baseurl }}/spider#iterate) or even [add urls]({{ site.baseurl }}/spider#add) to the spider at runtime without further ado.
+Note also that if you prefer or need to deduce the next urls from the last scraped page, you can also [iterate]({{ site.baseurl }}/spider#iterate) or even [add urls]({{ site.baseurl }}/spider#addurl) to the spider at runtime without further ado.
 
 ---
 

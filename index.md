@@ -17,11 +17,12 @@ id: home
 
 ---
 
-**sandcrawler.js** is a node library aiming at providing developers with concise but exhaustive tools to scrape the web.
+**sandcrawler.js** is a nodejs/iojs library aiming at providing developers with concise but exhaustive tools to scrape the web.
 
 ---
 
 ```js
+// Scraping the famous Hacker News
 var sandcrawler = require('sandcrawler');
 
 var spider = sandcrawler.spider()
@@ -88,9 +89,9 @@ var sandcrawler = require('sandcrawler');
 
 **sandcrawler.js** is being developed by scraper developers for scraper developers with the following concepts in mind:
 
-* **Not a framework**: sandcrawler is a library and not a framework so that people can remain free to develop things in their own way.
-* **Exhaustivity over minimalistic API**: every detail can be customized. This comes at the cost of a bigger code footprint for tiny projects but with more reliance for big ones.
-* **Asynchronicity**: sandcrawler is not trying to fight the asynchronous nature of client-side JavaScript. If you want to be able to perform complex scraping tasks on modern dynamic websites, you won't be able to avoid asynchronicity.
+* **Not a framework**: sandcrawler is a library and not a framework so that people can remain free to develop things their own way.
+* **Exhaustivity over minimalistic API**: every detail can be customized. This comes at the cost of a bigger code footprint for one-shot projects but with more reliance for big ones.
+* **Asynchronicity**: sandcrawler is not trying to fight the asynchronous nature of client-side JavaScript. If you want to be able to perform complex scraping tasks on modern dynamic websites, you won't be able to avoid asynchronicity anyway.
 * **Better workflow**: sandcrawler aims at enabling developers to design their scraping scripts within the cosy environment of their browsers using [artoo.js](http://medialab.github.io/artoo/) so they can automatize them easily afterwards.
 
 ---
