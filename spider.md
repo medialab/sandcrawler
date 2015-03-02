@@ -638,6 +638,19 @@ spider.run(function(err, remains) {
 });
 ```
 
+Note also that `spider.run` is an alias to `sandcrawler.run(spider)`.
+
+```js
+spider.run(function(err, remains) {
+  //...
+});
+
+// is exactly the same as
+sandcrawler.run(spider, function(err, remains) {
+  //...
+});
+```
+
 ---
 
 <h2 id="pause">spider.pause</h2>
