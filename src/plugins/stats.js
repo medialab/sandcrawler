@@ -75,6 +75,13 @@ module.exports = function(opts) {
       job.time.start = process.hrtime()[0];
     });
 
+    spider.on('job:retry', function(job) {
+      stats.queued++;
+      stats.doing--;
+
+      updateCompletion();
+    });
+
     spider.on('job:fail', function(err) {
       if (!stats.errorIndex[err.message])
         stats.errorIndex[err.message] = 0;
