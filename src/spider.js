@@ -117,13 +117,13 @@ function Spider(name, engine) {
           // If the job is not retried even though we declared it failing
           // we call it a day
           if (!job.state.retrying)
-            self.emit('job:end', job);
+            self.emit('job:end', 'fail', job);
         }
         else {
 
           // Calling it a success
           self.emit('job:success', job);
-          self.emit('job:end', job);
+          self.emit('job:end', 'success', job);
         }
 
         // Keeping last job

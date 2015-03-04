@@ -81,8 +81,8 @@ module.exports = function(opts) {
       stats.errorIndex[err.message]++;
     });
 
-    spider.on('job:end', function(job) {
-      if (job.state.failing)
+    spider.on('job:end', function(status, job) {
+      if (status === 'fail')
         stats.failures++;
       else
         stats.successes++;
