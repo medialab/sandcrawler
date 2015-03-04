@@ -21,6 +21,9 @@ module.exports = function(min, max) {
   return function(spider) {
 
     spider.beforeScraping(function(req, next) {
+      if (!this.index)
+        return next();
+
       var time = max ? randomNumber(min, max) : min + Math.random();
 
       setTimeout(next, time);
