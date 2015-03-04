@@ -19,7 +19,7 @@ t.add('config', {
   artoo: '?object',
   auth: '?auth',
   autoExit: '?boolean',
-  autoRetry: '?boolean',
+  autoRetry: '?boolean|string',
   body: '?string|object',
   bodyType: '?string',
   concurrency: '?number',

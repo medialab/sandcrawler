@@ -91,15 +91,10 @@ function Spider(name, engine) {
         if (err) {
           job.res.error = err;
 
-          // Retry?
-          if (self.options.autoRetry) {
-            retryJob.call(self, job, self.options.autoRetry === 'later' ? 'later' : 'now');
-          }
-          else {
-            job.req.retry = retryJob.bind(self, job);
-            job.req.retryLater = job.req.retry;
-            job.req.retryNow = retryJob.bind(self, job, 'later');
-          }
+          // Binding retry functions
+          job.req.retry = retryJob.bind(self, job);
+          job.req.retryLater = job.req.retry;
+          job.req.retryNow = retryJob.bind(self, job, 'later');
 
           // Updating remains
           self.remains[job.id] = {
@@ -115,9 +110,14 @@ function Spider(name, engine) {
           delete job.req.retryLater;
           delete job.req.retryNow;
 
+          // Retry?
+          if (!job.state.retrying && self.options.autoRetry)
+            retryJob.call(self, job, self.options.autoRetry === 'later' ? 'later' : 'now');
+
           // If the job is not retried even though we declared it failing
           // we call it a day
-          self.emit('job:end', job);
+          if (!job.state.retrying)
+            self.emit('job:end', job);
         }
         else {
 
