@@ -43,14 +43,16 @@ module.exports = function(parent, params) {
       });
 
     /**
-     * Enhancing webpage
+     * Utilities
      */
 
     // Fallback response object
-    page.status = null;
-    page.response = {};
-    page.error = {};
-    page.isOpened = false;
+    var pageInformation = {
+      status: null,
+      response: {},
+      error: {},
+      isOpened: false
+    };
 
     function injectArtoo() {
 
@@ -87,14 +89,18 @@ module.exports = function(parent, params) {
 
     // Kill
     function cleanup() {
-      if (page.timeout)
-        clearTimeout(page.timeout);
+      if (damocles)
+        clearTimeout(damocles);
+
+      if (sisyphus)
+        clearInterval(sisyphus);
 
       page.close();
     }
 
     // Creating timeout
-    page.timeout = setTimeout(cleanup, lifespan);
+    var damocles = setTimeout(cleanup, lifespan),
+        sisyphus;
 
     /**
      * Helpers
@@ -105,15 +111,15 @@ module.exports = function(parent, params) {
       var res = {
         fail: true,
         url: page.url,
-        headers: page.response.headers,
-        status: page.response.status
+        headers: pageInformation.response.headers,
+        status: pageInformation.response.status
       };
 
       if (reason)
         res.reason = reason;
 
-      if (page.error)
-        res.error = page.error;
+      if (pageInformation.error)
+        res.error = pageInformation.error;
 
       return res;
     }
@@ -122,8 +128,8 @@ module.exports = function(parent, params) {
     function wrapSuccess(result) {
       return {
         url: page.url,
-        headers: page.response.headers,
-        status: page.response.status,
+        headers: pageInformation.response.headers,
+        status: pageInformation.response.status,
         error: result.error ? helpers.serializeError(result.error) : null,
         data: result.data
       };
@@ -149,17 +155,17 @@ module.exports = function(parent, params) {
 
     // On resource received
     page.onResourceReceived = function(response) {
-      if (page.isOpened || response.url !== order.url)
+      if (pageInformation.isOpened || response.url !== order.url)
         return;
 
       // Is the resource matching the page's url?
-      page.response = response;
+      pageInformation.response = response;
     };
 
     // On resource error
     page.onResourceError = function(error) {
       if (error.url === order.url || !!~error.url.search(order.url))
-        page.error = error;
+        pageInformation.error = error;
     };
 
     // On page callback
@@ -261,13 +267,13 @@ module.exports = function(parent, params) {
         return;
 
       // Page is no longer opened
-      page.isOpened = false;
-      page.status = null;
+      pageInformation.isOpened = false;
+      pageInformation.status = null;
 
       // Caching the callback
       page.onLoadFinished = function(status) {
-        page.isOpened = true;
-        page.status = status;
+        pageInformation.isOpened = true;
+        pageInformation.status = status;
       };
 
       parent.request(
@@ -289,12 +295,16 @@ module.exports = function(parent, params) {
           // Setting new scraper
           order.script = msg.body;
 
-          // Resetting callback
-          page.onLoadFinished = onLoadFinished;
+          // Waiting for the page to open
+          // NOTE: dirty hack because of a phantomjs bug messing with the
+          // onLoadFinished callback.
+          sisyphus = setInterval(function() {
+            if (!pageInformation.isOpened)
+              return;
 
-          // Calling it if page is already opened by the time the response arrives
-          if (page.isOpened)
-            onLoadFinished(page.status);
+            clearInterval(sisyphus);
+            onLoadFinished(pageInformation.status);
+          }, 30);
         }
       );
     };
@@ -303,8 +313,8 @@ module.exports = function(parent, params) {
     var onLoadFinished = function(status) {
 
       // Page is now opened
-      page.isOpened = true;
-      page.status = status;
+      pageInformation.isOpened = true;
+      pageInformation.status = status;
 
       // Failing
       if (status !== 'success') {
@@ -313,7 +323,7 @@ module.exports = function(parent, params) {
       }
 
       // Wrong status code
-      if (!page.response.status || page.response.status >= 400) {
+      if (!pageInformation.response.status || pageInformation.response.status >= 400) {
         parent.replyTo(callId, wrapFailure('status'));
         return cleanup();
       }
