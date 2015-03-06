@@ -170,4 +170,5 @@ Emitted when a job ends, whether it succeeded or failed.
 
 *Data*
 
+* **status**: either `success` or `fail`.
 * **job**: the related job.
