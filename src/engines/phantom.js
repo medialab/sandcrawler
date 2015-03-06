@@ -274,7 +274,12 @@ function PhantomEngine(spider) {
         }
 
         // Setting job's response
-        job.res = response;
+        job.res = _.pick(response, [
+          'data',
+          'url',
+          'status',
+          'headers'
+        ]);
 
         if (err)
           return callback(err, job);
@@ -288,26 +293,26 @@ function PhantomEngine(spider) {
           });
 
         // Phantom failure
-        if (job.res.fail && job.res.reason === 'fail') {
-          betterError = new Error(errors[job.res.error.errorCode] || 'phantom-fail');
-          betterError.code = job.res.error.errorCode;
-          betterError.reason = job.res.error.errorString;
+        if (response.fail && response.reason === 'fail') {
+          betterError = new Error(errors[response.error.errorCode] || 'phantom-fail');
+          betterError.code = response.error.errorCode;
+          betterError.reason = response.error.errorString;
           return callback(betterError, job);
         }
 
         // Wrong status code
-        if (job.res.fail && job.res.reason === 'status') {
-          betterError = new Error('status-' + (job.res.status || 'unknown'));
-          betterError.status = job.res.status;
+        if (response.fail && response.reason === 'status') {
+          betterError = new Error('status-' + (response.status || 'unknown'));
+          betterError.status = response.status;
           return callback(betterError, job);
         }
 
         // User-generated error
-        if (job.res.error) {
-          betterError = new Error(job.res.error.message);
+        if (response.error) {
+          betterError = new Error(response.error.message);
 
-          for (var k in _.omit(job.res.error, 'message'))
-            betterError[k] = job.res.error[k];
+          for (var k in _.omit(response.error, 'message'))
+            betterError[k] = response.error[k];
           return callback(betterError, job);
         }
 
