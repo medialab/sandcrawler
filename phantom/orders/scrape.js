@@ -111,6 +111,7 @@ module.exports = function(parent, params) {
       var res = {
         fail: true,
         url: page.url,
+        body: page.content,
         headers: pageInformation.response.headers,
         status: pageInformation.response.status
       };
@@ -128,6 +129,7 @@ module.exports = function(parent, params) {
     function wrapSuccess(result) {
       return {
         url: page.url,
+        body: page.content,
         headers: pageInformation.response.headers,
         status: pageInformation.response.status,
         error: result.error ? helpers.serializeError(result.error) : null,

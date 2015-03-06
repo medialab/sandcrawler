@@ -275,6 +275,7 @@ function PhantomEngine(spider) {
 
         // Setting job's response
         job.res = _.pick(response, [
+          'body',
           'data',
           'url',
           'status',
