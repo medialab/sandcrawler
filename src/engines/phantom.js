@@ -170,7 +170,6 @@ function PhantomEngine(spider) {
 
   // Fetching method
   this.fetch = function(job, callback) {
-    var call;
 
     // Figuring timeout
     var timeout = job.req.timeout || spider.options.timeout;
@@ -185,7 +184,7 @@ function PhantomEngine(spider) {
 
     // Request body
     var body = null;
-    if (job.req.body || spider.options.body) {
+    if (job.req.body || spider.options.body) {
       var type = job.req.bodyType || spider.options.bodyType;
 
       body = typeof job.req.body === 'string' ?
@@ -206,72 +205,57 @@ function PhantomEngine(spider) {
       }
     }
 
-    // Process
-    // TODO: resimplify this part. waterfall is overkill
-    return async.waterfall([
-      function setCookies(next) {
+    // Request cookies
+    var cookies;
+    if (job.req.cookies || spider.options.cookies) {
+      var pool = (job.req.cookies || []).concat(spider.options.cookies || []),
+          purl = nodeUrl.parse(job.req.url);
 
-        if (job.req.cookies || spider.options.cookies) {
-          var pool = (job.req.cookies || []).concat(spider.options.cookies || []),
-              purl = nodeUrl.parse(job.req.url);
+      cookies = pool
+        .map(function(c) {
+          var cookie;
 
-          var cookies = pool
-            .map(function(c) {
-              var cookie;
+          if (typeof c === 'string')
+            cookie = Cookie.parse(c);
+          else
+            cookie = new Cookie(c);
 
-              if (typeof c === 'string')
-                cookie = Cookie.parse(c);
-              else
-                cookie = new Cookie(c);
+          cookie.domain = cookie.domain || purl.hostname;
+          cookie.path = cookie.path || '/';
 
-              cookie.domain = cookie.domain || purl.hostname;
-              cookie.path = cookie.path || '/';
+          return cookie;
+        })
+        .map(helpers.serializeCookie);
+    }
+    else if (spider.jar) {
+      cookies = spider.jar.getCookies(job.req.url).map(helpers.serializeCookie);
+    }
 
-              return cookie;
-            })
-            .map(helpers.serializeCookie);
+    // Unleash the phantom
+    var call = self.phantom.request(
 
-          return next(null, cookies);
-        }
+      // We ask the phantom child to scrape
+      'scrape',
 
-        if (spider.jar)
-          return next(null, spider.jar.getCookies(job.req.url).map(helpers.serializeCookie));
-
-        return next(null, null);
+      // Sent data
+      {
+        artoo: extend(job.req.artoo, spider.options.artoo),
+        body: body,
+        cookies: cookies,
+        headers: headers,
+        page: extend(job.req.phantomPage, spider.options.phantomPage),
+        url: job.req.url,
+        method: job.req.method || spider.options.method,
+        synchronousScript: spider.synchronousScraperScript,
+        script: spider.scraperScript,
+        timeout: timeout,
       },
-      function callPhantom(cookies, next) {
-        call = self.phantom.request(
 
-          // We ask the phantom child to scrape
-          'scrape',
+      // Request timeout
+      {timeout: timeout},
 
-          // Sent data
-          {
-            artoo: extend(job.req.artoo, spider.options.artoo),
-            body: body,
-            cookies: cookies || null,
-            headers: headers,
-            page: extend(job.req.phantomPage, spider.options.phantomPage),
-            url: job.req.url,
-            method: job.req.method || spider.options.method,
-            synchronousScript: spider.synchronousScraperScript,
-            script: spider.scraperScript,
-            timeout: timeout,
-          },
-
-          // Request timeout
-          {timeout: timeout},
-
-          // Callback
-          next
-        );
-
-        self.requests.push({
-          call: call,
-          job: job
-        });
-      },
-      function onResponse(msg, next) {
+      // Callback
+      function(err, msg) {
         var response = (msg || {}).body || {},
             betterError;
 
@@ -291,33 +275,31 @@ function PhantomEngine(spider) {
 
         // Setting job's response
         job.res = response;
-        return next();
-      },
-      function retrieveCookie(next) {
-        var header = (job.res.headers || {})['set-cookie'];
+
+        if (err)
+          return callback(err, job);
+
+        // Dealing with cookies
+        var header = (job.res.headers || {})['set-cookie'];
 
         if (spider.jar && header)
           header.split('\n').forEach(function(str) {
             spider.jar.setCookie(str, job.res.url);
           });
 
-        return next();
-      },
-      function analyzeResponse(next) {
-
         // Phantom failure
         if (job.res.fail && job.res.reason === 'fail') {
           betterError = new Error(errors[job.res.error.errorCode] || 'phantom-fail');
           betterError.code = job.res.error.errorCode;
           betterError.reason = job.res.error.errorString;
-          return next(betterError, job);
+          return callback(betterError, job);
         }
 
         // Wrong status code
         if (job.res.fail && job.res.reason === 'status') {
           betterError = new Error('status-' + (job.res.status || 'unknown'));
           betterError.status = job.res.status;
-          return next(betterError, job);
+          return callback(betterError, job);
         }
 
         // User-generated error
@@ -326,12 +308,17 @@ function PhantomEngine(spider) {
 
           for (var k in _.omit(job.res.error, 'message'))
             betterError[k] = job.res.error[k];
-          return next(betterError, job);
+          return callback(betterError, job);
         }
 
-        return next(null, job);
+        return callback(null, job);
       }
-    ], callback);
+    );
+
+    self.requests.push({
+      call: call,
+      job: job
+    });
   };
 }
 

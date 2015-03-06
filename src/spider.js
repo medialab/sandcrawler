@@ -201,7 +201,7 @@ function createJob(feed) {
   }
 
   // Request properties
-  job.req.data = feed.data || {};
+  job.req.data = feed.data || {};
 
   [
     'auth',
@@ -224,7 +224,7 @@ function createJob(feed) {
 
 // Retrying a job
 function retryJob(job, when) {
-  when = when || 'later';
+  when = when || 'later';
 
   // Reaching maxRetries?
   if (job.req.retries >= this.options.maxRetries)
@@ -275,7 +275,7 @@ function flattenRemains() {
 
 // Perform an iteration
 function iterate() {
-  var lastJob = this.lastJob || {},
+  var lastJob = this.lastJob || {},
       feed = this.iterator.call(this, this.index, lastJob.req, lastJob.res);
 
   if (feed)
@@ -290,7 +290,7 @@ function iterate() {
 Spider.prototype._start = function(callback) {
   var self = this;
 
-  callback = callback || Function.prototype;
+  callback = callback || Function.prototype;
 
   // Safeguard
   if (!this.scraperScript)
@@ -380,7 +380,7 @@ Spider.prototype._end = function(status, remains) {
   this._teardown();
 
   // Emitting
-  this.emit('spider:end', status, remains || []);
+  this.emit('spider:end', status, remains || []);
 };
 
 // Manually exiting the spide

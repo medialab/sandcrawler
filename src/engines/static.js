@@ -42,8 +42,8 @@ function StaticEngine(spider) {
     if (job.req.auth || spider.options.auth)
       settings.auth = extend(job.req.auth, spider.options.auth);
 
-    if (job.req.cookies || spider.options.cookies) {
-      var pool = (job.req.cookies || []).concat(spider.options.cookies || []);
+    if (job.req.cookies || spider.options.cookies) {
+      var pool = (job.req.cookies || []).concat(spider.options.cookies || []);
 
       var cookieString = pool.map(function(c) {
         if (typeof c === 'string')
@@ -58,14 +58,14 @@ function StaticEngine(spider) {
     if (spider.jar)
       settings.jar = spider.jar;
 
-    var bodyType = job.req.bodyType || spider.options.bodyType,
+    var bodyType = job.req.bodyType || spider.options.bodyType,
         body = typeof job.req.body === 'string' ?
           job.req.body :
           extend(job.req.body, spider.options.body);
 
     if (body) {
       if (bodyType === 'json') {
-        if (typeof body === 'string') {
+        if (typeof body === 'string') {
           settings.body = body;
           settings.headers['Content-Type'] = 'application/json';
         }
