@@ -89,13 +89,25 @@ module.exports = function(parent, params) {
 
     // Kill
     function cleanup() {
+
+      // Cleaning timeout and interval
       if (damocles)
         clearTimeout(damocles);
-
       if (sisyphus)
         clearInterval(sisyphus);
 
+      // Deleting data
+      pageInformation = null;
+
+      // Closing page
       page.close();
+
+      // Annihilating page
+      page = null;
+
+      // Cleaning order
+      order = null;
+      msg = null;
     }
 
     // Creating timeout
@@ -333,7 +345,7 @@ module.exports = function(parent, params) {
       // Waiting for body to load
       page.evaluateAsync(function() {
         var interval = setInterval(function() {
-          if (document.readyState === 'complete') {
+          if (document.readyState === 'complete' || document.readyState === 'interactive') {
             clearInterval(interval);
             window.callPhantom({
               head: 'documentReady',
