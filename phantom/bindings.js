@@ -101,15 +101,50 @@ module.exports = function(parent, params) {
       // Deleting data
       pageInformation = null;
 
-      // Closing page
-      page.close();
+      // Shunting some callbacks
+      [
+        'onNavigationRequested',
+        'onResourceReceived',
+        'onResourceError',
+        'onUrlChanged',
+        'onCallback',
+        'onLoadFinished'
+      ].forEach(function(n) {
+        page[n] = Function.prototype;
+      });
 
-      // Annihilating page
-      page = null;
+      // Cleaning page to force garbage collection
+      page.evaluate(function() {
 
-      // Cleaning order
-      order = null;
-      msg = null;
+        // Cleaning timeouts and intervals
+        var t = setTimeout(Function.prototype, 0),
+            i = setInterval(Function.prototype, 100);
+
+        while (t--) clearTimeout(t);
+        while (i--) clearInterval(i);
+
+        // Deleting current document
+        document.open();
+        document.close();
+
+        // Deleting every variables belonging to the global scope
+        Object.keys(window).forEach(function(k) {
+          delete window[k];
+        });
+      });
+
+      page.open('about:blank', function() {
+
+        // Closing page
+        page.close();
+
+        // Annihilating page
+        page = null;
+
+        // Cleaning order
+        order = null;
+        msg = null;
+      });
     }
 
     // Creating timeout
