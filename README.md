@@ -6,6 +6,8 @@
 
 **sandcrawler.js** is a node library aiming at providing developers with concise but exhaustive tools to scrape the web.
 
+**Disclaimer**: this library is an unreleased work in progress.
+
 The library's full documentation is available on [github pages](https://medialab.github.io/sandcrawler).
 
 ## Contribution
