@@ -104,8 +104,10 @@ module.exports = function(opts) {
       job.time.end = process.hrtime()[0];
 
       var jobElapsedTime = job.time.end - job.time.start;
-      stats.averageTimePerJob = Math.round(stats.averageTimePerJob +
-        ((jobElapsedTime - stats.averageTimePerJob) / stats.done));
+      stats.averageTimePerJob = Math.round(
+        ((stats.done - 1) * stats.averageTimePerJob + jobElapsedTime) /
+        stats.done
+      );
     });
   };
 };
