@@ -167,6 +167,7 @@ spider.url(feed);
 * **auth** *?object*: an object containing at least a `user` and optionally a `password` to authenticate through http.
 * **body** *?object|string*: if `bodyType` is set to `'form'`, either a querystring or an object that will be formatted as a querystring. If `bodyType` is set to `'json'`, either a JSON string or an object that will be stringified.
 * **bodyType** *?string* [`'form'`]: either `'form'` or `'json'`.
+* **cheerio** *?object*: [options](https://github.com/cheeriojs/cheerio#loading) passed to cheerio when parsing the results.
 * **cookies** *?array*: array of cookies to send with the request. Can be given as string or as an object that will be passed to [tough-cookie](https://www.npmjs.com/package/tough-cookie#properties).
 * **data** *?mixed*: any arbitrary data, usually an object, you would need to attach to your job and pass along the spider for later user (a database id for instance).
 * **headers** *?object*: object of custom headers to send with the request.
@@ -512,6 +513,7 @@ spider.config(object);
 * **body** *?object|string*: if `bodyType` is set to `'form'`, either a querystring or an object that will be formatted as a querystring. If `bodyType` is set to `'json'`, either a JSON string or an object that will be stringified.
 * **bodyType** *?string* [`'form'`]: either `'form'` or `'json'`.
 * **concurrency** *integer* [`1`]: number of jobs to perform at the same time.
+* **cheerio** *?object*: [options](https://github.com/cheeriojs/cheerio#loading) passed to cheerio when parsing the results.
 * **cookies** *?array*: array of cookies to send with the request. Can be given as string or as an object that will be passed to [tough-cookie](https://www.npmjs.com/package/tough-cookie#properties).
 * **headers** *?object*: object of custom headers to send with the request.
 * **jar** *?boolean|object|string*: if `true` the spider will keep the received cookies to use them in further requests. Can also take a path where cookies will be store thanks to [tough-cookie-filestore](https://www.npmjs.com/package/tough-cookie-filestore) so you can re-use them later. Finally, can take a [tough-cookie](https://www.npmjs.com/package/tough-cookie) or [request](https://www.npmjs.com/package/request) jar object (note that you can also access a spider's jar through `spider.jar`.
