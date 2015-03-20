@@ -2,7 +2,7 @@
  * Sandcrawler Stats Plugin
  * =========================
  *
- * Simple plugin computing basic statistics about the spide.
+ * Simple plugin computing basic statistics about the spider.
  */
 
 module.exports = function(opts) {
@@ -29,7 +29,10 @@ module.exports = function(opts) {
       totalTime: 0,
       averageTimePerJob: 0,
       getRemainingTimeEstimation: function() {
-        return Math.round((stats.queued + stats.doing) * stats.averageTimePerJob);
+        return Math.round(
+          ((stats.queued + stats.doing) * stats.averageTimePerJob) /
+          spider.options.concurrency
+        );
       },
       getElapsedTime: function() {
         return process.hrtime()[0] - stats.startTime;
