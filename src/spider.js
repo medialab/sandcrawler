@@ -94,7 +94,7 @@ function Spider(name, engine) {
           // Binding retry functions
           job.req.retry = retryJob.bind(self, job);
           job.req.retryLater = job.req.retry;
-          job.req.retryNow = retryJob.bind(self, job, 'later');
+          job.req.retryNow = retryJob.bind(self, job, 'now');
 
           // Updating remains
           self.remains[job.id] = {
