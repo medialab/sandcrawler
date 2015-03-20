@@ -45,6 +45,22 @@ describe('When running a static spider', function() {
           done();
         });
     });
+
+    it('should be possible to get json or non-HTML pages.', function(done) {
+      var count = 0;
+
+      sandcrawler.spider()
+        .url('http://localhost:7337/json')
+        .result(function(err, req, res) {
+          assert.deepEqual(res.body, {hello: 'world'});
+          count++;
+        })
+        .run(function(err, remains) {
+          assert(err === null);
+          assert(count === 1);
+          done();
+        });
+    });
   });
 
   describe('Page customization', function(done) {

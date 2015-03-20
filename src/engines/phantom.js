@@ -264,15 +264,6 @@ function PhantomEngine(spider) {
           return req.call === call;
         });
 
-        // Populating response
-        if (response.headers) {
-          var headers = {};
-          response.headers.forEach(function(h) {
-            headers[h.name.toLowerCase()] = h.value;
-          });
-          response.headers = headers;
-        }
-
         // Setting job's response
         job.res = _.pick(response, [
           'body',

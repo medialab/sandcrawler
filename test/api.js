@@ -104,6 +104,12 @@ app.get('/check-cookie', function(req, res) {
     return res.ok();
 });
 
+app.get('/json', function(req, res) {
+  return res.json({
+    hello: 'world'
+  });
+});
+
 if (require.main === module)
   app.listen(7337);
 

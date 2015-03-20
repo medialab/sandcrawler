@@ -155,12 +155,28 @@ module.exports = function(parent, params) {
      * Helpers
      */
 
+    // Get correct page content
+    function getContent() {
+      var h = pageInformation.response.headers || {};
+      if (/json/.test(h['content-type'])) {
+        try {
+          return JSON.parse(page.plainText);
+        }
+        catch (e) {
+          return page.content;
+        }
+      }
+      else {
+        return page.content;
+      }
+    }
+
     // Wrapping response helper
     function wrapFailure(reason) {
       var res = {
         fail: true,
         url: page.url,
-        body: page.content,
+        body: getContent(),
         headers: pageInformation.response.headers,
         status: pageInformation.response.status
       };
@@ -178,7 +194,7 @@ module.exports = function(parent, params) {
     function wrapSuccess(result) {
       return {
         url: page.url,
-        body: page.content,
+        body: getContent(),
         headers: pageInformation.response.headers,
         status: pageInformation.response.status,
         error: result.error ? helpers.serializeError(result.error) : null,
@@ -206,10 +222,21 @@ module.exports = function(parent, params) {
 
     // On resource received
     page.onResourceReceived = function(response) {
+
+      // Is the resource matching the page's url?
       if (pageInformation.isOpened || response.url !== order.url)
         return;
 
-      // Is the resource matching the page's url?
+
+      // Formatting headers
+      if (response.headers) {
+        var headers = {};
+        response.headers.forEach(function(h) {
+          headers[h.name.toLowerCase()] = h.value;
+        });
+        response.headers = headers;
+      }
+
       pageInformation.response = response;
     };
 
@@ -257,6 +284,10 @@ module.exports = function(parent, params) {
 
       // Injecting necessary javascript
       injectArtoo();
+
+      // If no scraper was supplied
+      if (!order.script)
+        return parent.replyTo(callId, wrapSuccess({data: null}));
 
       // Evaluating scraper
       if (order.synchronousScript) {

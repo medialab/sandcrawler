@@ -103,6 +103,15 @@ function StaticEngine(spider) {
         return callback(error);
       }
 
+      // JSON?
+      if (/json/.test(job.res.headers['content-type'])) {
+        try {
+          job.res.body = JSON.parse(job.res.body);
+          return callback(null, job);
+        }
+        catch (e) {}
+      }
+
       // Parsing
       if (spider.scraperScript) {
         var $ = cheerio.load(job.res.body, job.cheerio || spider.options.cheerio || {});
@@ -115,7 +124,7 @@ function StaticEngine(spider) {
             return callback(e);
           }
 
-          return callback(null, job.res.data);
+          return callback(null, job);
         }
         else {
           try {

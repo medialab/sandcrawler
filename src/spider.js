@@ -293,10 +293,6 @@ Spider.prototype._start = function(callback) {
 
   callback = callback || Function.prototype;
 
-  // Safeguard
-  if (!this.scraperScript)
-    throw Error('sandcrawler.spider.start: no scraper was provided to this spider.');
-
   // Emitting
   this.state.running = true;
   this.emit('spider:start');

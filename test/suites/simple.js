@@ -66,6 +66,24 @@ describe('When running fairly simple spiders', function() {
         done();
       });
     });
+
+    it('should be possible to get json/non-HTML pages.', function(done) {
+      var count = 0;
+
+      var spider = sandcrawler.phantomSpider()
+        .url('http://localhost:7337/json')
+        .result(function(err, req, res) {
+
+          assert.deepEqual(res.body, {hello: 'world'});
+          count++;
+        })
+
+      phantom.run(spider, function(err, remains) {
+        assert(err === null);
+        assert(count === 1);
+        done();
+      });
+    });
   });
 
   describe('Event subscription', function() {
