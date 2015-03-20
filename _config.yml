@@ -28,8 +28,6 @@ sidebar:
     title: 'Phantom Spider'
   - url: 'phantom_artoo'
     title: 'Phantom Artoo'
-  - url: 'spawn'
-    title: 'Spawning phantoms'
   - url: 'lifecycle'
     title: 'Lifecycle'
   - url: 'plugins'

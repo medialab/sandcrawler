@@ -17,6 +17,7 @@ Note however that if what you want is to understand the basics of the library's 
 ---
 
 * [Creating a phantom spider](#creating)
+* [Spawning a custom phantom](#spawn)
 * [Running a phantom spider](#running)
 * [On the concept of jawascript](#jawascript)
 * [Scraping environment](#environment)
@@ -43,13 +44,55 @@ Note that in most cases you won't have anything else to change to switch from a 
 
 ---
 
+<h2 id="spawn">Spawning a custom phantom</h2>
+
+Need to spawn a custom phantomjs process to handle your scraping job because **sandcrawler**'s defaults don't suit you?
+
+```js
+sandcrawler.spawn(opts, callback);
+```
+
+*Options*
+
+* **args** *?object*: camel-cased command line [arguments](http://phantomjs.org/api/command-line.html).
+* **handshakeTimeout** *?integer* [`5000`]: time allowed in milliseconds to perform the handshake with the phantom child.
+* **name** *?string*: an optional name to give to the phantom child.
+* **path** *?string*: path of a custom `phantomjs` binary.
+
+*Callback*
+
+* **err**: an error that occurred while spawning the phantom.
+* **phantom**: the phantom object.
+
+*Example*
+
+```js
+sandcrawler.spawn(
+  {
+    path: '/opt/phantomjs-2.0.0/bin/phantomjs',
+    args: {
+      webSecurity: false
+    }
+  },
+  function(err, phantom) {
+    if (err) {
+      // Handle error
+    }
+
+    phantom.run(spider);
+  }
+);
+```
+
+---
+
 <h2 id="running">Running a phantom spider</h2>
 
 Phantom spiders can be run the same way as the static ones.
 
 By default, **sandcrawler** will spawn a phantomjs child for you, use it to perform your scraping tasks, and close it automatically when the work is done.
 
-If you need a precise phantomjs child to run your spiders and need a custom configuration etc., you'll need to spawn it manually ([this]({{ site.baseurl }}/spawn) page explains how you can do that).
+If you need a precise phantomjs child to run your spiders and need a custom configuration etc., you'll need to [spawn](#spawn) it manually.
 
 ```js
 // The following will spawn a default phantomjs automatically for you:
