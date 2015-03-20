@@ -255,7 +255,7 @@ spider.iterate(fn);
 
 The given function will be passed the following arguments:
 
-* **i** *integer*: index of the last job.
+* **i** *integer*: index of the current job.
 * **req** *object*: last job request.
 * **res** *object*: last job's response.
 
