@@ -105,7 +105,7 @@ function StaticEngine(spider) {
 
       // Parsing
       if (spider.scraperScript) {
-        var $ = cheerio.load(job.res.body);
+        var $ = cheerio.load(job.res.body, job.cheerio || spider.options.cheerio || {});
 
         if (spider.synchronousScraperScript) {
           try {

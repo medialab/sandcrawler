@@ -208,6 +208,7 @@ function createJob(feed) {
     'artoo',
     'body',
     'bodyType',
+    'cheerio',
     'cookies',
     'headers',
     'method',

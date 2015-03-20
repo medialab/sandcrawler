@@ -11,6 +11,7 @@
     "autoRetry": false,
     "body": false,
     "bodyType": "form",
+    "cheerio": null,
     "concurrency": 1,
     "cookies": null,
     "headers": false,

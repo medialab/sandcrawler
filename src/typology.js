@@ -22,6 +22,7 @@ t.add('config', {
   autoRetry: '?boolean|string',
   body: '?string|object',
   bodyType: '?string',
+  cheerio: '?object',
   concurrency: '?number',
   cookies: '?array',
   data: '?object',
