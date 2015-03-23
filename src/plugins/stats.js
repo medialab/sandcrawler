@@ -5,6 +5,10 @@
  * Simple plugin computing basic statistics about the spider.
  */
 
+function processTime() {
+  return parseFloat(process.hrtime()[0] + "." + process.hrtime()[1]);
+};
+
 module.exports = function(opts) {
 
   return function(spider) {
@@ -35,7 +39,7 @@ module.exports = function(opts) {
         );
       },
       getElapsedTime: function() {
-        return process.hrtime()[0] - stats.startTime;
+        return processTime() - stats.startTime;
       },
 
       // Error index
@@ -55,7 +59,7 @@ module.exports = function(opts) {
 
     // Adding listeners
     spider.once('spider:start', function() {
-      stats.startTime = process.hrtime()[0];
+      stats.startTime = processTime();
       stats.queued = spider.initialBuffer.length;
       stats.total = stats.queued;
     });
@@ -75,7 +79,7 @@ module.exports = function(opts) {
       stats.queued--;
       stats.doing++;
 
-      job.time.start = process.hrtime()[0];
+      job.time.start = processTime();
     });
 
     spider.on('job:retry', function(job) {
@@ -104,7 +108,7 @@ module.exports = function(opts) {
       updateSuccessRate();
 
       // Timing
-      job.time.end = process.hrtime()[0];
+      job.time.end = processTime();
 
       var jobElapsedTime = job.time.end - job.time.start;
       stats.averageTimePerJob = Math.round(
