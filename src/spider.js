@@ -35,7 +35,7 @@ function Spider(name, engine) {
 
   // Assigning a unique identifer
   this.id = 'Spider[' + uuid.v4() + ']';
-  this.name = name || this.id.substr(0, 16) + ']';
+  this.name = name || this.id.substr(0, 15) + ']';
 
   // Properties
   this.options = extend(defaults);
