@@ -217,6 +217,7 @@ function createJob(feed) {
     'bodyType',
     'cheerio',
     'cookies',
+    'encoding',
     'headers',
     'method',
     'phantomPage',

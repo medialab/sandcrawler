@@ -655,6 +655,34 @@ describe('When running fairly simple spiders', function() {
       }, done);
     });
 
+    // it('should be possible to indicate source encoding.', function(done) {
+
+    //   async.series({
+    //     config: function(next) {
+    //       var spider = sandcrawler.phantomSpider()
+    //         .url('http://localhost:7337/resources/iso.html')
+    //         .config({encoding: 'iso-8859-1'})
+    //         .scraper(require('../resources/scrapers/iso.js'))
+    //         .result(function(err, req, res) {
+    //           console.log(res.headers)
+    //           assert.deepEqual(res.data, samples.iso);
+    //         });
+
+    //       phantom.run(spider, next);
+    //     },
+    //     feed: function(next) {
+    //       var spider = sandcrawler.phantomSpider()
+    //         .url({url: 'http://localhost:7337/resources/iso.html', encoding: 'iso-8859-1'})
+    //         .scraper(require('../resources/scrapers/iso.js'))
+    //         .result(function(err, req, res) {
+    //           assert.deepEqual(res.data, samples.iso);
+    //         });
+
+    //       phantom.run(spider, next);
+    //     }
+    //   }, done);
+    // });
+
     it('should be possible to change phantom page\'s settings.', function(done) {
 
       async.series({

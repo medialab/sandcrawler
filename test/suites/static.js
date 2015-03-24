@@ -274,6 +274,33 @@ describe('When running a static spider', function() {
         }
       }, done);
     });
+
+    it('should be possible to indicate source encoding.', function(done) {
+
+      async.series({
+        config: function(next) {
+          var spider = sandcrawler.spider()
+            .url('http://localhost:7337/resources/iso.html')
+            .config({encoding: 'iso-8859-1'})
+            .scraper(require('../resources/scrapers/iso.js'))
+            .result(function(err, req, res) {
+              assert.deepEqual(res.data, samples.iso);
+            });
+
+          sandcrawler.run(spider, next);
+        },
+        feed: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/resources/iso.html', encoding: 'iso-8859-1'})
+            .scraper(require('../resources/scrapers/iso.js'))
+            .result(function(err, req, res) {
+              assert.deepEqual(res.data, samples.iso);
+            });
+
+          sandcrawler.run(spider, next);
+        }
+      }, done);
+    });
   });
 
   describe('Cookies', function() {

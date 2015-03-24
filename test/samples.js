@@ -11,5 +11,10 @@ module.exports = {
     'http://awesomesite.com',
     'http://prettysite.com',
     'http://unknownsite.com'
+  ],
+  iso: [
+    'Eléphant',
+    'Crève',
+    'Fenêtre'
   ]
 };

@@ -7,6 +7,7 @@
 var request = require('request'),
     artoo = require('artoo-js'),
     cheerio = require('cheerio'),
+    iconv = require('iconv-lite'),
     extend = require('../helpers.js').extend,
     Cookie = require('tough-cookie').Cookie;
 
@@ -32,6 +33,7 @@ function StaticEngine(spider) {
 
     // Request settings
     var settings = {
+      encoding: null,
       headers: extend(job.req.headers, spider.options.headers),
       method: job.req.method || spider.options.method,
       proxy: job.req.proxy || spider.options.proxy,
@@ -88,6 +90,18 @@ function StaticEngine(spider) {
         if (~err.message.search(/getaddrinfo/))
           return callback(new Error('host-not-found'));
         return callback(err);
+      }
+
+      // Handling encoding
+      var sourceEncoding = job.req.encoding || spider.options.encoding;
+
+      if (sourceEncoding) {
+        try {
+          body = iconv.decode(new Buffer(body), sourceEncoding);
+        }
+        catch (e) {
+          return callback(new Error('encoding-error'));
+        }
       }
 
       // Overloading
