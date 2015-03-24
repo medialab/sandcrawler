@@ -27,15 +27,22 @@ var EventEmitter = require('events').EventEmitter,
 /**
  * Main
  */
-function Spider(name, engine) {
+function Spider(opts, engine) {
   var self = this;
+
+  // Handling options
+  opts = opts || {};
+
+  if (!types.check(opts, 'object'))
+    opts = {name: opts};
 
   // Events
   EventEmitter.call(this);
 
   // Assigning a unique identifer
   this.id = 'Spider[' + uuid.v4() + ']';
-  this.name = name || this.id.substr(0, 15) + ']';
+  this.name = opts.name || this.id.substr(0, 15) + ']';
+  this.denominator = 'spider';
 
   // Properties
   this.options = extend(defaults);

@@ -24,8 +24,14 @@ function capitalize(str) {
 }
 
 function buildAlias(target, name, prefix) {
-  sandcrawler[prefix ? prefix + capitalize(name) : name] = target;
-  sandcrawler[prefix ? capitalize(prefix) + capitalize(name) : capitalize(name)] = target;
+  var fn = function() {
+    var spider = target.apply(null, arguments);
+    spider.denominator = name;
+    return spider;
+  };
+
+  sandcrawler[prefix ? prefix + capitalize(name) : name] = fn;
+  sandcrawler[prefix ? capitalize(prefix) + capitalize(name) : capitalize(name)] = fn;
 }
 
 // Public declarations

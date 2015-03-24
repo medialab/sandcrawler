@@ -24,6 +24,16 @@ describe('When using sandcrawler API', function() {
   });
 
   describe('Spider level', function() {
+    it('should work with custom denominators.', function() {
+      var spider = sandcrawler.spider(),
+          droid = sandcrawler.droid(),
+          jawa = sandcrawler.jawa();
+
+      assert.strictEqual(spider.denominator, 'spider');
+      assert.strictEqual(droid.denominator, 'droid');
+      assert.strictEqual(jawa.denominator, 'jawa');
+    });
+
     it('should warn the user when his/her script is probably not returning control.', function() {
 
       assert.throws(function() {
