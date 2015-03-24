@@ -9,6 +9,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     auth = require('basic-auth'),
+    fs = require('fs'),
     app = express();
 
 // Helpers
@@ -108,6 +109,13 @@ app.get('/json', function(req, res) {
   return res.json({
     hello: 'world'
   });
+});
+
+app.get('/iso', function(req, res) {
+  var buffer = fs.readFileSync(__dirname + '/resources/iso.html');
+
+  res.set('Content-Type', 'text/html; charset=ISO-8859-1');
+  return res.end(buffer, 'iso-8859-1');
 });
 
 if (require.main === module)
