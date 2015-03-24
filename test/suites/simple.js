@@ -50,6 +50,33 @@ describe('When running fairly simple spiders', function() {
       });
     });
 
+    it('should be possible to use a result variant using both a callback and an errback.', function(done) {
+      var count = 0;
+
+      var spider = sandcrawler.phantomSpider()
+        .urls([
+          'http://localhost:7337/resources/basic.html',
+          'http://localhost:7337/resources/404.html'
+        ])
+        .scraper(require('../resources/scrapers/basic.js'))
+        .result(
+          function(req, res) {
+            assert.deepEqual(res.data, samples.basic);
+            count++;
+          },
+          function(err) {
+            assert.strictEqual(err.message, 'status-404');
+            count++;
+          }
+        );
+
+      sandcrawler.run(spider, function(err) {
+        assert(err === null);
+        assert(count === 2);
+        done();
+      });
+    });
+
     it('should be possible to use a synchronous scraper.', function(done) {
       var spider = sandcrawler.phantomSpider()
         .url('http://localhost:7337/resources/basic.html')
@@ -76,7 +103,7 @@ describe('When running fairly simple spiders', function() {
 
           assert.deepEqual(res.body, {hello: 'world'});
           count++;
-        })
+        });
 
       phantom.run(spider, function(err, remains) {
         assert(err === null);

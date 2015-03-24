@@ -481,17 +481,32 @@ Spider.prototype.scraperSync = function(fn, check) {
 };
 
 // Computing results of a job
-Spider.prototype.result = function(fn) {
+Spider.prototype.result = function(fn1, fn2) {
+  var callback, errback;
 
-  if (typeof fn !== 'function')
+  if (arguments.length > 1) {
+    callback = fn1;
+    errback = fn2;
+  }
+  else {
+    callback = fn1;
+  }
+
+  if (typeof callback !== 'function' || (errback && typeof errback !== 'function'))
     throw Error('sandcrawler.spider.result: given argument is not a function.');
 
-  this.on('job:fail', function(err, job) {
-    fn.call(this, err, job.req, job.res);
+  this.on('job:success', function(job) {
+    if (errback)
+      callback.call(this, job.req, job.res);
+    else
+      callback.call(this, null, job.req, job.res);
   });
 
-  this.on('job:success', function(job) {
-    fn.call(this, null, job.req, job.res);
+  this.on('job:fail', function(err, job) {
+    if (errback)
+      errback.call(this, err, job.req, job.res);
+    else
+      callback.call(this, err, job.req, job.res);
   });
 
   return this;

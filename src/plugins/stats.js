@@ -7,7 +7,7 @@
 
 function processTime() {
   return parseFloat(process.hrtime()[0] + "." + process.hrtime()[1]);
-};
+}
 
 module.exports = function(opts) {
 
@@ -111,7 +111,7 @@ module.exports = function(opts) {
       job.time.end = processTime();
 
       var jobElapsedTime = job.time.end - job.time.start;
-      stats.averageTimePerJob = 
+      stats.averageTimePerJob =
         ((stats.done - 1) * stats.averageTimePerJob + jobElapsedTime) /
         stats.done;
     });
