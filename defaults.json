@@ -14,6 +14,7 @@
     "cheerio": null,
     "concurrency": 1,
     "cookies": null,
+    "encoding": "utf-8",
     "headers": false,
     "jar": false,
     "limit": false,

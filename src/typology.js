@@ -26,6 +26,7 @@ t.add('config', {
   concurrency: '?number',
   cookies: '?array',
   data: '?object',
+  encoding: '?string',
   headers: '?object',
   jar: '?boolean|object|string',
   limit: '?number',
