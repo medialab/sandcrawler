@@ -154,12 +154,13 @@ This method can be used to add a single job to your spider's queue.
 A job, in its most simple definition, is a mere url but can be described by an object to inform the spider you need finer parameters.
 
 ```js
-spider.url(feed);
+spider.url(feed [, when]);
 ```
 
 *Arguments*
 
-* **feed** *string|object* : either a string representing the url you need to hit, or a descriptive object containing the possible keys listed below:
+* **feed** *string|object*: either a string representing the url you need to hit, or a descriptive object containing the possible keys listed below.
+* **when** *?string* [`'later'`]: `later` or `now` to control where on the stack we should add the job.
 
 *Job descriptive object*:
 
@@ -210,7 +211,7 @@ spider.url({
 Same as `spider.url` except you can pass an array of jobs.
 
 ```js
-spider.urls(feeds);
+spider.urls(feeds [, when]);
 ```
 
 *Examples*
