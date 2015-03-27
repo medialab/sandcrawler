@@ -86,13 +86,13 @@ Spawn.prototype.run = function(spider, callback) {
   this.spiders.push(spider.id);
 
   // Running given spider
-  spider.run(this.spy, function(err, remains) {
+  spider.engine.phantom = this.spy;
+  spider._start(function(err, remains) {
 
     // Removing spiders from list
     _.pullAt(self.spiders, self.spiders.indexOf(spider.id));
 
     // Autoclosing the spawn?
-    // console.log(self.params, self.spiders)
     if (self.params.autoClose && !self.spiders.length)
       self.close();
 
@@ -109,7 +109,7 @@ Spawn.prototype.run = function(spider, callback) {
 /**
  * Exporting
  */
-module.exports = function(p, callback) {
+function fn(p, callback) {
 
   // Handling polymorphism
   if (typeof p === 'function') {
@@ -145,4 +145,7 @@ module.exports = function(p, callback) {
 
     callback(null, spawn);
   });
-};
+}
+
+fn.abstract = Spawn;
+module.exports = fn;

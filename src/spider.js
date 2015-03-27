@@ -450,7 +450,7 @@ function addUrl(when, feed) {
   }
 
   return this;
-};
+}
 
 // Aliases
 Spider.prototype.url = function(feed, when) {

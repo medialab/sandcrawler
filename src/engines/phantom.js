@@ -13,6 +13,7 @@ var extend = require('../helpers.js').extend,
     helpers = require('../helpers.js'),
     qs = require('querystring'),
     Cookie = require('tough-cookie').Cookie,
+    Spawn = require('../spawn.js').abstract,
     nodeUrl = require('url'),
     _ = require('lodash');
 
@@ -56,20 +57,23 @@ function PhantomEngine(spider) {
       phantom = null;
     }
 
-    if (phantom) {
-      if (!types.check(phantom, 'object'))
-        throw Error('sandcrawler.spider.engines.phantom: trying to run spider with a non-phantom.');
+    if (phantom instanceof Spawn) {
+      return phantom.run(spider, callback);
+    }
+    else if (types.check(phantom, 'object')) {
+      return spawn(phantom, function(err, defaultSpawn) {
+        if (err)
+          return callback(err);
 
-      self.phantom = phantom;
-      return spider._start(callback);
+        defaultSpawn.run(spider, callback);
+      });
     }
     else {
       return spawn(function(err, defaultSpawn) {
         if (err)
           return callback(err);
 
-        self.phantom = defaultSpawn.spy;
-        spider._start(callback);
+        defaultSpawn.run(spider, callback);
       });
     }
   };
