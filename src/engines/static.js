@@ -132,7 +132,7 @@ function StaticEngine(spider) {
 
         if (spider.synchronousScraperScript) {
           try {
-            job.res.data = spider.scraperScript.call(spider, $);
+            job.res.data = spider.scraperScript.call(spider, $, job);
           }
           catch (e) {
             return callback(e);
@@ -145,7 +145,7 @@ function StaticEngine(spider) {
             spider.scraperScript.call(spider, $, function(err, data) {
               job.res.data = data;
               return callback(err, data);
-            });
+            }, job);
           }
           catch (e) {
             return callback(e);

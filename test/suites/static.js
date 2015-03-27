@@ -61,6 +61,21 @@ describe('When running a static spider', function() {
           done();
         });
     });
+
+    it('should be possible to access the context.', function(done) {
+      var spider = sandcrawler.spider()
+        .url('http://localhost:7337/resources/basic.html')
+        .scraper(function($, done, job) {
+          assert.strictEqual(job.req.url, 'http://localhost:7337/resources/basic.html');
+          return done(null, $('.url-list a').scrape('href'));
+        })
+        .result(function(err, req, res) {
+          assert(err === null);
+          assert.deepEqual(res.data, samples.basic);
+        });
+
+      sandcrawler.run(spider, done);
+    });
   });
 
   describe('Page customization', function(done) {
