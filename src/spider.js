@@ -422,9 +422,8 @@ Spider.prototype._teardown = function() {
   this.removeAllListeners();
 };
 
-// Adding a new url during runtime
-Spider.prototype.url = function(feed) {
-
+// Feeding the spider
+function addUrl(when, feed) {
   if (!types.check(feed, 'feed') && !types.check(feed, ['feed']))
     throw Error('sandcrawler.spider.url(s): wrong argument.');
 
@@ -442,10 +441,10 @@ Spider.prototype.url = function(feed) {
       break;
 
     if (!this.state.running) {
-      this.initialBuffer.push(job);
+      this.initialBuffer[when === 'later' ? 'push' : 'unshift'](job);
     }
     else {
-      this.queue.push(job);
+      this.queue[when === 'later' ? 'push' : 'unshift'](job);
       this.emit('job:add', job);
     }
   }
@@ -454,6 +453,10 @@ Spider.prototype.url = function(feed) {
 };
 
 // Aliases
+Spider.prototype.url = function(feed, when) {
+  return addUrl.bind(this, when || 'later')(feed);
+};
+
 Spider.prototype.urls = Spider.prototype.url;
 Spider.prototype.addUrl = Spider.prototype.url;
 Spider.prototype.addUrls = Spider.prototype.url;
