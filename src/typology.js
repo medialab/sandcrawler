@@ -33,7 +33,7 @@ t.add('config', {
   maxRetries: '?number',
   method: '?string',
   phantomPage: '?object',
-  proxy: '?string',
+  proxy: '?string|object',
   timeout: '?number',
   url: '?string|object'
 });

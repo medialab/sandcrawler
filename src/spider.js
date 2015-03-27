@@ -224,8 +224,14 @@ function createJob(feed) {
     'proxy',
     'timeout'
   ].forEach(function(p) {
-    if (feed[p])
+    if (feed[p]) {
+
+      // Solving object proxy
+      if (p === 'proxy' && types.check(feed[p], 'object'))
+        job.req[p] = nodeUrl.format(extend(feed[p], {protocol: 'http'}));
+
       job.req[p] = feed[p];
+    }
   });
 
   return job;
