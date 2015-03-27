@@ -172,7 +172,7 @@ spider.url(feed);
 * **data** *?mixed*: any arbitrary data, usually an object, you would need to attach to your job and pass along the spider for later user (a database id for instance).
 * **headers** *?object*: object of custom headers to send with the request.
 * **method** *?string* [`'GET'`]: http method to use.
-* **proxy** *?string*: a proxy for the request.
+* **proxy** *?string|object*: a proxy for the request.
 * **timeout** *?integer* [`5000`]: time in milliseconds to perform the job before triggering a timeout.
 
 *Examples*
@@ -520,7 +520,7 @@ spider.config(object);
 * **limit** *?integer*: max number of jobs to perform.
 * **maxRetries** *?integer*  [`3`]: max number of times one can retry a job.
 * **method** *?string* [`'GET'`]: http method to use.
-* **proxy** *?string*: a proxy to use for the requests.
+* **proxy** *?string|object*: a proxy to use for the requests.
 * **timeout** *?integer* [`5000`]: time in milliseconds to perform the jobs before triggering a timeout.
 
 *Example*
