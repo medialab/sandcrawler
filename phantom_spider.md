@@ -55,6 +55,7 @@ sandcrawler.spawn(opts, callback);
 *Options*
 
 * **args** *?object*: camel-cased command line [arguments](http://phantomjs.org/api/command-line.html).
+* **autoClose** *?boolean* [`true`]: should the phantom child exits on its own when every spider given to it has completed?
 * **handshakeTimeout** *?integer* [`5000`]: time allowed in milliseconds to perform the handshake with the phantom child.
 * **name** *?string*: an optional name to give to the phantom child.
 * **path** *?string*: path of a custom `phantomjs` binary.
