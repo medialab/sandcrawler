@@ -23,6 +23,8 @@ module.exports = function(opts) {
       queued: 0,
       failures: 0,
       successes: 0,
+      retries: 0,
+      discards: 0,
 
       // Completion
       completion: 0,
@@ -82,7 +84,18 @@ module.exports = function(opts) {
       job.time.start = processTime();
     });
 
+    spider.on('job:discard', function(err, job) {
+      stats.discards++;
+      stats.doing--;
+      stats.total--;
+
+      job.time.end = processTime();
+
+      updateCompletion();
+    });
+
     spider.on('job:retry', function(job) {
+      stats.retries++;
       stats.queued++;
       stats.doing--;
 
