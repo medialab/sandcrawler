@@ -92,23 +92,47 @@ function StaticEngine(spider) {
         return callback(err);
       }
 
-      // Handling encoding
-      var sourceEncoding = job.req.encoding || spider.options.encoding;
-
-      if (sourceEncoding) {
-        try {
-          body = iconv.decode(new Buffer(body), sourceEncoding);
-        }
-        catch (e) {
-          return callback(new Error('encoding-error'));
-        }
-      }
-
       // Overloading
       job.res.url = response.request.href;
       job.res.body = body;
       job.res.status = response.statusCode;
       job.res.headers = response.caseless.dict;
+
+      // Assessing some things
+      var json = /json/.test(job.res.headers['content-type']);
+
+      // Handling encoding
+      var sourceEncoding = job.req.encoding || spider.options.encoding;
+
+      if (sourceEncoding === false) {
+
+        // Applying some heuristics
+
+        //-- 1) Content type header
+        var contentType = job.res.headers['content-type'];
+
+        if (contentType)
+          sourceEncoding = contentType.split('charset=')[1] || false;
+
+        //-- 2) HTTP equivalent or meta charset
+        if (!sourceEncoding && !json) {
+          var m = body.match(/<meta.*?charset=([^"']+)/);
+          sourceEncoding = m && m[1];
+        }
+
+        // Fallback
+        if (!sourceEncoding)
+          sourceEncoding = 'utf-8';
+      }
+
+      if (sourceEncoding) {
+        try {
+          job.res.body = iconv.decode(new Buffer(body), sourceEncoding);
+        }
+        catch (e) {
+          return callback(new Error('encoding-error'));
+        }
+      }
 
       // Status error
       if (response.statusCode >= 400) {
@@ -118,7 +142,7 @@ function StaticEngine(spider) {
       }
 
       // JSON?
-      if (/json/.test(job.res.headers['content-type'])) {
+      if (json) {
         try {
           job.res.body = JSON.parse(job.res.body);
           return callback(null, job);
@@ -128,7 +152,10 @@ function StaticEngine(spider) {
 
       // Parsing
       if (spider.scraperScript) {
-        var $ = cheerio.load(job.res.body, job.cheerio || spider.options.cheerio || {});
+        var $ = cheerio.load(
+          job.res.body,
+          job.cheerio || spider.options.cheerio || {}
+        );
 
         if (spider.synchronousScraperScript) {
           try {

@@ -22,6 +22,7 @@ function createMinimalSpider() {
 }
 
 describe('When running fairly complex spiders', function() {
+  this.timeout(3000);
 
   before(function(done) {
 

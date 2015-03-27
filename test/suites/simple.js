@@ -13,6 +13,7 @@ var assert = require('assert'),
 var phantom;
 
 describe('When running fairly simple spiders', function() {
+  this.timeout(3000);
 
   before(function(done) {
 

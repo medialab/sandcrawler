@@ -313,6 +313,16 @@ describe('When running a static spider', function() {
             });
 
           sandcrawler.run(spider, next);
+        },
+        guess: function(next) {
+          var spider = sandcrawler.spider()
+            .url({url: 'http://localhost:7337/iso'})
+            .scraper(require('../resources/scrapers/iso.js'))
+            .result(function(err, req, res) {
+              assert.deepEqual(res.data, samples.iso);
+            });
+
+          sandcrawler.run(spider, next);
         }
       }, done);
     });
