@@ -15,7 +15,7 @@ var sandcrawler = core;
 
 // Non writable properties
 Object.defineProperty(sandcrawler, 'version', {
-  value: '0.0.2'
+  value: '0.1.0-rc1'
 });
 
 // Helpers

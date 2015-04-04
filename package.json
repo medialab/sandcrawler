@@ -1,6 +1,6 @@
 {
   "name": "sandcrawler",
-  "version": "0.0.2",
+  "version": "0.1.0-rc1",
   "description": "The server-side scraping companion.",
   "main": "index.js",
   "scripts": {
