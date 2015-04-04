@@ -203,7 +203,7 @@ function createJob(feed) {
         job.req.url = nodeUrl.format(extend(feed.url, {protocol: 'http'}));
       else
         job.req.url = feed.url;
-    else
+    else if (feed.host || feed.hostname)
       job.req.url = nodeUrl.format(extend(feed, {protocol: 'http'}));
   }
 
