@@ -17,6 +17,10 @@ id: home
 
 ---
 
+**Disclaimer**: this library is an UNRELEASED work in progress.
+
+---
+
 **sandcrawler.js** is a nodejs/iojs library aiming at providing developers with concise but exhaustive tools to scrape the web.
 
 ---
