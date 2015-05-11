@@ -64,7 +64,7 @@ var spider = sandcrawler.spider()
 You can install the latest version of **sandcrawler.js** with npm (note that it will install phantomjs for you thanks to this [package](https://www.npmjs.com/package/phantomjs)):
 
 ```bash
-npm install sandcrawler
+npm install sandcrawler@beta
 ```
 
 You can also install the latest development version thusly:
