@@ -3239,6 +3239,8 @@
   // TODO: handle different contexts
   // TODO: better header handle
   artoo.scrapeTable = function(root, params, cb) {
+    var $ = artoo.$;
+    
     params = params || {};
 
     var sel = typeof root !== 'string' ? root.selector : root,
